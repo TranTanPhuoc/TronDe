@@ -73,22 +73,35 @@ body {
   display: none;
 }
 
-/* Print optimizations for A4 format */
+/* Print optimizations for A4 format - Only print the exam paper */
 @media print {
   @page {
     size: A4 portrait;
     margin: 15mm 15mm 15mm 15mm;
   }
 
-  body {
+  html, body {
     background: #ffffff !important;
     color: #000000 !important;
-    font-size: 11pt !important;
+    font-family: "Times New Roman", Times, serif !important;
+    font-size: 13pt !important;
     line-height: 1.4 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
-  .no-print {
+  .no-print,
+  header,
+  footer,
+  nav {
     display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
   }
 
   .print-page-break {

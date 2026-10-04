@@ -23,6 +23,7 @@ import {
   Copy,
   CheckCircle2,
   FileText,
+  FileDown,
   TableProperties,
   BookOpen,
   Layers,
@@ -309,6 +310,176 @@ export default function Home() {
     navigator.clipboard.writeText(text);
     setCopiedExam(true);
     setTimeout(() => setCopiedExam(false), 2000);
+  };
+
+  // Export current exam variant to Microsoft Word (.doc) with A4 format, Times New Roman 13pt
+  const handleExportWord = () => {
+    const current = generatedExams[selectedVariantIndex];
+    if (!current) {
+      showToast("Không tìm thấy mã đề thi để xuất!");
+      return;
+    }
+
+    const escapeHtml = (text: string) => {
+      return (text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    };
+
+    const formattedQuestionsHtml = current.questions
+      .map((q, idx) => {
+        const questionTextEscaped = escapeHtml(q.questionText);
+        const optionsHtml = escapeHtml(q.contentText)
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map(
+            (line) =>
+              `<p style="margin: 2pt 0 2pt 18pt; line-height: 1.35; font-family: 'Times New Roman', Times, serif; font-size: 13pt;">${line}</p>`
+          )
+          .join("");
+
+        return `
+          <div style="margin-bottom: 12pt; page-break-inside: avoid;">
+            <p style="margin: 4pt 0; font-family: 'Times New Roman', Times, serif; font-size: 13pt; line-height: 1.35;">
+              <strong>Câu ${idx + 1}:</strong> ${questionTextEscaped}
+            </p>
+            ${optionsHtml}
+          </div>
+        `;
+      })
+      .join("");
+
+    const wordContent = `
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+  <meta charset='utf-8'>
+  <title>${escapeHtml(examTitle)} - Mã đề ${current.code}</title>
+  <!--[if gte mso 9]>
+  <xml>
+    <w:WordDocument>
+      <w:View>Print</w:View>
+      <w:Zoom>100</w:Zoom>
+      <w:DoNotOptimizeForBrowser/>
+    </w:WordDocument>
+  </xml>
+  <![endif]-->
+  <style>
+    @page Section1 {
+      size: 210mm 297mm;
+      margin: 20mm 20mm 20mm 20mm;
+      mso-header-margin: 10mm;
+      mso-footer-margin: 10mm;
+      mso-paper-source: 0;
+    }
+    div.Section1 {
+      page: Section1;
+    }
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13pt;
+      line-height: 1.35;
+      color: #000000;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13pt;
+    }
+    p {
+      margin: 0 0 4pt 0;
+      line-height: 1.35;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13pt;
+    }
+  </style>
+</head>
+<body>
+  <div class="Section1">
+    <!-- Header Table -->
+    <table style="width: 100%; margin-bottom: 12pt; border-bottom: 2pt solid #000; padding-bottom: 6pt;">
+      <tr>
+        <td style="width: 38%; text-align: center; vertical-align: top; padding: 2pt;">
+          <p style="font-weight: bold; text-transform: uppercase; font-size: 12pt; margin-bottom: 2pt;">${escapeHtml(schoolName)}</p>
+          <p style="font-size: 11pt; margin: 0;">TỔ BỘ MÔN CHUYÊN MÔN</p>
+          <div style="width: 80pt; height: 1pt; background-color: #000; margin: 3pt auto 0 auto;"></div>
+        </td>
+        <td style="width: 44%; text-align: center; vertical-align: top; padding: 2pt;">
+          <p style="font-weight: bold; text-transform: uppercase; font-size: 13pt; margin-bottom: 2pt;">${escapeHtml(examTitle)}</p>
+          <p style="font-weight: bold; font-size: 12pt; margin-bottom: 2pt;">${escapeHtml(subjectName)}</p>
+          <p style="font-style: italic; font-size: 11pt; margin: 0;">Thời gian làm bài: ${duration} phút (không kể phát đề)</p>
+        </td>
+        <td style="width: 18%; text-align: center; vertical-align: middle; padding: 2pt;">
+          <table style="width: 100%; border: 1.5pt solid #000; border-collapse: collapse; text-align: center;">
+            <tr>
+              <td style="padding: 2pt 4pt; font-size: 9pt; font-weight: bold; text-transform: uppercase; border-bottom: 1pt solid #000;">MÃ ĐỀ THI</td>
+            </tr>
+            <tr>
+              <td style="padding: 4pt 6pt; font-size: 15pt; font-weight: bold;">${current.code}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Student Info Box -->
+    <table style="width: 100%; border: 1pt solid #888; border-collapse: collapse; margin-bottom: 12pt;">
+      <tr>
+        <td style="width: 50%; padding: 4pt 6pt; font-size: 12pt; border: 1pt solid #ccc;">
+          <strong>Họ và tên thí sinh:</strong> ..............................................................
+        </td>
+        <td style="width: 50%; padding: 4pt 6pt; font-size: 12pt; border: 1pt solid #ccc;">
+          <strong>Lớp:</strong> .....................................................
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 4pt 6pt; font-size: 12pt; border: 1pt solid #ccc;">
+          <strong>Số báo danh:</strong> ....................................................................
+        </td>
+        <td style="padding: 4pt 6pt; font-size: 12pt; border: 1pt solid #ccc;">
+          <strong>Phòng thi số:</strong> ............................................
+        </td>
+      </tr>
+    </table>
+
+    <p style="text-align: center; font-style: italic; font-size: 11pt; margin-bottom: 14pt;">
+      (Đề thi gồm có ${current.questions.length} câu hỏi)
+    </p>
+
+    <!-- Question List -->
+    <div>
+      ${formattedQuestionsHtml}
+    </div>
+
+    <p style="text-align: center; font-size: 12pt; margin-top: 20pt; padding-top: 10pt; border-top: 1pt solid #ccc;">
+      --------------------------------- HẾT ---------------------------------
+    </p>
+  </div>
+</body>
+</html>
+    `;
+
+    const cleanSubject = subjectName.replace(/^MÔN:\s*/i, "").trim();
+    const safeFileName = `De_Thi_${cleanSubject || "Mon_Hoc"}_Ma_${current.code}.doc`
+      .replace(/[\/\\?%*:|"<>]/g, "_")
+      .replace(/\s+/g, "_");
+
+    const blob = new Blob(["\ufeff" + wordContent], {
+      type: "application/msword;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = safeFileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast(`Đã xuất đề thi mã ${current.code} sang file Word (.doc) thành công!`);
   };
 
   // CRUD handlers
@@ -973,99 +1144,126 @@ export default function Home() {
                       <span className="hidden sm:inline">{copiedExam ? "Đã sao chép!" : "Sao chép đề"}</span>
                       <span className="sm:hidden">{copiedExam ? "Đã chép" : "Chép"}</span>
                     </button>
+
+                    {/* Export directly to Word (.doc) with A4 format */}
+                    <button
+                      onClick={handleExportWord}
+                      className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-blue-200"
+                      title="Tự động xuất đề thi sang file Word (.doc) chuẩn khổ giấy A4"
+                    >
+                      <FileDown className="w-4 h-4" />
+                      <span>Xuất Word (.doc)</span>
+                    </button>
+
+                    {/* Print / Save PDF Button */}
                     <button
                       onClick={() => window.print()}
-                      className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-black rounded-lg transition-colors cursor-pointer shadow-xs"
+                      className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-xs"
+                      title="In trực tiếp ra máy in hoặc Lưu thành file PDF"
                     >
-                      <Printer className="w-3.5 h-3.5" />
-                      <span>In / PDF</span>
+                      <Printer className="w-3.5 h-3.5 text-slate-600" />
+                      <span className="hidden sm:inline">In / PDF</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Printable Exam Paper Container */}
-                <div className="bg-white border border-slate-300 rounded-2xl p-4 sm:p-8 lg:p-10 shadow-sm space-y-6 text-slate-900 print:border-none print:shadow-none print:p-0 w-full overflow-hidden">
+                {/* Printable Exam Paper Container - Times New Roman 13pt */}
+                <div
+                  className="bg-white border border-slate-300 rounded-2xl p-5 sm:p-10 lg:p-12 shadow-sm text-slate-900 print:border-none print:shadow-none print:p-0 w-full overflow-hidden"
+                  style={{
+                    fontFamily: "'Times New Roman', Times, serif",
+                    fontSize: "13pt",
+                    lineHeight: "1.4",
+                  }}
+                >
                   {/* Formal Exam Header */}
                   <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-start border-b-2 border-slate-900 pb-4 gap-3 sm:gap-4">
                     {/* School Box */}
-                    <div className="flex items-center justify-between sm:block sm:w-1/3 text-left sm:text-center font-bold text-xs space-y-0.5 sm:space-y-1">
+                    <div className="flex items-center justify-between sm:block sm:w-1/3 text-left sm:text-center font-bold space-y-0.5 sm:space-y-1">
                       <div>
-                        <p className="uppercase font-extrabold text-xs">{schoolName}</p>
-                        <p className="text-[11px] text-slate-600 font-normal">TỔ BỘ MÔN CHUYÊN MÔN</p>
+                        <p className="uppercase font-bold tracking-tight" style={{ fontSize: "12pt" }}>{schoolName}</p>
+                        <p className="font-normal text-slate-700" style={{ fontSize: "11pt" }}>TỔ BỘ MÔN CHUYÊN MÔN</p>
+                        <div className="hidden sm:block w-20 h-0.5 bg-slate-900 mx-auto mt-1"></div>
                       </div>
                       <div className="sm:hidden border-2 border-slate-900 rounded-lg px-2.5 py-1 text-center bg-indigo-50/50">
-                        <p className="text-[9px] font-bold text-slate-600 uppercase">Mã đề</p>
-                        <p className="text-base font-black text-indigo-700">{currentExam.code}</p>
+                        <p className="font-bold text-slate-600 uppercase" style={{ fontSize: "9pt" }}>Mã đề</p>
+                        <p className="font-bold text-indigo-700" style={{ fontSize: "14pt" }}>{currentExam.code}</p>
                       </div>
                     </div>
 
                     {/* Exam Title */}
                     <div className="text-center space-y-0.5 sm:space-y-1 flex-1">
-                      <h3 className="font-extrabold text-sm sm:text-base uppercase tracking-wide">
+                      <h3 className="font-bold uppercase tracking-wide" style={{ fontSize: "14pt" }}>
                         {examTitle}
                       </h3>
-                      <p className="text-xs font-bold">{subjectName}</p>
-                      <p className="text-[11px] sm:text-xs text-slate-600">
+                      <p className="font-bold" style={{ fontSize: "13pt" }}>{subjectName}</p>
+                      <p className="italic text-slate-600" style={{ fontSize: "11.5pt" }}>
                         Thời gian làm bài: {duration} phút (Không kể phát đề)
                       </p>
                     </div>
 
                     {/* Desktop Exam Code Box */}
-                    <div className="hidden sm:block border-2 border-slate-900 rounded-xl px-4 py-2 text-center shrink-0 min-w-24">
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    <div className="hidden sm:block border-2 border-slate-900 rounded-xl px-4 py-2 text-center shrink-0 min-w-24 bg-slate-50/50 print:bg-transparent">
+                      <p className="font-bold text-slate-500 uppercase tracking-wider" style={{ fontSize: "9.5pt" }}>
                         Mã đề thi
                       </p>
-                      <p className="text-xl font-black text-indigo-700 tracking-wider">
+                      <p className="font-black text-indigo-900 print:text-black tracking-wider" style={{ fontSize: "18pt" }}>
                         {currentExam.code}
                       </p>
                     </div>
                   </div>
 
                   {/* Student Info Box */}
-                  <div className="p-3 border border-slate-200 rounded-lg text-xs grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 bg-slate-50/50 print:bg-transparent">
+                  <div
+                    className="p-3 border border-slate-300 rounded-lg grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 bg-slate-50/50 print:bg-transparent my-4"
+                    style={{ fontSize: "12pt" }}
+                  >
                     <div className="truncate">
-                      <span className="font-bold text-slate-700">Họ và tên:</span>{" "}
-                      <span className="text-slate-400">............................</span>
+                      <strong>Họ và tên:</strong> <span className="text-slate-400">............................</span>
                     </div>
                     <div className="truncate">
-                      <span className="font-bold text-slate-700">Lớp:</span>{" "}
-                      <span className="text-slate-400">...................</span>
+                      <strong>Lớp:</strong> <span className="text-slate-400">...................</span>
                     </div>
                     <div className="truncate">
-                      <span className="font-bold text-slate-700">Số báo danh:</span>{" "}
-                      <span className="text-slate-400">.............</span>
+                      <strong>Số báo danh:</strong> <span className="text-slate-400">.............</span>
                     </div>
                     <div className="truncate">
-                      <span className="font-bold text-slate-700">Phòng thi:</span>{" "}
-                      <span className="text-slate-400">................</span>
+                      <strong>Phòng thi:</strong> <span className="text-slate-400">................</span>
                     </div>
                   </div>
 
-                  <div className="text-xs italic text-slate-500 text-center">
+                  <div className="italic text-slate-500 text-center mb-5" style={{ fontSize: "11.5pt" }}>
                     (Đề thi gồm có {currentExam.questions.length} câu hỏi)
                   </div>
 
                   {/* Questions List */}
-                  <div className="space-y-5 pt-2">
+                  <div className="space-y-4">
                     {currentExam.questions.map((q, idx) => (
-                      <div key={idx} className="space-y-2 text-xs sm:text-sm">
-                        <p className="font-semibold text-slate-900 leading-relaxed break-words">
-                          <span className="font-bold text-indigo-800">Câu {idx + 1}:</span>{" "}
-                          {q.questionText}
-                          <span className="ml-2 text-[10px] text-slate-400 font-normal no-print">
+                      <div key={idx} className="space-y-1.5" style={{ fontSize: "13pt" }}>
+                        <p className="font-bold text-slate-900 leading-normal break-words">
+                          <span>Câu {idx + 1}:</span>{" "}
+                          <span className="font-normal">{q.questionText}</span>
+                          <span className="ml-2 text-[10pt] font-normal text-slate-400 no-print">
                             [{q.type} - {q.level}]
                           </span>
                         </p>
                         {q.contentText && (
-                          <pre className="font-sans text-xs text-slate-700 whitespace-pre-wrap pl-3 sm:pl-4 border-l-2 border-slate-200 py-1 leading-relaxed break-words">
+                          <div
+                            className="pl-4 whitespace-pre-wrap leading-relaxed text-slate-800 break-words"
+                            style={{
+                              fontFamily: "'Times New Roman', Times, serif",
+                              fontSize: "13pt",
+                              lineHeight: "1.4",
+                            }}
+                          >
                             {q.contentText}
-                          </pre>
+                          </div>
                         )}
                       </div>
                     ))}
                   </div>
 
-                  <div className="text-center text-xs text-slate-400 pt-8 border-t border-slate-200">
+                  <div className="text-center text-slate-400 pt-8 border-t border-slate-300 mt-6" style={{ fontSize: "12pt" }}>
                     ----------------------------- HẾT -----------------------------
                   </div>
                 </div>
