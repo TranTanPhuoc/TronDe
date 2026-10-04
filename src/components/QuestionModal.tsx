@@ -119,15 +119,15 @@ function QuestionModalForm({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 my-8">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 safe-padding-top safe-padding-bottom">
+      <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[90dvh] sm:max-h-[85dvh] my-auto">
         {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-          <div>
-            <h2 className="text-lg font-bold text-slate-900">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
+          <div className="min-w-0 pr-2">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 truncate">
               {editingItem ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới vào ngân hàng"}
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 mt-0.5 truncate">
               {editingItem
                 ? `Đang chỉnh sửa câu hỏi mã #${editingItem.id}`
                 : "Điền đầy đủ thông tin để lưu trữ vào kho dữ liệu"}
@@ -135,14 +135,15 @@ function QuestionModalForm({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
+          <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {errorMessage && (
             <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-2 text-rose-700 text-xs font-semibold">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -282,18 +283,20 @@ function QuestionModalForm({
             />
           </div>
 
-          {/* Modal Footer */}
-          <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
+          </div>
+
+          {/* Modal Footer - Fixed at bottom */}
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-slate-200 flex items-center justify-end gap-2 sm:gap-3 bg-slate-50/90 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              className="px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-200/70 rounded-lg transition-colors cursor-pointer"
             >
               Hủy bỏ
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm shadow-indigo-200 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm shadow-indigo-200 transition-colors cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>{editingItem ? "Lưu thay đổi" : "Thêm câu hỏi"}</span>

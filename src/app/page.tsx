@@ -127,6 +127,7 @@ export default function Home() {
     "exam"
   );
   const [selectedVariantIndex, setSelectedVariantIndex] = useState<number>(0);
+  const [showMobileConfig, setShowMobileConfig] = useState(false);
 
   // Generated Exam Variants State
   const [generatedExams, setGeneratedExams] = useState<ExamVariant[]>(() => {
@@ -476,32 +477,52 @@ export default function Home() {
       )}
 
       {/* Main Top Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs no-print backdrop-blur-md bg-white/95">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs no-print backdrop-blur-md bg-white/95 safe-padding-top">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
           {/* Top Bar: Brand & Action Controls */}
-          <div className="flex items-center justify-between gap-2 sm:gap-4 py-2.5 sm:py-3 min-h-[60px]">
-            {/* Logo & Title */}
-            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-emerald-600 flex items-center justify-center text-white shadow-md shadow-indigo-100 shrink-0">
-                <Shuffle className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-sm sm:text-base md:text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">
-                    Hệ Thống Trộn Đề Thi
-                  </h1>
-                  <span className="hidden sm:inline-flex px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
-                    Chính Thức
-                  </span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4 py-2.5 sm:py-3 min-h-[60px]">
+            {/* Top row on mobile / Left group on desktop */}
+            <div className="flex items-center justify-between sm:justify-start gap-2.5 sm:gap-3 w-full sm:w-auto">
+              {/* Logo & Title */}
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-emerald-600 flex items-center justify-center text-white shadow-md shadow-indigo-100 shrink-0">
+                  <Shuffle className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <p className="text-xs text-slate-500 hidden xl:block truncate">
-                  Tạo mã đề ngẫu nhiên, hoán vị đáp án & xuất bảng ma trận
-                </p>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <h1 className="text-sm sm:text-base md:text-lg font-bold text-slate-900 tracking-tight truncate">
+                      Hệ Thống Trộn Đề Thi
+                    </h1>
+                    <span className="hidden md:inline-flex px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+                      Chính Thức
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 hidden xl:block truncate">
+                    Tạo mã đề ngẫu nhiên, hoán vị đáp án & xuất bảng ma trận
+                  </p>
+                </div>
+              </div>
+
+              {/* User badge on mobile (< sm) */}
+              <div className="flex sm:hidden items-center gap-1.5 shrink-0 pl-2 border-l border-slate-200">
+                <div
+                  className="w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-600 to-emerald-600 text-white flex items-center justify-center font-bold text-[11px] shadow-xs shrink-0 select-none"
+                  title={currentUser.email}
+                >
+                  {currentUser.avatar || "GV"}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  title="Đăng xuất khỏi hệ thống"
+                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer shrink-0"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
 
-            {/* Quick Actions & User Profile */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Actions Toolbar on mobile & desktop */}
+            <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto pb-0.5 sm:pb-0 scrollbar-none">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -552,7 +573,8 @@ export default function Home() {
                 className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm shadow-indigo-200 transition-colors cursor-pointer shrink-0"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Thêm câu hỏi</span>
+                <span className="hidden xs:inline sm:inline">Thêm câu hỏi</span>
+                <span className="xs:hidden sm:hidden">Thêm</span>
               </button>
 
               {/* Shuffle Action Button */}
@@ -565,8 +587,8 @@ export default function Home() {
                 <span className="sm:hidden">Trộn đề</span>
               </button>
 
-              {/* Logged in Teacher Profile Badge & Logout */}
-              <div className="flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-200 shrink-0">
+              {/* Logged in Teacher Profile Badge & Logout (Desktop sm+) */}
+              <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-200 shrink-0">
                 <div
                   className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0 select-none"
                   title={currentUser.email}
@@ -648,10 +670,34 @@ export default function Home() {
       </header>
 
       {/* Main Workspace */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Exam Settings & Selection (no-print) */}
-          <div className="lg:col-span-4 space-y-5 no-print">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 w-full flex-1">
+        {activeTab !== "bank" ? (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
+            {/* Mobile Collapsible Header for Exam Settings */}
+            <div className="lg:hidden no-print w-full">
+              <button
+                type="button"
+                onClick={() => setShowMobileConfig(!showMobileConfig)}
+                className="w-full flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-xl shadow-xs text-xs font-bold text-slate-800 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Settings2 className="w-4 h-4 text-indigo-600" />
+                  <span>
+                    Cấu Hình Trộn Đề ({numVariants} mã đề, {activeQuestionIds.length}/{questions.length} câu)
+                  </span>
+                </div>
+                <span className="text-indigo-600 text-[11px] font-bold">
+                  {showMobileConfig ? "Thu gọn ▲" : "Tùy chỉnh ▼"}
+                </span>
+              </button>
+            </div>
+
+            {/* Left Column: Exam Settings & Selection (no-print) */}
+            <div
+              className={`lg:col-span-4 space-y-5 no-print lg:sticky lg:top-24 ${
+                showMobileConfig ? "block" : "hidden lg:block"
+              }`}
+            >
             {/* Configuration Box */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -821,22 +867,22 @@ export default function Home() {
           </div>
 
           {/* Right Column: Active Tab Content */}
-          <div className="lg:col-span-8 space-y-4">
+          <div className="lg:col-span-8 space-y-4 min-w-0">
             {/* TAB 1: EXAM PAPER PREVIEW */}
             {activeTab === "exam" && currentExam && (
               <div className="space-y-4">
                 {/* Control bar above exam paper (no-print) */}
-                <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex items-center justify-between flex-wrap gap-3 no-print">
+                <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-xs flex items-center justify-between flex-wrap gap-2.5 sm:gap-3 no-print">
                   {/* Variant Switcher Pills */}
-                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                    <span className="text-xs font-bold text-slate-500 uppercase mr-1">
-                      Chọn Mã Đề:
+                  <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none max-w-full">
+                    <span className="text-xs font-bold text-slate-500 uppercase mr-1 shrink-0">
+                      Mã Đề:
                     </span>
                     {generatedExams.map((v, idx) => (
                       <button
                         key={v.code}
                         onClick={() => setSelectedVariantIndex(idx)}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer shrink-0 ${
                           selectedVariantIndex === idx
                             ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
                             : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
@@ -848,17 +894,17 @@ export default function Home() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                     <button
                       onClick={handleCopyCurrentExam}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
                     >
                       {copiedExam ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                       <span>{copiedExam ? "Đã sao chép!" : "Sao chép đề"}</span>
                     </button>
                     <button
                       onClick={() => window.print()}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-black rounded-lg transition-colors cursor-pointer shadow-xs"
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-black rounded-lg transition-colors cursor-pointer shadow-xs"
                     >
                       <Printer className="w-3.5 h-3.5" />
                       <span>In / Xuất PDF</span>
@@ -867,16 +913,16 @@ export default function Home() {
                 </div>
 
                 {/* Printable Exam Paper Container */}
-                <div className="bg-white border border-slate-300 rounded-2xl p-8 sm:p-10 shadow-sm space-y-6 text-slate-900 print:border-none print:shadow-none print:p-0">
+                <div className="bg-white border border-slate-300 rounded-2xl p-4 sm:p-8 md:p-10 shadow-sm space-y-5 sm:space-y-6 text-slate-900 print:border-none print:shadow-none print:p-0">
                   {/* Formal Exam Header */}
-                  <div className="flex justify-between items-start border-b-2 border-slate-900 pb-5 gap-4">
-                    <div className="text-center font-bold text-xs space-y-1 w-1/3">
+                  <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start border-b-2 border-slate-900 pb-4 sm:pb-5 gap-3 sm:gap-4 print:flex-row print:text-left">
+                    <div className="text-center font-bold text-xs space-y-1 w-full sm:w-1/3 print:w-1/3">
                       <p className="uppercase">{schoolName}</p>
                       <p className="text-slate-600 font-normal">TỔ BỘ MÔN CHUYÊN MÔN</p>
                       <div className="w-16 h-0.5 bg-slate-900 mx-auto mt-1"></div>
                     </div>
 
-                    <div className="text-center space-y-1 flex-1">
+                    <div className="text-center space-y-1 w-full sm:flex-1 print:flex-1">
                       <h3 className="font-extrabold text-sm sm:text-base uppercase tracking-wide">
                         {examTitle}
                       </h3>
@@ -886,7 +932,7 @@ export default function Home() {
                       </p>
                     </div>
 
-                    <div className="border-2 border-slate-900 rounded-xl px-4 py-2 text-center shrink-0 min-w-24">
+                    <div className="border-2 border-slate-900 rounded-xl px-4 py-2 text-center shrink-0 min-w-24 print:w-auto">
                       <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                         Mã đề thi
                       </p>
@@ -897,20 +943,20 @@ export default function Home() {
                   </div>
 
                   {/* Student Info Box */}
-                  <div className="p-3 border border-slate-200 rounded-lg text-xs grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50/50 print:bg-transparent">
-                    <div>
+                  <div className="p-3 border border-slate-200 rounded-lg text-xs grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 bg-slate-50/50 print:bg-transparent print:grid-cols-4">
+                    <div className="truncate">
                       <span className="font-bold text-slate-600">Họ và tên:</span>{" "}
                       <span className="text-slate-400">............................</span>
                     </div>
-                    <div>
+                    <div className="truncate">
                       <span className="font-bold text-slate-600">Lớp:</span>{" "}
                       <span className="text-slate-400">...................</span>
                     </div>
-                    <div>
+                    <div className="truncate">
                       <span className="font-bold text-slate-600">Số báo danh:</span>{" "}
                       <span className="text-slate-400">.............</span>
                     </div>
-                    <div>
+                    <div className="truncate">
                       <span className="font-bold text-slate-600">Phòng thi:</span>{" "}
                       <span className="text-slate-400">................</span>
                     </div>
@@ -932,7 +978,7 @@ export default function Home() {
                           </span>
                         </p>
                         {q.contentText && (
-                          <pre className="font-sans text-xs text-slate-700 whitespace-pre-wrap pl-4 border-l-2 border-slate-200 py-1 leading-relaxed">
+                          <pre className="font-sans text-xs text-slate-700 whitespace-pre-wrap break-words pl-4 border-l-2 border-slate-200 py-1 leading-relaxed">
                             {q.contentText}
                           </pre>
                         )}
@@ -949,8 +995,8 @@ export default function Home() {
 
             {/* TAB 2: ANSWER MATRIX */}
             {activeTab === "matrix" && (
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2.5">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">
                       Bảng Ma Trận Đáp Án Đối Chiếu Các Mã Đề
@@ -961,20 +1007,22 @@ export default function Home() {
                   </div>
                   <button
                     onClick={handleCopyMatrix}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer"
                   >
                     {copiedMatrix ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                     <span>{copiedMatrix ? "Đã sao chép vào clipboard!" : "Sao chép bảng đáp án"}</span>
                   </button>
                 </div>
 
-                <div className="border border-slate-200 rounded-xl overflow-x-auto shadow-2xs">
-                  <table className="w-full text-center text-xs">
+                <div className="border border-slate-200 rounded-xl overflow-x-auto shadow-2xs scrollbar-none">
+                  <table className="w-full text-center text-xs min-w-[480px]">
                     <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
                       <tr>
-                        <th className="p-3 w-16">Câu</th>
+                        <th className="p-3 w-20 sticky left-0 z-20 bg-slate-100 border-r border-slate-200">
+                          Câu
+                        </th>
                         {generatedExams.map((v) => (
-                          <th key={v.code} className="p-3 bg-indigo-50/60 text-indigo-900 font-extrabold border-l border-slate-200">
+                          <th key={v.code} className="p-3 bg-indigo-50/60 text-indigo-900 font-extrabold border-l border-slate-200 whitespace-nowrap">
                             Mã đề #{v.code}
                           </th>
                         ))}
@@ -983,7 +1031,7 @@ export default function Home() {
                     <tbody className="divide-y divide-slate-100 font-medium">
                       {(generatedExams[0]?.questions || []).map((_, qIdx) => (
                         <tr key={qIdx} className="hover:bg-slate-50 transition-colors">
-                          <td className="p-2.5 font-bold text-slate-600 bg-slate-50/40">
+                          <td className="p-2.5 font-bold text-slate-700 bg-slate-50 sticky left-0 z-10 border-r border-slate-200">
                             Câu {qIdx + 1}
                           </td>
                           {generatedExams.map((v) => (
@@ -1001,8 +1049,8 @@ export default function Home() {
 
             {/* TAB 3: STEP-BY-STEP SOLUTIONS */}
             {activeTab === "solution" && currentExam && (
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-5 sm:space-y-6">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2.5">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">
                       Lời Giải Chi Tiết Cho Mã Đề #{currentExam.code}
@@ -1012,14 +1060,14 @@ export default function Home() {
                     </p>
                   </div>
                   {/* Variant Switcher */}
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none max-w-full">
                     {generatedExams.map((v, idx) => (
                       <button
                         key={v.code}
                         onClick={() => setSelectedVariantIndex(idx)}
-                        className={`px-2.5 py-1 text-xs font-bold rounded-md border transition-all cursor-pointer ${
+                        className={`px-2.5 py-1 text-xs font-bold rounded-md border transition-all cursor-pointer shrink-0 ${
                           selectedVariantIndex === idx
-                            ? "bg-indigo-600 text-white border-indigo-600"
+                            ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
                             : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
@@ -1029,11 +1077,11 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {currentExam.questions.map((q, idx) => (
-                    <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                    <div key={idx} className="p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-xs sm:text-sm font-bold text-slate-900">
+                        <p className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
                           Câu {idx + 1}: {q.questionText}
                         </p>
                         <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shrink-0">
@@ -1042,7 +1090,7 @@ export default function Home() {
                       </div>
 
                       {q.contentText && (
-                        <pre className="font-sans text-xs text-slate-600 whitespace-pre-wrap pl-3 border-l-2 border-slate-300">
+                        <pre className="font-sans text-xs text-slate-600 whitespace-pre-wrap break-words pl-3 border-l-2 border-slate-300 py-0.5 leading-relaxed">
                           {q.contentText}
                         </pre>
                       )}
@@ -1051,7 +1099,7 @@ export default function Home() {
                         <span className="text-xs font-bold text-slate-700 block mb-1">
                           Hướng dẫn giải chi tiết:
                         </span>
-                        <pre className="font-sans text-xs text-slate-700 whitespace-pre-wrap leading-relaxed bg-white p-3 rounded-lg border border-slate-200">
+                        <pre className="font-sans text-xs text-slate-700 whitespace-pre-wrap break-words leading-relaxed bg-white p-3 rounded-lg border border-slate-200">
                           {q.solutionGuide || "Chưa có lời giải chi tiết cho câu hỏi này."}
                         </pre>
                       </div>
@@ -1060,169 +1108,169 @@ export default function Home() {
                 </div>
               </div>
             )}
-
-            {/* TAB 4: QUESTION BANK MANAGEMENT (FULL CRUD) */}
-            {activeTab === "bank" && (
-              <div className="space-y-4">
-                {/* Bank Header Bar */}
-                <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between flex-wrap gap-3">
-                    {/* Search */}
-                    <div className="relative flex-1 min-w-[200px]">
-                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Tìm kiếm câu hỏi, nội dung, đáp án..."
-                        className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                      />
-                    </div>
-
-                    {/* Level */}
-                    <select
-                      value={levelFilter}
-                      onChange={(e) => setLevelFilter(e.target.value)}
-                      className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700"
-                    >
-                      <option value="ALL">Tất cả mức độ</option>
-                      {QUESTION_LEVELS.map((lvl) => (
-                        <option key={lvl.id} value={lvl.short_name}>
-                          {lvl.short_name} - {lvl.name}
-                        </option>
-                      ))}
-                    </select>
-
-                    {/* Type */}
-                    <select
-                      value={typeFilter}
-                      onChange={(e) => setTypeFilter(e.target.value)}
-                      className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700"
-                    >
-                      <option value="ALL">Tất cả định dạng</option>
-                      {QUESTION_TYPES.map((t) => (
-                        <option key={t.id} value={t.short_name}>
-                          {t.short_name} - {t.name}
-                        </option>
-                      ))}
-                    </select>
-
-                    {/* Add Question Button */}
-                    <button
-                      onClick={handleOpenCreate}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors cursor-pointer"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Thêm câu mới</span>
-                    </button>
-                  </div>
-
-                  {/* Bulk Delete Bar */}
-                  {selectedBankIds.length > 0 && (
-                    <div className="flex items-center justify-between p-2.5 bg-rose-50 border border-rose-200 rounded-lg">
-                      <span className="text-xs font-medium text-rose-900">
-                        Đang chọn <strong className="font-bold">{selectedBankIds.length}</strong> câu hỏi
-                      </span>
-                      <button
-                        onClick={() => setIsBulkDeleteOpen(true)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-rose-700 bg-white hover:bg-rose-100 border border-rose-200 rounded-md transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                        <span>Xóa các câu đã chọn</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Bank Questions Cards List */}
-                <div className="space-y-3">
-                  {filteredBankQuestions.map((item, index) => {
-                    const isSelected = selectedBankIds.includes(item.id);
-                    const levelStyle = getLevelBadge(item.question.level.short_name);
-                    const typeStyle = getTypeBadge(item.question.type.short_name);
-
-                    return (
-                      <div
-                        key={item.id}
-                        className={`bg-white rounded-xl border p-4 shadow-xs transition-all ${
-                          isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-50/20" : "border-slate-200"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-3 pb-2 border-b border-slate-100">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => {
-                                setSelectedBankIds((prev) =>
-                                  prev.includes(item.id)
-                                    ? prev.filter((id) => id !== item.id)
-                                    : [...prev, item.id]
-                                );
-                              }}
-                              className="w-4 h-4 rounded text-indigo-600"
-                            />
-                            <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
-                              Câu {index + 1}
-                            </span>
-                            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${levelStyle.bg}`}>
-                              {item.question.level.name} ({item.question.level.short_name})
-                            </span>
-                            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${typeStyle.bg}`}>
-                              {item.question.type.name}
-                            </span>
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => setDetailItem(item)}
-                              className="p-1 text-slate-400 hover:text-indigo-600 rounded transition-colors cursor-pointer"
-                              title="Xem chi tiết"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleOpenEdit(item)}
-                              className="p-1 text-slate-400 hover:text-amber-600 rounded transition-colors cursor-pointer"
-                              title="Chỉnh sửa"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => setItemToDelete(item)}
-                              className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors cursor-pointer"
-                              title="Xóa câu hỏi"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="pt-2.5 space-y-1.5">
-                          <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
-                            {item.question.question}
-                          </p>
-                          {item.question.content && (
-                            <pre className="font-sans text-xs text-slate-600 whitespace-pre-wrap pl-3 border-l-2 border-slate-200">
-                              {item.question.content}
-                            </pre>
-                          )}
-                          <div className="flex items-center justify-between text-[11px] pt-1 text-slate-500">
-                            <span className="font-bold text-emerald-700">
-                              Đáp án: {item.question.answer || "Chưa có"}
-                            </span>
-                            <span>{item.author.name} • {item.author.update_at}</span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
         </div>
+        ) : (
+          /* TAB 4: QUESTION BANK MANAGEMENT (FULL CRUD - FULL WIDTH) */
+          <div className="space-y-4 w-full">
+            {/* Bank Header Bar */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                {/* Search */}
+                <div className="relative flex-1 min-w-0">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Tìm kiếm câu hỏi, nội dung, đáp án..."
+                    className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+                </div>
+
+                {/* Filters and Add button */}
+                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                  <select
+                    value={levelFilter}
+                    onChange={(e) => setLevelFilter(e.target.value)}
+                    className="flex-1 sm:flex-none text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 font-medium text-slate-700 cursor-pointer"
+                  >
+                    <option value="ALL">Tất cả mức độ</option>
+                    {QUESTION_LEVELS.map((lvl) => (
+                      <option key={lvl.id} value={lvl.short_name}>
+                        {lvl.short_name} - {lvl.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    className="flex-1 sm:flex-none text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 font-medium text-slate-700 cursor-pointer"
+                  >
+                    <option value="ALL">Tất cả định dạng</option>
+                    {QUESTION_TYPES.map((t) => (
+                      <option key={t.id} value={t.short_name}>
+                        {t.short_name} - {t.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Add Question Button */}
+                  <button
+                    onClick={handleOpenCreate}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-1 px-3.5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors cursor-pointer shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Thêm câu mới</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Bulk Delete Bar */}
+              {selectedBankIds.length > 0 && (
+                <div className="flex items-center justify-between p-2.5 bg-rose-50 border border-rose-200 rounded-lg flex-wrap gap-2">
+                  <span className="text-xs font-medium text-rose-900">
+                    Đang chọn <strong className="font-bold">{selectedBankIds.length}</strong> câu hỏi
+                  </span>
+                  <button
+                    onClick={() => setIsBulkDeleteOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-rose-700 bg-white hover:bg-rose-100 border border-rose-200 rounded-md transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                    <span>Xóa các câu đã chọn</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Bank Questions Cards List */}
+            <div className="space-y-3">
+              {filteredBankQuestions.map((item, index) => {
+                const isSelected = selectedBankIds.includes(item.id);
+                const levelStyle = getLevelBadge(item.question.level.short_name);
+                const typeStyle = getTypeBadge(item.question.type.short_name);
+
+                return (
+                  <div
+                    key={item.id}
+                    className={`bg-white rounded-xl border p-4 shadow-xs transition-all ${
+                      isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-50/20" : "border-slate-200"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2 sm:gap-3 pb-2 border-b border-slate-100 flex-wrap sm:flex-nowrap">
+                      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => {
+                            setSelectedBankIds((prev) =>
+                              prev.includes(item.id)
+                                ? prev.filter((id) => id !== item.id)
+                                : [...prev, item.id]
+                            );
+                          }}
+                          className="w-4 h-4 rounded text-indigo-600"
+                        />
+                        <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
+                          Câu {index + 1}
+                        </span>
+                        <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border ${levelStyle.bg}`}>
+                          {item.question.level.name} ({item.question.level.short_name})
+                        </span>
+                        <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border ${typeStyle.bg}`}>
+                          {item.question.type.name}
+                        </span>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => setDetailItem(item)}
+                          className="p-1 text-slate-400 hover:text-indigo-600 rounded transition-colors cursor-pointer"
+                          title="Xem chi tiết"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleOpenEdit(item)}
+                          className="p-1 text-slate-400 hover:text-amber-600 rounded transition-colors cursor-pointer"
+                          title="Chỉnh sửa"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setItemToDelete(item)}
+                          className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors cursor-pointer"
+                          title="Xóa câu hỏi"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="pt-2.5 space-y-1.5">
+                      <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
+                        {item.question.question}
+                      </p>
+                      {item.question.content && (
+                        <pre className="font-sans text-xs text-slate-600 whitespace-pre-wrap break-words pl-3 border-l-2 border-slate-200 py-0.5 leading-relaxed">
+                          {item.question.content}
+                        </pre>
+                      )}
+                      <div className="flex flex-wrap items-center justify-between text-[11px] pt-1 text-slate-500 gap-1">
+                        <span className="font-bold text-emerald-700">
+                          Đáp án: {item.question.answer || "Chưa có"}
+                        </span>
+                        <span className="text-[10px] sm:text-[11px]">{item.author.name} • {item.author.update_at}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Footer (no-print) */}
