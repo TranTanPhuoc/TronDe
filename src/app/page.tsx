@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo, useSyncExternalStore, useRef } from "react";
+import React, { useState, useMemo, useSyncExternalStore, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   ExamItem,
   QUESTION_LEVELS,
@@ -31,6 +32,8 @@ import {
   Trash2,
   Sparkles,
   Check,
+  LogOut,
+  UserCheck,
 } from "lucide-react";
 
 const STORAGE_KEY = "phan_mem_tron_de_questions_v1";
@@ -51,8 +54,38 @@ interface ExamVariant {
   questions: ShuffledQuestion[];
 }
 
+interface CurrentUser {
+  id: string;
+  name: string;
+  email: string;
+  school: string;
+  role: string;
+  avatar: string;
+}
+
 export default function Home() {
+  const router = useRouter();
   const isLoaded = useSyncExternalStore(emptySubscribe, () => true, () => false);
+
+  // Auth state
+  const [currentUser] = useState<CurrentUser | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("tron_de_auth_user");
+        return stored ? JSON.parse(stored) : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  // Verify authentication on mount
+  useEffect(() => {
+    if (!currentUser && isLoaded) {
+      router.replace("/login");
+    }
+  }, [currentUser, isLoaded, router]);
 
   // Question Bank State
   const [questions, setQuestions] = useState<ExamItem[]>(() => {
@@ -69,13 +102,13 @@ export default function Home() {
           }
         }
       } catch {
-        // Fallback to initial
+        // Fallback
       }
     }
     return initialQuestions;
   });
 
-  // Selected question IDs for shuffling (default all)
+  // Selected question IDs for shuffling
   const [activeQuestionIds, setActiveQuestionIds] = useState<string[]>(() =>
     initialQuestions.map((q) => q.id)
   );
@@ -134,6 +167,13 @@ export default function Home() {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleLogout = () => {
+    if (confirm("Thầy/Cô có chắc chắn muốn đăng xuất khỏi hệ thống không?")) {
+      localStorage.removeItem("tron_de_auth_user");
+      router.replace("/login");
+    }
   };
 
   const saveQuestions = (newQuestions: ExamItem[]) => {
@@ -355,7 +395,7 @@ export default function Home() {
           id: item.id || `q-imported-${Date.now()}-${idx}`,
           author: {
             id: item.author?.id || 1,
-            name: item.author?.name || "Tran Tan Phuoc",
+            name: item.author?.name || currentUser?.name || "Tran Tan Phuoc",
             created_at: item.author?.created_at || "26-06-2026 11:41:26",
             update_at: item.author?.update_at || "26-06-2026 11:41:26",
           },
@@ -412,10 +452,12 @@ export default function Home() {
     });
   }, [questions, levelFilter, typeFilter, searchQuery]);
 
-  if (!isLoaded) {
+  // Loading state when checking authentication
+  if (!isLoaded || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white gap-3 font-sans">
+        <div className="w-10 h-10 border-3 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+        <p className="text-xs text-slate-400 font-medium">Đang kiểm tra phiên đăng nhập...</p>
       </div>
     );
   }
@@ -456,7 +498,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Quick Actions */}
+            {/* Quick Actions & User Bar */}
             <div className="flex items-center gap-2 flex-wrap">
               <input
                 type="file"
@@ -514,6 +556,33 @@ export default function Home() {
                 <Sparkles className="w-4 h-4" />
                 <span>Trộn đề ngay</span>
               </button>
+
+              {/* Logged in Teacher Profile Badge & Logout */}
+              <div className="flex items-center gap-2 pl-2 sm:pl-3 sm:border-l border-slate-200 ml-1">
+                <div
+                  className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs"
+                  title={currentUser.email}
+                >
+                  {currentUser.avatar || "GV"}
+                </div>
+                <div className="hidden xl:block text-left">
+                  <div className="text-xs font-bold text-slate-800 leading-tight flex items-center gap-1">
+                    <span>{currentUser.name}</span>
+                    <UserCheck className="w-3 h-3 text-emerald-600" />
+                  </div>
+                  <div className="text-[10px] text-slate-500 truncate max-w-[120px]">
+                    {currentUser.school || "Giáo viên"}
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  title="Đăng xuất khỏi hệ thống"
+                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 
