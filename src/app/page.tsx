@@ -596,15 +596,6 @@ export default function Home() {
                 <span>Trộn đề ngay</span>
               </button>
 
-              {/* Quick Word Export in Header */}
-              <button
-                onClick={handleExportWord}
-                title="Tự động xuất đề thi đang chọn ra file Word (.docx A4)"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[#185abd] hover:bg-[#104a9e] rounded-lg shadow-sm shadow-blue-200 transition-colors cursor-pointer shrink-0"
-              >
-                <FileDown className="w-4 h-4" />
-                <span>Xuất Word (.docx)</span>
-              </button>
 
               {/* Logged in Teacher Profile Badge & Logout */}
               <div className="flex items-center gap-2 pl-3 border-l border-slate-200 shrink-0">
@@ -683,14 +674,6 @@ export default function Home() {
                 <span>Thêm câu hỏi</span>
               </button>
 
-              <button
-                onClick={handleExportWord}
-                title="Xuất file Word (.docx A4)"
-                className="inline-flex items-center gap-1 py-1.5 px-2.5 text-xs font-bold text-white bg-[#185abd] hover:bg-[#104a9e] rounded-lg shadow-xs shrink-0"
-              >
-                <FileDown className="w-3.5 h-3.5" />
-                <span>Word (.docx)</span>
-              </button>
 
               <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 shrink-0">
                 <button
