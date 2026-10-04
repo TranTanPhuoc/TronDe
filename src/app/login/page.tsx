@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { APP_ROUTES } from "@/route";
 import {
   Shuffle,
   Mail,
@@ -35,7 +36,7 @@ export default function LoginPage() {
   useEffect(() => {
     const existing = localStorage.getItem("tron_de_auth_user");
     if (existing) {
-      router.replace("/");
+      router.replace(APP_ROUTES.HOME);
     }
   }, [router]);
 
@@ -64,7 +65,7 @@ export default function LoginPage() {
       setSuccessMsg("Đăng nhập thành công! Đang chuyển hướng...");
 
       setTimeout(() => {
-        router.push("/");
+        router.push(APP_ROUTES.HOME);
       }, 500);
     }, 700);
   };
@@ -88,7 +89,7 @@ export default function LoginPage() {
       setSuccessMsg("Đăng nhập bằng tài khoản Demo thành công!");
 
       setTimeout(() => {
-        router.push("/");
+        router.push(APP_ROUTES.HOME);
       }, 500);
     }, 600);
   };
@@ -218,7 +219,7 @@ export default function LoginPage() {
                     Mật khẩu <span className="text-rose-400">*</span>
                   </label>
                   <Link
-                    href="/forgotpassword"
+                    href={APP_ROUTES.FORGOT_PASSWORD}
                     className="text-[11px] font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
                   >
                     Quên mật khẩu?
@@ -291,7 +292,7 @@ export default function LoginPage() {
               <p className="text-xs text-slate-400">
                 Thầy/Cô chưa có tài khoản?{" "}
                 <Link
-                  href="/register"
+                  href={APP_ROUTES.REGISTER}
                   className="font-bold text-indigo-400 hover:text-indigo-300 underline underline-offset-4 transition-colors"
                 >
                   Đăng ký tài khoản mới

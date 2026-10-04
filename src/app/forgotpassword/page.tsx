@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { APP_ROUTES } from "@/route";
 import {
   Shuffle,
   Mail,
@@ -170,7 +171,7 @@ export default function ForgotPasswordPage() {
             {isCompleted ? (
               <div className="space-y-4 pt-2">
                 <Link
-                  href="/login"
+                  href={APP_ROUTES.LOGIN}
                   className="w-full flex items-center justify-center gap-2 py-3 px-4 text-xs sm:text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg transition-all"
                 >
                   <span>Đăng Nhập Ngay Bằng Mật Khẩu Mới</span>
@@ -276,7 +277,7 @@ export default function ForgotPasswordPage() {
             {/* Back to Login link */}
             <div className="text-center pt-3 border-t border-white/10">
               <Link
-                href="/login"
+                href={APP_ROUTES.LOGIN}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />

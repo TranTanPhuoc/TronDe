@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { APP_ROUTES } from "@/route";
 import {
   Shuffle,
   Mail,
@@ -39,7 +40,7 @@ export default function RegisterPage() {
   useEffect(() => {
     const existing = localStorage.getItem("tron_de_auth_user");
     if (existing) {
-      router.replace("/");
+      router.replace(APP_ROUTES.HOME);
     }
   }, [router]);
 
@@ -83,7 +84,7 @@ export default function RegisterPage() {
       setSuccessMsg("Tạo tài khoản thành công! Đang chuyển vào không gian làm việc...");
 
       setTimeout(() => {
-        router.push("/");
+        router.push(APP_ROUTES.HOME);
       }, 600);
     }, 800);
   };
@@ -316,7 +317,7 @@ export default function RegisterPage() {
               <p className="text-xs text-slate-400">
                 Thầy/Cô đã có tài khoản rồi?{" "}
                 <Link
-                  href="/login"
+                  href={APP_ROUTES.LOGIN}
                   className="font-bold text-indigo-400 hover:text-indigo-300 underline underline-offset-4 transition-colors"
                 >
                   Đăng nhập ngay
