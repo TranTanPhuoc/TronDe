@@ -13,6 +13,7 @@ import { shuffleArray, getLevelBadge, getTypeBadge } from "@/utils/helpers";
 import QuestionModal from "@/components/QuestionModal";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import { downloadExamDocx } from "@/utils/docxExport";
 import {
   Shuffle,
   Plus,
@@ -312,7 +313,7 @@ export default function Home() {
     setTimeout(() => setCopiedExam(false), 2000);
   };
 
-  // Export current exam variant to Microsoft Word (.doc) with A4 format, Times New Roman 13pt
+  // Export current exam variant to standard Microsoft Word (.docx) with A4 format, Times New Roman 13pt
   const handleExportWord = () => {
     const current = generatedExams[selectedVariantIndex];
     if (!current) {
@@ -320,166 +321,20 @@ export default function Home() {
       return;
     }
 
-    const escapeHtml = (text: string) => {
-      return (text || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    };
-
-    const formattedQuestionsHtml = current.questions
-      .map((q, idx) => {
-        const questionTextEscaped = escapeHtml(q.questionText);
-        const optionsHtml = escapeHtml(q.contentText)
-          .split("\n")
-          .map((line) => line.trim())
-          .filter(Boolean)
-          .map(
-            (line) =>
-              `<p style="margin: 2pt 0 2pt 18pt; line-height: 1.35; font-family: 'Times New Roman', Times, serif; font-size: 13pt;">${line}</p>`
-          )
-          .join("");
-
-        return `
-          <div style="margin-bottom: 12pt; page-break-inside: avoid;">
-            <p style="margin: 4pt 0; font-family: 'Times New Roman', Times, serif; font-size: 13pt; line-height: 1.35;">
-              <strong>Câu ${idx + 1}:</strong> ${questionTextEscaped}
-            </p>
-            ${optionsHtml}
-          </div>
-        `;
-      })
-      .join("");
-
-    const wordContent = `
-<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-<head>
-  <meta charset='utf-8'>
-  <title>${escapeHtml(examTitle)} - Mã đề ${current.code}</title>
-  <!--[if gte mso 9]>
-  <xml>
-    <w:WordDocument>
-      <w:View>Print</w:View>
-      <w:Zoom>100</w:Zoom>
-      <w:DoNotOptimizeForBrowser/>
-    </w:WordDocument>
-  </xml>
-  <![endif]-->
-  <style>
-    @page Section1 {
-      size: 210mm 297mm;
-      margin: 20mm 20mm 20mm 20mm;
-      mso-header-margin: 10mm;
-      mso-footer-margin: 10mm;
-      mso-paper-source: 0;
+    try {
+      const fileName = downloadExamDocx({
+        schoolName,
+        examTitle,
+        subjectName,
+        duration,
+        examCode: current.code,
+        questions: current.questions,
+      });
+      showToast(`Đã xuất đề thi mã ${current.code} ra file Word (${fileName}) thành công!`);
+    } catch (err) {
+      console.error("Lỗi xuất file docx:", err);
+      showToast("Có lỗi xảy ra khi tạo file Word (.docx)!");
     }
-    div.Section1 {
-      page: Section1;
-    }
-    body {
-      font-family: 'Times New Roman', Times, serif;
-      font-size: 13pt;
-      line-height: 1.35;
-      color: #000000;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: 'Times New Roman', Times, serif;
-      font-size: 13pt;
-    }
-    p {
-      margin: 0 0 4pt 0;
-      line-height: 1.35;
-      font-family: 'Times New Roman', Times, serif;
-      font-size: 13pt;
-    }
-  </style>
-</head>
-<body>
-  <div class="Section1">
-    <!-- Header Table -->
-    <table style="width: 100%; margin-bottom: 12pt; border-bottom: 2pt solid #000; padding-bottom: 6pt;">
-      <tr>
-        <td style="width: 38%; text-align: center; vertical-align: top; padding: 2pt;">
-          <p style="font-weight: bold; text-transform: uppercase; font-size: 12pt; margin-bottom: 2pt;">${escapeHtml(schoolName)}</p>
-          <p style="font-size: 11pt; margin: 0;">TỔ BỘ MÔN CHUYÊN MÔN</p>
-          <div style="width: 80pt; height: 1pt; background-color: #000; margin: 3pt auto 0 auto;"></div>
-        </td>
-        <td style="width: 44%; text-align: center; vertical-align: top; padding: 2pt;">
-          <p style="font-weight: bold; text-transform: uppercase; font-size: 13pt; margin-bottom: 2pt;">${escapeHtml(examTitle)}</p>
-          <p style="font-weight: bold; font-size: 12pt; margin-bottom: 2pt;">${escapeHtml(subjectName)}</p>
-          <p style="font-style: italic; font-size: 11pt; margin: 0;">Thời gian làm bài: ${duration} phút (không kể phát đề)</p>
-        </td>
-        <td style="width: 18%; text-align: center; vertical-align: middle; padding: 2pt;">
-          <table style="width: 100%; border: 1.5pt solid #000; border-collapse: collapse; text-align: center;">
-            <tr>
-              <td style="padding: 2pt 4pt; font-size: 9pt; font-weight: bold; text-transform: uppercase; border-bottom: 1pt solid #000;">MÃ ĐỀ THI</td>
-            </tr>
-            <tr>
-              <td style="padding: 4pt 6pt; font-size: 15pt; font-weight: bold;">${current.code}</td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-
-    <!-- Student Info Box -->
-    <table style="width: 100%; border: 1pt solid #888; border-collapse: collapse; margin-bottom: 12pt;">
-      <tr>
-        <td style="width: 50%; padding: 4pt 6pt; font-size: 12pt; border: 1pt solid #ccc;">
-          <strong>Họ và tên thí sinh:</strong> ..............................................................
-        </td>
-        <td style="width: 50%; padding: 4pt 6pt; font-size: 12pt; border: 1pt solid #ccc;">
-          <strong>Lớp:</strong> .....................................................
-        </td>
-      </tr>
-      <tr>
-        <td style="padding: 4pt 6pt; font-size: 12pt; border: 1pt solid #ccc;">
-          <strong>Số báo danh:</strong> ....................................................................
-        </td>
-        <td style="padding: 4pt 6pt; font-size: 12pt; border: 1pt solid #ccc;">
-          <strong>Phòng thi số:</strong> ............................................
-        </td>
-      </tr>
-    </table>
-
-    <p style="text-align: center; font-style: italic; font-size: 11pt; margin-bottom: 14pt;">
-      (Đề thi gồm có ${current.questions.length} câu hỏi)
-    </p>
-
-    <!-- Question List -->
-    <div>
-      ${formattedQuestionsHtml}
-    </div>
-
-    <p style="text-align: center; font-size: 12pt; margin-top: 20pt; padding-top: 10pt; border-top: 1pt solid #ccc;">
-      --------------------------------- HẾT ---------------------------------
-    </p>
-  </div>
-</body>
-</html>
-    `;
-
-    const cleanSubject = subjectName.replace(/^MÔN:\s*/i, "").trim();
-    const safeFileName = `De_Thi_${cleanSubject || "Mon_Hoc"}_Ma_${current.code}.doc`
-      .replace(/[\/\\?%*:|"<>]/g, "_")
-      .replace(/\s+/g, "_");
-
-    const blob = new Blob(["\ufeff" + wordContent], {
-      type: "application/msword;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = safeFileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    showToast(`Đã xuất đề thi mã ${current.code} sang file Word (.doc) thành công!`);
   };
 
   // CRUD handlers
@@ -744,11 +599,11 @@ export default function Home() {
               {/* Quick Word Export in Header */}
               <button
                 onClick={handleExportWord}
-                title="Tự động xuất đề thi đang chọn ra file Word (.doc A4)"
+                title="Tự động xuất đề thi đang chọn ra file Word (.docx A4)"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[#185abd] hover:bg-[#104a9e] rounded-lg shadow-sm shadow-blue-200 transition-colors cursor-pointer shrink-0"
               >
                 <FileDown className="w-4 h-4" />
-                <span>Xuất Word (.doc)</span>
+                <span>Xuất Word (.docx)</span>
               </button>
 
               {/* Logged in Teacher Profile Badge & Logout */}
@@ -830,11 +685,11 @@ export default function Home() {
 
               <button
                 onClick={handleExportWord}
-                title="Xuất file Word A4"
+                title="Xuất file Word (.docx A4)"
                 className="inline-flex items-center gap-1 py-1.5 px-2.5 text-xs font-bold text-white bg-[#185abd] hover:bg-[#104a9e] rounded-lg shadow-xs shrink-0"
               >
                 <FileDown className="w-3.5 h-3.5" />
-                <span>Word (.doc)</span>
+                <span>Word (.docx)</span>
               </button>
 
               <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 shrink-0">
@@ -1164,14 +1019,14 @@ export default function Home() {
                       <span className="sm:hidden">{copiedExam ? "Đã chép" : "Chép"}</span>
                     </button>
 
-                    {/* Export directly to Word (.doc) with A4 format */}
+                    {/* Export directly to Word (.docx) with A4 format */}
                     <button
                       onClick={handleExportWord}
                       className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-blue-200"
-                      title="Tự động xuất đề thi sang file Word (.doc) chuẩn khổ giấy A4"
+                      title="Tự động xuất đề thi sang file Word (.docx) chuẩn khổ giấy A4"
                     >
                       <FileDown className="w-4 h-4" />
-                      <span>Xuất Word (.doc)</span>
+                      <span>Xuất Word (.docx)</span>
                     </button>
 
                     {/* Print / Save PDF Button */}
