@@ -476,31 +476,32 @@ export default function Home() {
       )}
 
       {/* Main Top Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs no-print">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-18 flex-wrap gap-3">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-emerald-600 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs no-print backdrop-blur-md bg-white/95">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          {/* Top Bar: Brand & Action Controls */}
+          <div className="flex items-center justify-between gap-2 sm:gap-4 py-2.5 sm:py-3 min-h-[60px]">
+            {/* Logo & Title */}
+            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-emerald-600 flex items-center justify-center text-white shadow-md shadow-indigo-100 shrink-0">
                 <Shuffle className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                  <h1 className="text-sm sm:text-base md:text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">
                     Hệ Thống Trộn Đề Thi
                   </h1>
-                  <span className="px-2 py-0.5 text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+                  <span className="hidden sm:inline-flex px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
                     Chính Thức
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 hidden sm:block">
-                  Tạo mã đề ngẫu nhiên, hoán vị đáp án & xuất bảng ma trận đáp án
+                <p className="text-xs text-slate-500 hidden xl:block truncate">
+                  Tạo mã đề ngẫu nhiên, hoán vị đáp án & xuất bảng ma trận
                 </p>
               </div>
             </div>
 
-            {/* Quick Actions & User Bar */}
-            <div className="flex items-center gap-2 flex-wrap">
+            {/* Quick Actions & User Profile */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -515,63 +516,69 @@ export default function Home() {
                 className="hidden"
               />
 
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                title="Nhập dữ liệu từ file JSON"
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg transition-colors cursor-pointer"
-              >
-                <Upload className="w-3.5 h-3.5 text-slate-500" />
-                <span className="hidden md:inline">Nhập JSON</span>
-              </button>
+              {/* JSON Data Management Group */}
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 shrink-0">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Nhập dữ liệu từ file JSON"
+                  className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:bg-white rounded-md transition-all cursor-pointer"
+                >
+                  <Upload className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="hidden md:inline">Nhập</span>
+                </button>
 
-              <button
-                onClick={handleExportJson}
-                title="Xuất ngân hàng câu hỏi ra file JSON"
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg transition-colors cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-slate-500" />
-                <span className="hidden md:inline">Xuất JSON</span>
-              </button>
+                <button
+                  onClick={handleExportJson}
+                  title="Xuất ngân hàng câu hỏi ra file JSON"
+                  className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:bg-white rounded-md transition-all cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="hidden md:inline">Xuất</span>
+                </button>
 
-              <button
-                onClick={handleResetData}
-                title="Khôi phục câu hỏi mẫu ban đầu"
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors cursor-pointer"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
-                <span className="hidden lg:inline">Dữ liệu mẫu</span>
-              </button>
+                <button
+                  onClick={handleResetData}
+                  title="Khôi phục câu hỏi mẫu ban đầu"
+                  className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100/70 rounded-md transition-all cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
+                  <span className="hidden lg:inline">Mẫu</span>
+                </button>
+              </div>
 
+              {/* Create Question Button */}
               <button
                 onClick={handleOpenCreate}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm shadow-indigo-200 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm shadow-indigo-200 transition-colors cursor-pointer shrink-0"
               >
                 <Plus className="w-4 h-4" />
-                <span>Thêm câu hỏi</span>
+                <span className="hidden sm:inline">Thêm câu hỏi</span>
               </button>
 
+              {/* Shuffle Action Button */}
               <button
                 onClick={handleShuffleExams}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-md shadow-emerald-200 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-md shadow-emerald-200 transition-all cursor-pointer shrink-0"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Trộn đề ngay</span>
+                <span className="hidden sm:inline">Trộn đề ngay</span>
+                <span className="sm:hidden">Trộn đề</span>
               </button>
 
               {/* Logged in Teacher Profile Badge & Logout */}
-              <div className="flex items-center gap-2 pl-2 sm:pl-3 sm:border-l border-slate-200 ml-1">
+              <div className="flex items-center gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-slate-200 shrink-0">
                 <div
-                  className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs"
+                  className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0 select-none"
                   title={currentUser.email}
                 >
                   {currentUser.avatar || "GV"}
                 </div>
-                <div className="hidden xl:block text-left">
+                <div className="hidden lg:block text-left min-w-0">
                   <div className="text-xs font-bold text-slate-800 leading-tight flex items-center gap-1">
-                    <span>{currentUser.name}</span>
-                    <UserCheck className="w-3 h-3 text-emerald-600" />
+                    <span className="truncate max-w-[100px]">{currentUser.name}</span>
+                    <UserCheck className="w-3 h-3 text-emerald-600 shrink-0" />
                   </div>
-                  <div className="text-[10px] text-slate-500 truncate max-w-[120px]">
+                  <div className="text-[10px] text-slate-500 truncate max-w-[100px]">
                     {currentUser.school || "Giáo viên"}
                   </div>
                 </div>
@@ -579,7 +586,7 @@ export default function Home() {
                 <button
                   onClick={handleLogout}
                   title="Đăng xuất khỏi hệ thống"
-                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer shrink-0"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -588,52 +595,52 @@ export default function Home() {
           </div>
 
           {/* Navigation Bar / Tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto border-t border-slate-100 pt-2 pb-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto border-t border-slate-100 py-1.5 scrollbar-none">
             <button
               onClick={() => setActiveTab("exam")}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 ${
+              className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "exam"
                   ? "bg-indigo-600 text-white shadow-xs"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
-              <FileText className="w-4 h-4" />
-              <span>Đề Thi Đã Trộn ({generatedExams.length} mã đề)</span>
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span>Đề Thi Đã Trộn ({generatedExams.length})</span>
             </button>
 
             <button
               onClick={() => setActiveTab("matrix")}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 ${
+              className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "matrix"
                   ? "bg-indigo-600 text-white shadow-xs"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
-              <TableProperties className="w-4 h-4" />
+              <TableProperties className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Ma Trận Đáp Án</span>
             </button>
 
             <button
               onClick={() => setActiveTab("solution")}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 ${
+              className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "solution"
                   ? "bg-indigo-600 text-white shadow-xs"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
-              <BookOpen className="w-4 h-4" />
+              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Lời Giải Chi Tiết</span>
             </button>
 
             <button
               onClick={() => setActiveTab("bank")}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 ${
+              className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "bank"
                   ? "bg-indigo-600 text-white shadow-xs"
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
-              <Layers className="w-4 h-4" />
+              <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Ngân Hàng Câu Hỏi ({questions.length})</span>
             </button>
           </div>
