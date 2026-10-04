@@ -79,26 +79,26 @@ export default function ForgotPasswordPage() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[140px] pointer-events-none"></div>
 
       {/* Main Container */}
-      <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 rounded-3xl border border-white/10 bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden relative z-10 my-4 sm:my-6">
-        {/* Left Side: Brand Highlights */}
-        <div className="lg:col-span-5 bg-gradient-to-br from-indigo-950/90 via-slate-900/90 to-slate-950/90 p-5 sm:p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/10 relative">
-          <div className="space-y-4 sm:space-y-6">
+      <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 rounded-2xl sm:rounded-3xl border border-white/10 bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden relative z-10 my-auto">
+        {/* Left Side: Brand Highlights (Visible on Desktop / Tablets) */}
+        <div className="hidden lg:flex lg:col-span-5 bg-gradient-to-br from-indigo-950/90 via-slate-900/90 to-slate-950/90 p-8 sm:p-10 flex-col justify-between border-r border-white/10 relative">
+          <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 shrink-0">
-                <Shuffle className="w-5 h-5 sm:w-6 sm:h-6 animate-spin-slow" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                <Shuffle className="w-6 h-6 animate-spin-slow" />
               </div>
-              <div className="min-w-0">
-                <span className="text-[10px] sm:text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
+              <div>
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" /> EdTech Pro 2026
                 </span>
-                <h1 className="text-lg sm:text-xl font-black text-white tracking-tight truncate">
+                <h1 className="text-xl font-black text-white tracking-tight">
                   Phần Mềm Trộn Đề Thi
                 </h1>
               </div>
             </div>
 
-            <div className="space-y-1.5 sm:space-y-2 pt-1 sm:pt-2">
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white leading-tight">
+            <div className="space-y-2 pt-2">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
                 Khôi Phục <br />
                 <span className="bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent">
                   Mật Khẩu An Toàn
@@ -109,7 +109,7 @@ export default function ForgotPasswordPage() {
               </p>
             </div>
 
-            <div className="space-y-2.5 sm:space-y-3 pt-1 sm:pt-2 hidden sm:block">
+            <div className="space-y-3 pt-2">
               <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 text-slate-300 text-xs">
                 <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
                   <KeyRound className="w-4 h-4" />
@@ -126,7 +126,7 @@ export default function ForgotPasswordPage() {
             </div>
           </div>
 
-          <div className="pt-4 sm:pt-6 border-t border-white/10 hidden sm:flex items-center justify-between text-[11px] text-slate-400">
+          <div className="pt-6 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
             <span>Bảo mật dữ liệu ngành giáo dục</span>
             <span className="text-emerald-400 font-semibold flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" /> Xác thực mã hóa
@@ -136,12 +136,23 @@ export default function ForgotPasswordPage() {
 
         {/* Right Side: FORGOT PASSWORD ONLY Form */}
         <div className="lg:col-span-7 p-5 sm:p-8 lg:p-10 flex flex-col justify-center bg-slate-900/60">
-          <div className="max-w-md w-full mx-auto space-y-6">
+          <div className="max-w-md w-full mx-auto space-y-5 sm:space-y-6">
+            {/* Mobile Brand Header */}
+            <div className="flex items-center gap-2.5 mb-2 lg:hidden">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-500 flex items-center justify-center text-white shadow-md">
+                <Shuffle className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-white leading-tight">Phần Mềm Trộn Đề Thi</h2>
+                <p className="text-[11px] text-amber-400 font-semibold">Khôi Phục Mật Khẩu</p>
+              </div>
+            </div>
+
             <div className="space-y-1">
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider hidden lg:block">
                 Trung Tâm Hỗ Trợ
               </span>
-              <h3 className="text-2xl font-bold text-white tracking-tight">
+              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                 {isCompleted ? "Thành Công!" : "Quên Mật Khẩu"}
               </h3>
               <p className="text-xs text-slate-400">

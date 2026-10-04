@@ -24,8 +24,8 @@ export default function RegisterPage() {
 
   // Form Fields
   const [fullName, setFullName] = useState("");
-  const [schoolName, setSchoolName] = useState("");
   const [email, setEmail] = useState("");
+  const [schoolName, setSchoolName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(true);
@@ -49,39 +49,47 @@ export default function RegisterPage() {
     setErrorMsg("");
 
     if (!fullName.trim() || !email.trim() || !password.trim()) {
-      setErrorMsg("Vui lòng điền đầy đủ các thông tin bắt buộc!");
+      setErrorMsg("Vui lòng điền đầy đủ các thông tin bắt buộc (*)");
       return;
     }
 
     if (password.length < 6) {
-      setErrorMsg("Mật khẩu phải chứa ít nhất 6 ký tự!");
+      setErrorMsg("Mật khẩu phải có độ dài tối thiểu từ 6 ký tự trở lên!");
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMsg("Mật khẩu xác nhận không khớp!");
+      setErrorMsg("Mật khẩu xác nhận không trùng khớp. Vui lòng kiểm tra lại!");
       return;
     }
 
     if (!agreeTerms) {
-      setErrorMsg("Vui lòng đồng ý với Điều khoản sử dụng hệ thống!");
+      setErrorMsg("Vui lòng chấp nhận các điều khoản sử dụng để tiếp tục!");
       return;
     }
 
     setIsLoading(true);
 
     setTimeout(() => {
-      const userData = {
+      const getInitials = (name: string) => {
+        const parts = name.trim().split(" ");
+        if (parts.length >= 2) {
+          return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+        }
+        return (name[0] || "GV").toUpperCase();
+      };
+
+      const newUser = {
         id: "u-" + Date.now(),
         name: fullName.trim(),
         email: email.trim(),
-        school: schoolName.trim() || "Trường THPT Chuyên",
+        school: schoolName.trim() || "Trường THPT",
         role: "Giáo viên",
-        avatar: fullName.trim()[0].toUpperCase(),
+        avatar: getInitials(fullName),
       };
 
-      localStorage.setItem("tron_de_auth_user", JSON.stringify(userData));
-      setSuccessMsg("Tạo tài khoản thành công! Đang chuyển vào không gian làm việc...");
+      localStorage.setItem("tron_de_auth_user", JSON.stringify(newUser));
+      setSuccessMsg("Đăng ký tài khoản thành công! Đang chuyển hướng vào hệ thống...");
 
       setTimeout(() => {
         router.push(APP_ROUTES.HOME);
@@ -91,32 +99,32 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen w-full bg-slate-950 flex items-center justify-center p-3 sm:p-6 lg:p-8 relative overflow-hidden font-sans safe-padding-top safe-padding-bottom">
-      {/* Background Glows */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-emerald-600/25 rounded-full blur-3xl pointer-events-none animate-pulse delay-1000"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[140px] pointer-events-none"></div>
+      {/* Background Ambient Glows */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-emerald-600/25 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+      <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl pointer-events-none animate-pulse delay-1000"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-600/15 rounded-full blur-[140px] pointer-events-none"></div>
 
       {/* Main Container */}
-      <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 rounded-3xl border border-white/10 bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden relative z-10 my-4 sm:my-6">
-        {/* Left Side: Brand Highlights */}
-        <div className="lg:col-span-5 bg-gradient-to-br from-indigo-950/90 via-slate-900/90 to-slate-950/90 p-5 sm:p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/10 relative">
-          <div className="space-y-4 sm:space-y-6">
+      <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 rounded-2xl sm:rounded-3xl border border-white/10 bg-slate-900/80 backdrop-blur-xl shadow-2xl overflow-hidden relative z-10 my-auto">
+        {/* Left Side: Brand Highlights (Visible on Desktop / Tablets) */}
+        <div className="hidden lg:flex lg:col-span-5 bg-gradient-to-br from-indigo-950/90 via-slate-900/90 to-slate-950/90 p-8 sm:p-10 flex-col justify-between border-r border-white/10 relative">
+          <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 shrink-0">
-                <Shuffle className="w-5 h-5 sm:w-6 sm:h-6 animate-spin-slow" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                <Shuffle className="w-6 h-6 animate-spin-slow" />
               </div>
-              <div className="min-w-0">
-                <span className="text-[10px] sm:text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
+              <div>
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" /> EdTech Pro 2026
                 </span>
-                <h1 className="text-lg sm:text-xl font-black text-white tracking-tight truncate">
+                <h1 className="text-xl font-black text-white tracking-tight">
                   Phần Mềm Trộn Đề Thi
                 </h1>
               </div>
             </div>
 
-            <div className="space-y-1.5 sm:space-y-2 pt-1 sm:pt-2">
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white leading-tight">
+            <div className="space-y-2 pt-2">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
                 Đăng Ký <br />
                 <span className="bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent">
                   Tài Khoản Giáo Viên
@@ -127,7 +135,7 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            <div className="space-y-2.5 sm:space-y-3 pt-1 sm:pt-2 hidden sm:block">
+            <div className="space-y-3 pt-2">
               <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 text-slate-300 text-xs">
                 <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
                   <BookOpenCheck className="w-4 h-4" />
@@ -151,7 +159,7 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div className="pt-4 sm:pt-6 border-t border-white/10 hidden sm:flex items-center justify-between text-[11px] text-slate-400">
+          <div className="pt-6 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
             <span>Bảo mật dữ liệu ngân hàng đề</span>
             <span className="text-emerald-400 font-semibold flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" /> Miễn phí cho giáo viên
@@ -161,12 +169,23 @@ export default function RegisterPage() {
 
         {/* Right Side: REGISTER ONLY Form */}
         <div className="lg:col-span-7 p-5 sm:p-8 lg:p-10 flex flex-col justify-center bg-slate-900/60">
-          <div className="max-w-md w-full mx-auto space-y-6">
+          <div className="max-w-md w-full mx-auto space-y-5 sm:space-y-6">
+            {/* Mobile Brand Header */}
+            <div className="flex items-center gap-2.5 mb-2 lg:hidden">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-emerald-500 flex items-center justify-center text-white shadow-md">
+                <Shuffle className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-white leading-tight">Phần Mềm Trộn Đề Thi</h2>
+                <p className="text-[11px] text-emerald-400 font-semibold">Tạo Tài Khoản Giáo Viên</p>
+              </div>
+            </div>
+
             <div className="space-y-1">
-              <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+              <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider hidden lg:block">
                 Gia Nhập Cộng Đồng
               </span>
-              <h3 className="text-2xl font-bold text-white tracking-tight">
+              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                 Tạo Tài Khoản Mới
               </h3>
               <p className="text-xs text-slate-400">

@@ -13,9 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Phần Mềm Trộn Đề Thi Trắc Nghiệm & Tự Luận - Chuẩn Bộ GD&ĐT",
-  description:
-    "Hệ thống quản lý ngân hàng câu hỏi, tạo mã đề ngẫu nhiên, hoán vị phương án và xuất bảng ma trận đáp án chuyên nghiệp.",
+  title: "Phần Mềm Trộn Đề Thi Trắc Nghiệm Thông Minh",
+  description: "Hệ thống quản trị ngân hàng câu hỏi, đảo đề thi và xuất ma trận đáp án chuyên nghiệp",
 };
 
 export const viewport: Viewport = {
@@ -36,7 +35,7 @@ export default function RootLayout({
       lang="vi"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+      <body className="min-h-full w-full flex flex-col overflow-x-hidden bg-slate-100 text-slate-900">
         {children}
       </body>
     </html>

@@ -12,13 +12,12 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Prevent unwanted OS dark mode override clashes on explicit light palette */
+/* Prevent iOS text-size zoom bug and normalize box model */
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  box-sizing: border-box;
   scroll-behavior: smooth;
-  height: 100%;
+  box-sizing: border-box;
 }
 
 *, *::before, *::after {
@@ -28,20 +27,25 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
-/* Thin modern scrollbars across all OS platforms (Windows, macOS, Linux) */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+/* Safe area insets for notched phones, dynamic islands and modern devices */
+.safe-padding-top {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
 }
 
+.safe-padding-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
+
+/* Smooth customized thin scrollbar for Windows, Linux, and macOS */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -60,40 +64,40 @@ body {
   background: #94a3b8;
 }
 
-/* Utility to hide scrollbar while preserving swipe & touch scroll */
+/* Utility to hide scrollbar while keeping horizontal touch scroll */
 .scrollbar-none {
-  scrollbar-width: none;
   -ms-overflow-style: none;
+  scrollbar-width: none;
 }
-
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 
-/* Mobile device notch & safe area padding */
-.safe-padding-top {
-  padding-top: env(safe-area-inset-top, 0px);
-}
-
-.safe-padding-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* Clean printing styles for A4 exam sheets */
+/* Print optimizations for A4 format */
 @media print {
   @page {
-    size: A4;
+    size: A4 portrait;
     margin: 15mm 15mm 15mm 15mm;
   }
 
   body {
     background: #ffffff !important;
     color: #000000 !important;
-    font-size: 12pt;
-    line-height: 1.4;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
   }
 
   .no-print {
     display: none !important;
+  }
+
+  .print-page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  .print-avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 }
