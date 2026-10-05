@@ -247,10 +247,9 @@ export default function Home() {
     }
 
     const variants: ExamVariant[] = [];
-    const baseCodes = [101, 102, 103, 104, 105, 106, 107, 108];
 
     for (let i = 0; i < numVariants; i++) {
-      const code = baseCodes[i] ? `${baseCodes[i]}` : `${100 + i + 1}`;
+      const code = `${101 + i}`;
       const shuffledList = shuffleArray(targetPool).map((q) => {
         const { content, answer } = shuffleOptionsForQuestion(
           q.question.content,
@@ -888,9 +887,14 @@ export default function Home() {
                       className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
                     >
                       <option value={2}>2 mã đề (101, 102)</option>
-                      <option value={4}>4 mã đề (101, 102, 103, 104)</option>
+                      <option value={4}>4 mã đề (101 - 104)</option>
                       <option value={6}>6 mã đề (101 - 106)</option>
                       <option value={8}>8 mã đề (101 - 108)</option>
+                      <option value={10}>10 mã đề (101 - 110)</option>
+                      <option value={20}>20 mã đề (101 - 120)</option>
+                      <option value={30}>30 mã đề (101 - 130)</option>
+                      <option value={40}>40 mã đề (101 - 140)</option>
+                      <option value={50}>50 mã đề (101 - 150)</option>
                     </select>
                   </div>
 
@@ -1002,6 +1006,20 @@ export default function Home() {
                     <span className="text-xs font-bold text-slate-500 uppercase mr-1 whitespace-nowrap">
                       Mã Đề:
                     </span>
+                    {generatedExams.length > 8 && (
+                      <select
+                        value={selectedVariantIndex}
+                        onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
+                        className="text-xs font-bold bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-900 rounded-lg px-2.5 py-1.5 cursor-pointer shrink-0 mr-1"
+                        title="Chọn nhanh mã đề"
+                      >
+                        {generatedExams.map((v, idx) => (
+                          <option key={v.code} value={idx}>
+                            Đề #{v.code} ({idx + 1}/{generatedExams.length})
+                          </option>
+                        ))}
+                      </select>
+                    )}
                     {generatedExams.map((v, idx) => (
                       <button
                         key={v.code}
@@ -1243,6 +1261,20 @@ export default function Home() {
                   </div>
                   {/* Variant Switcher */}
                   <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                    {generatedExams.length > 8 && (
+                      <select
+                        value={selectedVariantIndex}
+                        onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
+                        className="text-xs font-bold bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-900 rounded-md px-2 py-1 cursor-pointer shrink-0 mr-1"
+                        title="Chọn nhanh mã đề"
+                      >
+                        {generatedExams.map((v, idx) => (
+                          <option key={v.code} value={idx}>
+                            Đề #{v.code} ({idx + 1}/{generatedExams.length})
+                          </option>
+                        ))}
+                      </select>
+                    )}
                     {generatedExams.map((v, idx) => (
                       <button
                         key={v.code}
