@@ -13,7 +13,7 @@ import { shuffleArray, getLevelBadge, getTypeBadge } from "@/utils/helpers";
 import QuestionModal from "@/components/QuestionModal";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
-import { downloadExamDocx } from "@/utils/docxExport";
+import { downloadExamDocx, downloadAllExamsZip } from "@/utils/docxExport";
 import {
   Shuffle,
   Plus,
@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   FileText,
   FileDown,
+  FolderArchive,
   TableProperties,
   BookOpen,
   Layers,
@@ -334,6 +335,31 @@ export default function Home() {
     } catch (err) {
       console.error("Lỗi xuất file docx:", err);
       showToast("Có lỗi xảy ra khi tạo file Word (.docx)!");
+    }
+  };
+
+  // Export all generated exam variants to individual .docx files packaged in a single .zip archive
+  const handleExportAllZip = () => {
+    if (!generatedExams || generatedExams.length === 0) {
+      showToast("Chưa có danh sách đề thi để xuất!");
+      return;
+    }
+
+    try {
+      const fileName = downloadAllExamsZip({
+        schoolName,
+        examTitle,
+        subjectName,
+        duration,
+        exams: generatedExams.map((v) => ({
+          code: v.code,
+          questions: v.questions,
+        })),
+      });
+      showToast(`Đã xuất thành công toàn bộ ${generatedExams.length} mã đề thi vào file zip (${fileName})!`);
+    } catch (err) {
+      console.error("Lỗi xuất file zip tất cả đề thi:", err);
+      showToast("Có lỗi xảy ra khi tạo file zip đề thi!");
     }
   };
 
@@ -1012,6 +1038,17 @@ export default function Home() {
                       <span>Xuất Word (.docx)</span>
                     </button>
 
+                    {/* Export ALL exams into a single .zip archive */}
+                    <button
+                      onClick={handleExportAllZip}
+                      className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-emerald-200"
+                      title={`Tự động xuất tất cả ${generatedExams.length} mã đề thi (.docx) vào 1 file ZIP`}
+                    >
+                      <FolderArchive className="w-4 h-4" />
+                      <span className="hidden sm:inline">Xuất tất cả ({generatedExams.length} đề .zip)</span>
+                      <span className="sm:hidden">Tất cả ({generatedExams.length} đề .zip)</span>
+                    </button>
+
                     {/* Print / Save PDF Button */}
                     <button
                       onClick={() => window.print()}
@@ -1139,13 +1176,23 @@ export default function Home() {
                       Đáp án của từng câu hỏi được sắp xếp tương ứng theo từng mã đề thi
                     </p>
                   </div>
-                  <button
-                    onClick={handleCopyMatrix}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer"
-                  >
-                    {copiedMatrix ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedMatrix ? "Đã sao chép!" : "Sao chép bảng đáp án"}</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleExportAllZip}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm shadow-emerald-200 transition-all cursor-pointer"
+                      title={`Tải về tất cả ${generatedExams.length} mã đề thi (.docx) trong 1 file ZIP`}
+                    >
+                      <FolderArchive className="w-3.5 h-3.5" />
+                      <span>Xuất tất cả ({generatedExams.length} đề .zip)</span>
+                    </button>
+                    <button
+                      onClick={handleCopyMatrix}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer"
+                    >
+                      {copiedMatrix ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedMatrix ? "Đã sao chép!" : "Sao chép bảng đáp án"}</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Table with Sticky First Column on Mobile */}

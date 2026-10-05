@@ -41,6 +41,19 @@ function calculateCrc32(bytes: Uint8Array): number {
   return (crc ^ -1) >>> 0;
 }
 
+function getDosTimeAndDate(d = new Date()): { time: number; date: number } {
+  const year = Math.max(1980, d.getFullYear());
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  const hours = d.getHours();
+  const minutes = d.getMinutes();
+  const seconds = Math.floor(d.getSeconds() / 2);
+
+  const dosDate = ((year - 1980) << 9) | (month << 5) | day;
+  const dosTime = (hours << 11) | (minutes << 5) | seconds;
+  return { time: dosTime, date: dosDate };
+}
+
 interface ZipFileEntry {
   name: string;
   content: string | Uint8Array;
@@ -51,6 +64,7 @@ interface ZipFileEntry {
  */
 function createZipArchive(files: ZipFileEntry[]): Uint8Array {
   const encoder = new TextEncoder();
+  const { time: dosTime, date: dosDate } = getDosTimeAndDate();
   const fileEntries: {
     nameBytes: Uint8Array;
     crc: number;
@@ -76,8 +90,8 @@ function createZipArchive(files: ZipFileEntry[]): Uint8Array {
     view.setUint16(4, 20, true); // Version needed to extract (2.0)
     view.setUint16(6, 0x0800, true); // General purpose bit flag: bit 11 = UTF-8
     view.setUint16(8, 0, true); // Compression method: 0 = Store (no compression)
-    view.setUint16(10, 0, true); // File last mod time
-    view.setUint16(12, 0, true); // File last mod date
+    view.setUint16(10, dosTime, true); // File last mod time
+    view.setUint16(12, dosDate, true); // File last mod date
     view.setUint32(14, crc, true); // CRC-32
     view.setUint32(18, size, true); // Compressed size
     view.setUint32(22, size, true); // Uncompressed size
@@ -103,8 +117,8 @@ function createZipArchive(files: ZipFileEntry[]): Uint8Array {
     view.setUint16(6, 20, true); // Version needed to extract
     view.setUint16(8, 0x0800, true); // Flags: UTF-8
     view.setUint16(10, 0, true); // Compression: 0
-    view.setUint16(12, 0, true); // Mod time
-    view.setUint16(14, 0, true); // Mod date
+    view.setUint16(12, dosTime, true); // Mod time
+    view.setUint16(14, dosDate, true); // Mod date
     view.setUint32(16, entry.crc, true); // CRC-32
     view.setUint32(20, entry.size, true); // Compressed size
     view.setUint32(24, entry.size, true); // Uncompressed size
@@ -154,7 +168,7 @@ function escapeXml(str: string): string {
     .replace(/'/g, "&apos;");
 }
 
-export function generateExamDocxBlob(options: ExportDocxOptions): Blob {
+export function generateExamDocxBytes(options: ExportDocxOptions): Uint8Array {
   const { schoolName, examTitle, subjectName, duration, examCode, questions } = options;
 
   const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -426,7 +440,12 @@ export function generateExamDocxBlob(options: ExportDocxOptions): Blob {
     { name: "word/document.xml", content: documentXml },
   ]);
 
-  return new Blob([zipData as unknown as BlobPart], {
+  return zipData;
+}
+
+export function generateExamDocxBlob(options: ExportDocxOptions): Blob {
+  const bytes = generateExamDocxBytes(options);
+  return new Blob([bytes as unknown as BlobPart], {
     type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   });
 }
@@ -448,4 +467,63 @@ export function downloadExamDocx(options: ExportDocxOptions): string {
   URL.revokeObjectURL(url);
 
   return safeFileName;
+}
+
+export interface ExportAllExamsZipOptions {
+  schoolName: string;
+  examTitle: string;
+  subjectName: string;
+  duration: string;
+  exams: {
+    code: string;
+    questions: ShuffledQuestionItem[];
+  }[];
+}
+
+/**
+ * Generates individual .docx files for all exams and packages them into a single .zip archive.
+ */
+export function downloadAllExamsZip(options: ExportAllExamsZipOptions): string {
+  const cleanSubject = options.subjectName.replace(/^MÔN:\s*/i, "").trim();
+  const zipEntries: ZipFileEntry[] = [];
+
+  for (const exam of options.exams) {
+    const docxBytes = generateExamDocxBytes({
+      schoolName: options.schoolName,
+      examTitle: options.examTitle,
+      subjectName: options.subjectName,
+      duration: options.duration,
+      examCode: exam.code,
+      questions: exam.questions,
+    });
+
+    const fileName = `De_Thi_${cleanSubject || "Mon_Hoc"}_Ma_${exam.code}.docx`
+      .replace(/[\/\\?%*:|"<>]/g, "_")
+      .replace(/\s+/g, "_");
+
+    zipEntries.push({
+      name: fileName,
+      content: docxBytes,
+    });
+  }
+
+  const zipData = createZipArchive(zipEntries);
+  const blob = new Blob([zipData as unknown as BlobPart], {
+    type: "application/zip",
+  });
+
+  const zipFileName = `Bo_De_Thi_${cleanSubject || "Mon_Hoc"}_${options.exams.length}_De.zip`
+    .replace(/[\/\\?%*:|"<>]/g, "_")
+    .replace(/\s+/g, "_");
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = zipFileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  return zipFileName;
 }
