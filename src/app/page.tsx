@@ -21,7 +21,12 @@ import {
 import QuestionModal from "@/components/QuestionModal";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
-import { downloadExamDocx, downloadAllExamsZip } from "@/utils/docxExport";
+import {
+  downloadExamDocx,
+  downloadAllExamsZip,
+  downloadMatrixDocx,
+  downloadMatrixXlsx,
+} from "@/utils/docxExport";
 import {
   Shuffle,
   Plus,
@@ -33,6 +38,7 @@ import {
   CheckCircle2,
   FileText,
   FileDown,
+  FileSpreadsheet,
   FolderArchive,
   TableProperties,
   BookOpen,
@@ -384,6 +390,66 @@ export default function Home() {
       showToast("Có lỗi xảy ra khi tạo file zip đề thi!");
     }
   };
+
+  // Export Answer Matrix to Word (.docx) with automatic page-chunking for A4 paper
+  const handleExportMatrixWord = () => {
+    if (!generatedExams || generatedExams.length === 0) {
+      showToast("Chưa có danh sách mã đề thi để xuất!");
+      return;
+    }
+
+    try {
+      const fileName = downloadMatrixDocx({
+        schoolName,
+        examTitle,
+        subjectName,
+        duration,
+        exams: generatedExams.map((v) => ({
+          code: v.code,
+          questions: v.questions,
+        })),
+      });
+      showToast(`Đã xuất ma trận đáp án ra file Word A4 (${fileName}) thành công!`);
+    } catch (err) {
+      console.error("Lỗi xuất ma trận Word:", err);
+      showToast("Có lỗi xảy ra khi tạo file Word ma trận đáp án!");
+    }
+  };
+
+  // Export Answer Matrix to Excel (.xlsx) spreadsheet
+  const handleExportMatrixExcel = () => {
+    if (!generatedExams || generatedExams.length === 0) {
+      showToast("Chưa có danh sách mã đề thi để xuất!");
+      return;
+    }
+
+    try {
+      const fileName = downloadMatrixXlsx({
+        schoolName,
+        examTitle,
+        subjectName,
+        duration,
+        exams: generatedExams.map((v) => ({
+          code: v.code,
+          questions: v.questions,
+        })),
+      });
+      showToast(`Đã xuất ma trận đáp án ra file Excel (${fileName}) thành công!`);
+    } catch (err) {
+      console.error("Lỗi xuất ma trận Excel:", err);
+      showToast("Có lỗi xảy ra khi tạo file Excel ma trận đáp án!");
+    }
+  };
+
+  // Chunk matrix variants into groups of 10 for clean A4 printing/PDF without overflowing
+  const matrixChunks = useMemo(() => {
+    const chunkSize = 10;
+    const chunks: ExamVariant[][] = [];
+    for (let i = 0; i < generatedExams.length; i += chunkSize) {
+      chunks.push(generatedExams.slice(i, i + chunkSize));
+    }
+    return chunks;
+  }, [generatedExams]);
 
   // CRUD handlers
   const handleOpenCreate = () => {
@@ -1293,44 +1359,97 @@ export default function Home() {
             {/* TAB 2: ANSWER MATRIX */}
             {activeTab === "matrix" && (
               <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-4 w-full">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
+                {/* Matrix Header & Actions Bar (no-print) */}
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2.5 no-print">
                   <div>
                     <h3 className="text-sm sm:text-base font-bold text-slate-900">
                       Bảng Ma Trận Đáp Án Đối Chiếu Các Mã Đề
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Đáp án của từng câu hỏi được sắp xếp tương ứng theo từng mã đề thi
+                      Tổng hợp đáp án đối chiếu của {generatedExams.length} mã đề thi ({subjectName})
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+
+                  {/* Export and Action Buttons */}
+                  <div className="flex items-center flex-wrap gap-2">
+                    {/* Export Word A4 (.docx) with Auto Page Break */}
+                    <button
+                      onClick={handleExportMatrixWord}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg shadow-sm shadow-blue-200 transition-all cursor-pointer"
+                      title="Xuất bảng ma trận đáp án ra file Word chuẩn khổ A4, tự động ngắt trang khi có nhiều mã đề để không bị tràn"
+                    >
+                      <FileDown className="w-3.5 h-3.5" />
+                      <span>Xuất Word A4 (.docx)</span>
+                    </button>
+
+                    {/* Export Excel (.xlsx) Spreadsheet */}
+                    <button
+                      onClick={handleExportMatrixExcel}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm shadow-emerald-200 transition-all cursor-pointer"
+                      title="Xuất toàn bộ ma trận đáp án ra file bảng tính Excel (.xlsx) chuẩn đối chiếu chấm thi"
+                    >
+                      <FileSpreadsheet className="w-3.5 h-3.5" />
+                      <span>Xuất Excel (.xlsx)</span>
+                    </button>
+
+                    {/* Print / Save A4 PDF with Page-Break */}
+                    <button
+                      onClick={() => window.print()}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-xs"
+                      title="In trực tiếp hoặc Lưu thành file PDF chuẩn khổ A4 (tự động phân trang chống tràn)"
+                    >
+                      <Printer className="w-3.5 h-3.5 text-slate-600" />
+                      <span>In / PDF A4</span>
+                    </button>
+
+                    {/* Export All Exam Variants Zip */}
                     <button
                       onClick={handleExportAllZip}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm shadow-emerald-200 transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer"
                       title={`Tải về tất cả ${generatedExams.length} mã đề thi (.docx) trong 1 file ZIP`}
                     >
-                      <FolderArchive className="w-3.5 h-3.5" />
-                      <span>Xuất tất cả ({generatedExams.length} đề .zip)</span>
+                      <FolderArchive className="w-3.5 h-3.5 text-indigo-600" />
+                      <span className="hidden xl:inline">Xuất tất cả đề (.zip)</span>
+                      <span className="xl:hidden">Đề (.zip)</span>
                     </button>
+
+                    {/* Copy Matrix to Clipboard */}
                     <button
                       onClick={handleCopyMatrix}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                      title="Sao chép toàn bộ bảng đáp án vào bộ nhớ tạm"
                     >
                       {copiedMatrix ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedMatrix ? "Đã sao chép!" : "Sao chép bảng đáp án"}</span>
+                      <span className="hidden sm:inline">{copiedMatrix ? "Đã sao chép!" : "Sao chép"}</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Table with Sticky First Column on Mobile */}
-                <div className="border border-slate-200 rounded-xl overflow-x-auto shadow-2xs w-full">
+                {/* Helpful Notification Banner for Large Number of Exam Codes */}
+                {generatedExams.length > 10 && (
+                  <div className="flex items-start gap-2.5 p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl text-xs text-indigo-950 no-print">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                    <div className="space-y-0.5">
+                      <p className="font-bold">
+                        Đang có {generatedExams.length} mã đề thi: Hệ thống đã bật tính năng tự động ngắt trang A4 chống tràn!
+                      </p>
+                      <p className="text-slate-600">
+                        Khi chọn <strong>Xuất Word A4</strong> hoặc <strong>In / PDF A4</strong>, ma trận sẽ tự động chia đều thành <strong>{matrixChunks.length} trang A4</strong> chuẩn (mỗi trang chứa 10 mã đề) kèm tiêu đề riêng biệt. Bạn cũng có thể chọn <strong>Xuất Excel (.xlsx)</strong> để xem toàn bộ {generatedExams.length} mã đề trên cùng một trang tính.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ON-SCREEN VIEW: Table with Sticky First Column & Full Horizontal Scroll (no-print) */}
+                <div className="border border-slate-200 rounded-xl overflow-x-auto shadow-2xs w-full print:hidden">
                   <table className="min-w-[480px] w-full text-center text-xs">
                     <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
                       <tr>
-                        <th className="p-3 w-20 sticky left-0 z-10 bg-slate-100 border-r border-slate-200">
+                        <th className="p-3 w-20 sticky left-0 z-10 bg-slate-100 border-r border-slate-200 whitespace-nowrap">
                           Câu
                         </th>
                         {generatedExams.map((v) => (
-                          <th key={v.code} className="p-3 bg-indigo-50/60 text-indigo-900 font-extrabold border-l border-slate-200">
+                          <th key={v.code} className="p-3 bg-indigo-50/60 text-indigo-900 font-extrabold border-l border-slate-200 whitespace-nowrap">
                             Mã đề #{v.code}
                           </th>
                         ))}
@@ -1339,7 +1458,7 @@ export default function Home() {
                     <tbody className="divide-y divide-slate-100 font-medium">
                       {(generatedExams[0]?.questions || []).map((_, qIdx) => (
                         <tr key={qIdx} className="hover:bg-slate-50 transition-colors">
-                          <td className="p-2.5 font-bold text-slate-700 bg-slate-50 sticky left-0 z-10 border-r border-slate-200">
+                          <td className="p-2.5 font-bold text-slate-700 bg-slate-50 sticky left-0 z-10 border-r border-slate-200 whitespace-nowrap">
                             Câu {qIdx + 1}
                           </td>
                           {generatedExams.map((v) => (
@@ -1351,6 +1470,75 @@ export default function Home() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* PRINT / PDF A4 VIEW: Chunked by 10 Exam Codes per Page (only rendered on print) */}
+                <div className="hidden print:block space-y-8 w-full text-slate-900">
+                  {matrixChunks.map((chunk, chunkIdx) => (
+                    <div
+                      key={chunkIdx}
+                      className="w-full text-left"
+                      style={{
+                        pageBreakAfter: chunkIdx < matrixChunks.length - 1 ? "always" : "auto",
+                        breakAfter: chunkIdx < matrixChunks.length - 1 ? "page" : "auto",
+                        fontFamily: "'Times New Roman', Times, serif",
+                      }}
+                    >
+                      {/* Formal School & Exam Header */}
+                      <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-3 text-xs">
+                        <div className="text-left font-bold space-y-0.5">
+                          <p className="uppercase text-sm">{schoolName}</p>
+                          <p className="font-normal text-slate-700 text-xs">TỔ BỘ MÔN CHUYÊN MÔN</p>
+                        </div>
+                        <div className="text-right font-bold space-y-0.5">
+                          <p className="uppercase text-sm">{examTitle}</p>
+                          <p className="font-normal text-slate-700 text-xs">
+                            {subjectName} - Thời gian: {duration} phút
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Title of the Matrix Chunk */}
+                      <div className="text-center mb-3">
+                        <h4 className="font-bold text-base uppercase tracking-tight">
+                          BẢNG MA TRẬN ĐÁP ÁN ĐỐI CHIẾU CÁC MÃ ĐỀ
+                        </h4>
+                        <p className="text-xs italic text-slate-600">
+                          {matrixChunks.length > 1
+                            ? `(Nhóm mã đề: ${chunk[0].code} đến ${chunk[chunk.length - 1].code} • Trang ${chunkIdx + 1}/${matrixChunks.length})`
+                            : `(Tổng cộng ${chunk.length} mã đề thi)`}
+                        </p>
+                      </div>
+
+                      {/* Clean 10-Column A4 Table */}
+                      <table className="w-full text-center text-xs border-collapse border border-slate-400">
+                        <thead>
+                          <tr className="bg-slate-100 font-bold border-b border-slate-400">
+                            <th className="p-2 border border-slate-400 w-16">Câu</th>
+                            {chunk.map((v) => (
+                              <th key={v.code} className="p-2 border border-slate-400 font-black">
+                                Mã #{v.code}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(generatedExams[0]?.questions || []).map((_, qIdx) => (
+                            <tr key={qIdx} className={qIdx % 2 === 1 ? "bg-slate-50" : ""}>
+                              <td className="p-1.5 font-bold border border-slate-400 bg-slate-100">
+                                Câu {qIdx + 1}
+                              </td>
+                              {chunk.map((v) => (
+                                <td key={v.code} className="p-1.5 font-bold text-black border border-slate-400">
+                                  {v.questions[qIdx]?.answer || "-"}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
