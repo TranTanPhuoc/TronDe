@@ -5,6 +5,8 @@ import {
   ExamItem,
   QUESTION_LEVELS,
   QUESTION_TYPES,
+  SUBJECTS,
+  GRADES,
   LevelShortName,
   TypeShortName,
 } from "@/types/question";
@@ -26,6 +28,12 @@ function QuestionModalForm({
   onSave: (item: ExamItem) => void;
   editingItem: ExamItem | null;
 }) {
+  const [subjectId, setSubjectId] = useState<string>(
+    editingItem?.question.subject?.id || "TOAN"
+  );
+  const [gradeId, setGradeId] = useState<number>(
+    editingItem?.question.grade?.id || 12
+  );
   const [levelShort, setLevelShort] = useState<LevelShortName>(
     (editingItem?.question.level.short_name as LevelShortName) || "NB"
   );
@@ -52,6 +60,14 @@ function QuestionModalForm({
 
     const selectedLevel = QUESTION_LEVELS.find((l) => l.short_name === levelShort);
     const selectedType = QUESTION_TYPES.find((t) => t.short_name === typeShort);
+    const selectedSubject = SUBJECTS.find((s) => s.id === subjectId) || {
+      id: subjectId,
+      name: "Toán học",
+    };
+    const selectedGrade = GRADES.find((g) => g.id === gradeId) || {
+      id: gradeId,
+      name: `Khối ${gradeId}`,
+    };
 
     if (!selectedLevel || !selectedType) {
       setErrorMessage("Mức độ hoặc định dạng câu hỏi không hợp lệ!");
@@ -82,6 +98,8 @@ function QuestionModalForm({
           solution_guide: solutionGuide.trim(),
           level: selectedLevel,
           type: selectedType,
+          subject: selectedSubject,
+          grade: selectedGrade,
         },
       };
       onSave(updatedItem);
@@ -116,6 +134,8 @@ function QuestionModalForm({
           solution_guide: solutionGuide.trim(),
           level: selectedLevel,
           type: selectedType,
+          subject: selectedSubject,
+          grade: selectedGrade,
         },
       };
       onSave(newItem);
@@ -155,6 +175,45 @@ function QuestionModalForm({
                 <span>{errorMessage}</span>
               </div>
             )}
+
+            {/* Subject and Grade Pickers */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-3 sm:p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+              {/* Subject */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Môn học <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={subjectId}
+                  onChange={(e) => setSubjectId(e.target.value)}
+                  className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
+                >
+                  {SUBJECTS.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Grade */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Khối lớp <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={gradeId}
+                  onChange={(e) => setGradeId(Number(e.target.value))}
+                  className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
+                >
+                  {GRADES.map((gr) => (
+                    <option key={gr.id} value={gr.id}>
+                      {gr.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
             {/* Level and Type Pickers */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">

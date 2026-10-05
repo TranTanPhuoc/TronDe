@@ -7,9 +7,17 @@ import {
   ExamItem,
   QUESTION_LEVELS,
   QUESTION_TYPES,
+  SUBJECTS,
+  GRADES,
 } from "@/types/question";
 import { initialQuestions } from "@/data/mockQuestions";
-import { shuffleArray, getLevelBadge, getTypeBadge } from "@/utils/helpers";
+import {
+  shuffleArray,
+  getLevelBadge,
+  getTypeBadge,
+  getSubjectBadge,
+  getGradeBadge,
+} from "@/utils/helpers";
 import QuestionModal from "@/components/QuestionModal";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
@@ -42,7 +50,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-const STORAGE_KEY = "phan_mem_tron_de_questions_v1";
+const STORAGE_KEY = "phan_mem_tron_de_questions_v2";
 const emptySubscribe = () => () => {};
 
 interface ShuffledQuestion {
@@ -53,6 +61,8 @@ interface ShuffledQuestion {
   level: string;
   type: string;
   solutionGuide: string;
+  subject?: string;
+  grade?: string;
 }
 
 interface ExamVariant {
@@ -104,6 +114,11 @@ export default function Home() {
             return parsed.map((item, idx) => ({
               ...item,
               id: item.id || `q-${idx + 1}-${Date.now()}`,
+              question: {
+                ...item.question,
+                subject: item.question?.subject || { id: "TOAN", name: "Toán học" },
+                grade: item.question?.grade || { id: 12, name: "Khối 12" },
+              },
             }));
           }
         }
@@ -122,7 +137,9 @@ export default function Home() {
   // Exam Configuration State
   const [schoolName, setSchoolName] = useState("TRƯỜNG THPT CHUYÊN");
   const [examTitle, setExamTitle] = useState("KIỂM TRA CHẤT LƯỢNG ĐỊNH KỲ");
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>("TOAN");
   const [subjectName, setSubjectName] = useState("MÔN: TOÁN HỌC");
+  const [selectedGradeId, setSelectedGradeId] = useState<number>(12);
   const [duration, setDuration] = useState("45");
   const [numVariants, setNumVariants] = useState<number>(4);
   const [shuffleChoices, setShuffleChoices] = useState<boolean>(true);
@@ -149,12 +166,16 @@ export default function Home() {
         level: q.question.level.short_name,
         type: q.question.type.name,
         solutionGuide: q.question.solution_guide,
+        subject: q.question.subject?.name,
+        grade: q.question.grade?.name,
       })),
     }));
   });
 
   // Search & Filter in Bank Tab
   const [searchQuery, setSearchQuery] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState("ALL");
+  const [gradeFilter, setGradeFilter] = useState("ALL");
   const [levelFilter, setLevelFilter] = useState("ALL");
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [selectedBankIds, setSelectedBankIds] = useState<string[]>([]);
@@ -264,6 +285,8 @@ export default function Home() {
           level: q.question.level.short_name,
           type: q.question.type.name,
           solutionGuide: q.question.solution_guide,
+          subject: q.question.subject?.name,
+          grade: q.question.grade?.name,
         };
       });
 
@@ -422,6 +445,8 @@ export default function Home() {
         answer: question.answer,
         level: question.level,
         type: question.type,
+        subject: question.subject,
+        grade: question.grade,
       },
     }));
 
@@ -463,6 +488,8 @@ export default function Home() {
             answer: item.question?.answer || "",
             level: item.question?.level || { id: 1, name: "Nhận Biết", short_name: "NB" },
             type: item.question?.type || { id: 1, name: "Trắc Nghiệm", short_name: "TN" },
+            subject: item.question?.subject || { id: "TOAN", name: "Toán học" },
+            grade: item.question?.grade || { id: 12, name: "Khối 12" },
           },
         }));
 
@@ -489,6 +516,12 @@ export default function Home() {
   // Filtered in Bank Tab
   const filteredBankQuestions = useMemo(() => {
     return questions.filter((item) => {
+      if (subjectFilter !== "ALL" && item.question.subject?.id !== subjectFilter) {
+        return false;
+      }
+      if (gradeFilter !== "ALL" && String(item.question.grade?.id) !== String(gradeFilter)) {
+        return false;
+      }
       if (levelFilter !== "ALL" && item.question.level.short_name !== levelFilter) {
         return false;
       }
@@ -501,13 +534,22 @@ export default function Home() {
         const matchesContent = item.question.content.toLowerCase().includes(q);
         const matchesAnswer = item.question.answer.toLowerCase().includes(q);
         const matchesAuthor = item.author.name.toLowerCase().includes(q);
-        if (!matchesQuestion && !matchesContent && !matchesAnswer && !matchesAuthor) {
+        const matchesSubject = item.question.subject?.name.toLowerCase().includes(q);
+        const matchesGrade = item.question.grade?.name.toLowerCase().includes(q);
+        if (
+          !matchesQuestion &&
+          !matchesContent &&
+          !matchesAnswer &&
+          !matchesAuthor &&
+          !matchesSubject &&
+          !matchesGrade
+        ) {
           return false;
         }
       }
       return true;
     });
-  }, [questions, levelFilter, typeFilter, searchQuery]);
+  }, [questions, subjectFilter, gradeFilter, levelFilter, typeFilter, searchQuery]);
 
   // Loading state when checking authentication
   if (!isLoaded || !currentUser) {
@@ -855,7 +897,50 @@ export default function Home() {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block font-bold text-slate-600 mb-1">
-                        Môn thi
+                        Môn học
+                      </label>
+                      <select
+                        value={selectedSubjectId}
+                        onChange={(e) => {
+                          const sId = e.target.value;
+                          setSelectedSubjectId(sId);
+                          const found = SUBJECTS.find((s) => s.id === sId);
+                          if (found) {
+                            setSubjectName(`MÔN: ${found.name.toUpperCase()}`);
+                          }
+                        }}
+                        className="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
+                      >
+                        {SUBJECTS.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-slate-600 mb-1">
+                        Khối lớp
+                      </label>
+                      <select
+                        value={selectedGradeId}
+                        onChange={(e) => setSelectedGradeId(Number(e.target.value))}
+                        className="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
+                      >
+                        {GRADES.map((g) => (
+                          <option key={g.id} value={g.id}>
+                            {g.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block font-bold text-slate-600 mb-1">
+                        Tiêu đề trên đề thi
                       </label>
                       <input
                         type="text"
@@ -923,28 +1008,50 @@ export default function Home() {
 
               {/* Questions to Include Selector */}
               <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100 flex-wrap gap-1">
                   <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                    Câu hỏi trộn ({activeQuestionIds.length}/{questions.length})
+                    Câu hỏi ({activeQuestionIds.length}/{questions.length})
                   </span>
-                  <button
-                    onClick={() => {
-                      if (activeQuestionIds.length === questions.length) {
-                        setActiveQuestionIds([]);
-                      } else {
-                        setActiveQuestionIds(questions.map((q) => q.id));
-                      }
-                    }}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 font-bold cursor-pointer"
-                  >
-                    {activeQuestionIds.length === questions.length ? "Bỏ chọn" : "Chọn tất cả"}
-                  </button>
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <button
+                      onClick={() => {
+                        const matchingIds = questions
+                          .filter((q) => q.question.subject?.id === selectedSubjectId)
+                          .map((q) => q.id);
+                        if (matchingIds.length > 0) {
+                          setActiveQuestionIds(matchingIds);
+                          showToast(`Đã chọn ${matchingIds.length} câu hỏi thuộc môn đang cấu hình!`);
+                        } else {
+                          showToast("Chưa có câu hỏi nào thuộc môn này trong ngân hàng!");
+                        }
+                      }}
+                      className="text-xs text-emerald-600 hover:text-emerald-800 font-bold cursor-pointer"
+                      title="Chỉ chọn các câu hỏi thuộc môn học đang được chọn ở trên"
+                    >
+                      Chỉ môn này
+                    </button>
+                    <span className="text-slate-300">|</span>
+                    <button
+                      onClick={() => {
+                        if (activeQuestionIds.length === questions.length) {
+                          setActiveQuestionIds([]);
+                        } else {
+                          setActiveQuestionIds(questions.map((q) => q.id));
+                        }
+                      }}
+                      className="text-xs text-indigo-600 hover:text-indigo-800 font-bold cursor-pointer"
+                    >
+                      {activeQuestionIds.length === questions.length ? "Bỏ chọn" : "Tất cả"}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
                   {questions.map((q, idx) => {
                     const isChecked = activeQuestionIds.includes(q.id);
                     const lvl = getLevelBadge(q.question.level.short_name);
+                    const subBadge = getSubjectBadge(q.question.subject);
+                    const grdBadge = getGradeBadge(q.question.grade);
                     return (
                       <label
                         key={q.id}
@@ -967,8 +1074,14 @@ export default function Home() {
                           className="w-4 h-4 mt-0.5 rounded text-indigo-600 shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                             <span className="font-bold text-indigo-700">Câu {idx + 1}</span>
+                            <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${subBadge.bg}`}>
+                              {q.question.subject?.name || "Toán"}
+                            </span>
+                            <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${grdBadge.bg}`}>
+                              {q.question.grade?.name || "Khối 12"}
+                            </span>
                             <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${lvl.bg}`}>
                               {q.question.level.short_name}
                             </span>
@@ -1332,7 +1445,35 @@ export default function Home() {
                     </div>
 
                     {/* Filter controls */}
-                    <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
+                    <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto flex-wrap">
+                      {/* Subject */}
+                      <select
+                        value={subjectFilter}
+                        onChange={(e) => setSubjectFilter(e.target.value)}
+                        className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 cursor-pointer"
+                      >
+                        <option value="ALL">Tất cả môn học</option>
+                        {SUBJECTS.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Grade */}
+                      <select
+                        value={gradeFilter}
+                        onChange={(e) => setGradeFilter(e.target.value)}
+                        className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 cursor-pointer"
+                      >
+                        <option value="ALL">Tất cả khối lớp</option>
+                        {GRADES.map((g) => (
+                          <option key={g.id} value={String(g.id)}>
+                            {g.name}
+                          </option>
+                        ))}
+                      </select>
+
                       {/* Level */}
                       <select
                         value={levelFilter}
@@ -1395,6 +1536,8 @@ export default function Home() {
                     const isSelected = selectedBankIds.includes(item.id);
                     const levelStyle = getLevelBadge(item.question.level.short_name);
                     const typeStyle = getTypeBadge(item.question.type.short_name);
+                    const subjectStyle = getSubjectBadge(item.question.subject);
+                    const gradeStyle = getGradeBadge(item.question.grade);
 
                     return (
                       <div
@@ -1419,6 +1562,12 @@ export default function Home() {
                             />
                             <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded shrink-0">
                               Câu {index + 1}
+                            </span>
+                            <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${subjectStyle.bg}`}>
+                              {item.question.subject?.name || "Toán học"}
+                            </span>
+                            <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${gradeStyle.bg}`}>
+                              {item.question.grade?.name || "Khối 12"}
                             </span>
                             <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${levelStyle.bg}`}>
                               {item.question.level.name} ({item.question.level.short_name})

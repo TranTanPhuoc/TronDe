@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { ExamItem } from "@/types/question";
-import { getLevelBadge, getTypeBadge } from "@/utils/helpers";
+import { getLevelBadge, getTypeBadge, getSubjectBadge, getGradeBadge } from "@/utils/helpers";
 import { X, Copy, Check, User, Clock, CheckCircle2, BookOpen } from "lucide-react";
 
 interface QuestionDetailModalProps {
@@ -23,9 +23,11 @@ export default function QuestionDetailModal({
   const { question, author } = item;
   const levelStyle = getLevelBadge(question.level.short_name);
   const typeStyle = getTypeBadge(question.type.short_name);
+  const subjectStyle = getSubjectBadge(question.subject);
+  const gradeStyle = getGradeBadge(question.grade);
 
   const handleCopy = () => {
-    const textToCopy = `[${question.type.name} - ${question.level.name}]\nCâu hỏi: ${question.question}\n\nNội dung/Phương án:\n${question.content}\n\nĐáp án: ${question.answer}\n\nLời giải chi tiết:\n${question.solution_guide}`;
+    const textToCopy = `[${subjectStyle.label} - ${gradeStyle.label} | ${question.type.name} - ${question.level.name}]\nCâu hỏi: ${question.question}\n\nNội dung/Phương án:\n${question.content}\n\nĐáp án: ${question.answer}\n\nLời giải chi tiết:\n${question.solution_guide}`;
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -37,6 +39,16 @@ export default function QuestionDetailModal({
         {/* Modal Header */}
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0 pr-2">
+            <span
+              className={`text-xs font-bold px-2.5 py-0.5 rounded-md border ${subjectStyle.bg}`}
+            >
+              {subjectStyle.label}
+            </span>
+            <span
+              className={`text-xs font-bold px-2 py-0.5 rounded-md border ${gradeStyle.bg}`}
+            >
+              {gradeStyle.label}
+            </span>
             <span
               className={`text-xs font-semibold px-2 py-0.5 rounded-md border flex items-center gap-1.5 ${levelStyle.bg}`}
             >
