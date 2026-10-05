@@ -878,13 +878,37 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-600 mb-1">
-                      Số lượng mã đề cần tạo
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block font-bold text-slate-700">
+                        Số lượng mã đề cần tạo
+                      </label>
+                      <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
+                        {numVariants} mã đề
+                      </span>
+                    </div>
+
+                    {/* Quick selection chips for 2, 4, 6, 8, 10, 20, 30, 40, 50 */}
+                    <div className="grid grid-cols-5 gap-1.5 mb-2">
+                      {[2, 4, 6, 8, 10, 20, 30, 40, 50].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setNumVariants(num)}
+                          className={`py-1 text-[11px] font-bold rounded-lg border transition-all cursor-pointer text-center ${
+                            numVariants === num
+                              ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                              : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-600"
+                          }`}
+                        >
+                          {num} đề
+                        </button>
+                      ))}
+                    </div>
+
                     <select
                       value={numVariants}
                       onChange={(e) => setNumVariants(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer text-xs"
                     >
                       <option value={2}>2 mã đề (101, 102)</option>
                       <option value={4}>4 mã đề (101 - 104)</option>
