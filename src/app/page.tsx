@@ -878,37 +878,13 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block font-bold text-slate-700">
-                        Số lượng mã đề cần tạo
-                      </label>
-                      <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
-                        {numVariants} mã đề
-                      </span>
-                    </div>
-
-                    {/* Quick selection chips for 2, 4, 6, 8, 10, 20, 30, 40, 50 */}
-                    <div className="grid grid-cols-5 gap-1.5 mb-2">
-                      {[2, 4, 6, 8, 10, 20, 30, 40, 50].map((num) => (
-                        <button
-                          key={num}
-                          type="button"
-                          onClick={() => setNumVariants(num)}
-                          className={`py-1 text-[11px] font-bold rounded-lg border transition-all cursor-pointer text-center ${
-                            numVariants === num
-                              ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
-                              : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-600"
-                          }`}
-                        >
-                          {num} đề
-                        </button>
-                      ))}
-                    </div>
-
+                    <label className="block font-bold text-slate-600 mb-1">
+                      Số lượng mã đề cần tạo
+                    </label>
                     <select
                       value={numVariants}
                       onChange={(e) => setNumVariants(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer text-xs"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
                     >
                       <option value={2}>2 mã đề (101, 102)</option>
                       <option value={4}>4 mã đề (101 - 104)</option>
@@ -1024,42 +1000,19 @@ export default function Home() {
             {activeTab === "exam" && currentExam && (
               <div className="space-y-4 w-full">
                 {/* Control bar above exam paper (no-print) */}
-                <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-xs flex items-center justify-between flex-wrap gap-2.5 no-print">
-                  {/* Variant Switcher Pills */}
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none max-w-full">
-                    <span className="text-xs font-bold text-slate-500 uppercase mr-1 whitespace-nowrap">
-                      Mã Đề:
-                    </span>
-                    {generatedExams.length > 8 && (
-                      <select
-                        value={selectedVariantIndex}
-                        onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
-                        className="text-xs font-bold bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-900 rounded-lg px-2.5 py-1.5 cursor-pointer shrink-0 mr-1"
-                        title="Chọn nhanh mã đề"
-                      >
-                        {generatedExams.map((v, idx) => (
-                          <option key={v.code} value={idx}>
-                            Đề #{v.code} ({idx + 1}/{generatedExams.length})
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    {generatedExams.map((v, idx) => (
-                      <button
-                        key={v.code}
-                        onClick={() => setSelectedVariantIndex(idx)}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer shrink-0 ${
-                          selectedVariantIndex === idx
-                            ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                        }`}
-                      >
-                        Mã {v.code}
-                      </button>
-                    ))}
-                  </div>
+                <div className="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 shadow-xs space-y-3 no-print">
+                  {/* Row 1: Active Exam Info & Actions */}
+                  <div className="flex items-center justify-between flex-wrap gap-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-500 uppercase whitespace-nowrap">
+                        Mã Đề:
+                      </span>
+                      <span className="px-2.5 py-1 text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg">
+                        Mã #{currentExam.code} ({selectedVariantIndex + 1}/{generatedExams.length})
+                      </span>
+                    </div>
 
-                  {/* Actions */}
+                    {/* Actions */}
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={handleCopyCurrentExam}
@@ -1102,6 +1055,24 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
+
+                {/* Row 2: All Variant Switcher Buttons (Wrap automatically on width limit) */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-slate-100 w-full">
+                  {generatedExams.map((v, idx) => (
+                    <button
+                      key={v.code}
+                      onClick={() => setSelectedVariantIndex(idx)}
+                      className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                        selectedVariantIndex === idx
+                          ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                          : "bg-white text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-600"
+                      }`}
+                    >
+                      Mã {v.code}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
                 {/* Printable Exam Paper Container - Times New Roman 13pt */}
                 <div
@@ -1274,39 +1245,34 @@ export default function Home() {
             {/* TAB 3: STEP-BY-STEP SOLUTIONS */}
             {activeTab === "solution" && currentExam && (
               <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-5 w-full">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
-                  <div>
-                    <h3 className="text-sm sm:text-base font-bold text-slate-900">
-                      Lời Giải Chi Tiết Cho Mã Đề #{currentExam.code}
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      Các bước lập luận và phương pháp giải của từng câu hỏi
-                    </p>
+                <div className="pb-3 border-b border-slate-100 space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        Lời Giải Chi Tiết Cho Mã Đề #{currentExam.code}
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Các bước lập luận và phương pháp giải của từng câu hỏi
+                      </p>
+                    </div>
+                    <span className="px-2.5 py-1 text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg">
+                      Mã #{currentExam.code} ({selectedVariantIndex + 1}/{generatedExams.length})
+                    </span>
                   </div>
-                  {/* Variant Switcher */}
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                    {generatedExams.length > 8 && (
-                      <select
-                        value={selectedVariantIndex}
-                        onChange={(e) => setSelectedVariantIndex(Number(e.target.value))}
-                        className="text-xs font-bold bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 text-indigo-900 rounded-md px-2 py-1 cursor-pointer shrink-0 mr-1"
-                        title="Chọn nhanh mã đề"
-                      >
-                        {generatedExams.map((v, idx) => (
-                          <option key={v.code} value={idx}>
-                            Đề #{v.code} ({idx + 1}/{generatedExams.length})
-                          </option>
-                        ))}
-                      </select>
-                    )}
+
+                  {/* All Variant Switcher Buttons (Wrap automatically on width limit) */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100 w-full">
+                    <span className="text-xs font-bold text-slate-500 uppercase mr-1 whitespace-nowrap">
+                      Mã Đề:
+                    </span>
                     {generatedExams.map((v, idx) => (
                       <button
                         key={v.code}
                         onClick={() => setSelectedVariantIndex(idx)}
-                        className={`px-2.5 py-1 text-xs font-bold rounded-md border transition-all cursor-pointer shrink-0 ${
+                        className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                           selectedVariantIndex === idx
-                            ? "bg-indigo-600 text-white border-indigo-600"
-                            : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                            ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                            : "bg-white text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-600"
                         }`}
                       >
                         #{v.code}
