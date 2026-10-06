@@ -56,7 +56,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-const STORAGE_KEY = "phan_mem_tron_de_questions_v3";
+const STORAGE_KEY = "phan_mem_tron_de_questions_v4";
 const emptySubscribe = () => () => {};
 
 interface ShuffledQuestion {
@@ -109,7 +109,7 @@ export default function Home() {
     }
   }, [currentUser, isLoaded, router]);
 
-  // Question Bank State
+  // Question Bank State - Luon dam bao tat ca cac cau hoi tu initialQuestions co mat
   const [questions, setQuestions] = useState<ExamItem[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -117,7 +117,14 @@ export default function Home() {
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map((item, idx) => ({
+            const existingIds = new Set(parsed.map((item: ExamItem) => item.id));
+            const merged = [...parsed];
+            for (const initQ of initialQuestions) {
+              if (!existingIds.has(initQ.id)) {
+                merged.push(initQ);
+              }
+            }
+            return merged.map((item, idx) => ({
               ...item,
               id: item.id || `q-${idx + 1}-${Date.now()}`,
               question: {
@@ -1039,14 +1046,39 @@ export default function Home() {
                           if (found) {
                             setSubjectName(`MÔN: ${found.name.toUpperCase()}`);
                           }
-                          const matchingIds = questions
-                            .filter((q) => q.question.subject?.id === sId)
-                            .map((q) => q.id);
+                          const matchingQuestions = questions.filter(
+                            (q) => q.question.subject?.id === sId
+                          );
+                          const matchingIds = matchingQuestions.map((q) => q.id);
                           setActiveQuestionIds(matchingIds);
                           setSidebarSearch("");
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
                           setSidebarGrade("ALL");
+
+                          if (matchingQuestions.length > 0) {
+                            const baseCodes = Array.from(
+                              { length: numVariants },
+                              (_, i) => 101 + i
+                            );
+                            setGeneratedExams(
+                              baseCodes.map((code) => ({
+                                code: `${code}`,
+                                questions: matchingQuestions.map((q, idx) => ({
+                                  originalIndex: idx + 1,
+                                  questionText: q.question.question,
+                                  contentText: q.question.content,
+                                  answer: q.question.answer,
+                                  level: q.question.level.short_name,
+                                  type: q.question.type.name,
+                                  solutionGuide: q.question.solution_guide,
+                                  subject: q.question.subject?.name,
+                                  grade: q.question.grade?.name,
+                                })),
+                              }))
+                            );
+                            setSelectedVariantIndex(0);
+                          }
                         }}
                         className="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
                       >
