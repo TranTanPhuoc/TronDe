@@ -1751,7 +1751,7 @@ export default function Home() {
                     Chưa có đề thi nào được tạo
                   </h3>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Vui lòng tích chọn các câu hỏi môn <strong>{currentSubjectObj.name}</strong> ở danh sách bên trái, sau đó bấm nút <strong>&quot;Tiến hành trộn đề&quot;</strong> để hệ thống tạo các mã đề thi hoán vị.
+                    Vui lòng tích chọn các câu hỏi Môn học ở danh sách bên trái, sau đó bấm nút <strong>&quot;Tiến hành trộn đề&quot;</strong> để hệ thống tạo các mã đề thi hoán vị.
                   </p>
                 </div>
               </div>
@@ -1770,7 +1770,7 @@ export default function Home() {
                         Chưa có ma trận đáp án
                       </h3>
                       <p className="text-xs text-slate-500 leading-relaxed">
-                        Vui lòng chọn câu hỏi môn <strong>{currentSubjectObj.name}</strong> ở danh sách bên trái và bấm <strong>&quot;Tiến hành trộn đề&quot;</strong> để xem bảng đối chiếu đáp án các mã đề thi.
+                        Vui lòng chọn câu hỏi Môn học ở danh sách bên trái và bấm <strong>&quot;Tiến hành trộn đề&quot;</strong> để xem bảng đối chiếu đáp án các mã đề thi.
                       </p>
                     </div>
                   </div>
@@ -1973,7 +1973,7 @@ export default function Home() {
                   Chưa có lời giải chi tiết
                 </h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Vui lòng chọn câu hỏi môn <strong>{currentSubjectObj.name}</strong> ở danh sách bên trái và bấm <strong>&quot;Tiến hành trộn đề&quot;</strong> để xem hướng dẫn giải chi tiết cho từng mã đề.
+                  Vui lòng chọn câu hỏi Môn học ở danh sách bên trái và bấm <strong>&quot;Tiến hành trộn đề&quot;</strong> để xem hướng dẫn giải chi tiết cho từng mã đề.
                 </p>
               </div>
             </div>
