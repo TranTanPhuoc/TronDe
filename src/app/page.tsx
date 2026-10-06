@@ -56,7 +56,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-const STORAGE_KEY = "phan_mem_tron_de_questions_v3";
+const STORAGE_KEY = "phan_mem_tron_de_questions_v5";
 const emptySubscribe = () => () => {};
 
 interface ShuffledQuestion {
@@ -109,7 +109,7 @@ export default function Home() {
     }
   }, [currentUser, isLoaded, router]);
 
-  // Question Bank State
+  // Question Bank State - Luon dam bao tat ca cau hoi tu initialQuestions co mat
   const [questions, setQuestions] = useState<ExamItem[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -117,7 +117,14 @@ export default function Home() {
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map((item, idx) => ({
+            const existingIds = new Set(parsed.map((item: ExamItem) => item.id));
+            const merged = [...parsed];
+            for (const initQ of initialQuestions) {
+              if (!existingIds.has(initQ.id)) {
+                merged.push(initQ);
+              }
+            }
+            return merged.map((item, idx) => ({
               ...item,
               id: item.id || `q-${idx + 1}-${Date.now()}`,
               question: {
@@ -143,7 +150,7 @@ export default function Home() {
   const [examTitle, setExamTitle] = useState("KIỂM TRA CHẤT LƯỢNG ĐỊNH KỲ");
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("TOAN");
   const [subjectName, setSubjectName] = useState("MÔN: TOÁN HỌC");
-  const [selectedGradeId, setSelectedGradeId] = useState<number>(12);
+  const [selectedGradeId, setSelectedGradeId] = useState<number | "ALL">("ALL");
   const [duration, setDuration] = useState("45");
   const [numVariants, setNumVariants] = useState<number>(4);
   const [shuffleChoices, setShuffleChoices] = useState<boolean>(true);
@@ -152,7 +159,6 @@ export default function Home() {
   const [sidebarSearch, setSidebarSearch] = useState("");
   const [sidebarLevel, setSidebarLevel] = useState("ALL");
   const [sidebarType, setSidebarType] = useState("ALL");
-  const [sidebarGrade, setSidebarGrade] = useState("ALL");
 
   // Mobile Accordion state for Exam Settings
   const [showMobileConfig, setShowMobileConfig] = useState(false);
@@ -260,27 +266,48 @@ export default function Home() {
     );
   }, [selectedSubjectId]);
 
-  // Total questions belonging to the currently selected subject
+  // Current grade metadata object
+  const currentGradeObj = useMemo(() => {
+    if (selectedGradeId === "ALL") return { id: "ALL", name: "Tất cả khối" };
+    return (
+      GRADES.find((g) => g.id === Number(selectedGradeId)) || {
+        id: selectedGradeId,
+        name: `Khối ${selectedGradeId}`,
+      }
+    );
+  }, [selectedGradeId]);
+
+  // Total questions belonging to currently selected subject and grade
   const subjectQuestionsTotal = useMemo(() => {
-    return questions.filter((q) => q.question.subject?.id === selectedSubjectId).length;
-  }, [questions, selectedSubjectId]);
+    return questions.filter((q) => {
+      if (q.question.subject?.id !== selectedSubjectId) return false;
+      if (selectedGradeId !== "ALL" && Number(q.question.grade?.id) !== Number(selectedGradeId)) {
+        return false;
+      }
+      return true;
+    }).length;
+  }, [questions, selectedSubjectId, selectedGradeId]);
 
-  // Checked/active questions belonging to the currently selected subject
+  // Checked/active questions belonging to currently selected subject and grade
   const activeQuestionsInSubject = useMemo(() => {
-    return questions.filter(
-      (q) => q.question.subject?.id === selectedSubjectId && activeQuestionIds.includes(q.id)
-    ).length;
-  }, [questions, selectedSubjectId, activeQuestionIds]);
+    return questions.filter((q) => {
+      if (q.question.subject?.id !== selectedSubjectId) return false;
+      if (selectedGradeId !== "ALL" && Number(q.question.grade?.id) !== Number(selectedGradeId)) {
+        return false;
+      }
+      return activeQuestionIds.includes(q.id);
+    }).length;
+  }, [questions, selectedSubjectId, selectedGradeId, activeQuestionIds]);
 
-  // Filtered questions for the Sidebar Question Selector (Strictly within selectedSubjectId)
+  // Filtered questions for the Sidebar Question Selector (Strictly within selectedSubjectId & selectedGradeId)
   const sidebarFilteredQuestions = useMemo(() => {
     return questions.filter((q) => {
       // 1. MUST strictly match currently selected subject
       if (q.question.subject?.id !== selectedSubjectId) {
         return false;
       }
-      // 2. Filter by Grade
-      if (sidebarGrade !== "ALL" && String(q.question.grade?.id) !== String(sidebarGrade)) {
+      // 2. MUST strictly match currently selected grade (neu khong phai "ALL")
+      if (selectedGradeId !== "ALL" && Number(q.question.grade?.id) !== Number(selectedGradeId)) {
         return false;
       }
       // 3. Filter by Level (4 mức độ: NB, TH, VD, VDC)
@@ -303,16 +330,18 @@ export default function Home() {
       }
       return true;
     });
-  }, [questions, selectedSubjectId, sidebarGrade, sidebarLevel, sidebarType, sidebarSearch]);
+  }, [questions, selectedSubjectId, selectedGradeId, sidebarLevel, sidebarType, sidebarSearch]);
 
-  // Shuffling logic: Chi tron DUY NHAT cac cau hoi da duoc nguoi dung tich chon
+  // Shuffling logic: Chi tron DUY NHAT cac cau hoi da duoc nguoi dung tich chon cua mon va khoi dang chon
   const handleShuffleExams = () => {
-    // Only pick questions that belong to the currently selected subject AND are checked in activeQuestionIds
-    const targetPool = questions.filter(
-      (q) =>
-        q.question.subject?.id === selectedSubjectId &&
-        activeQuestionIds.includes(q.id)
-    );
+    // Only pick questions that belong to currently selected subject AND grade AND are checked in activeQuestionIds
+    const targetPool = questions.filter((q) => {
+      if (q.question.subject?.id !== selectedSubjectId) return false;
+      if (selectedGradeId !== "ALL" && Number(q.question.grade?.id) !== Number(selectedGradeId)) {
+        return false;
+      }
+      return activeQuestionIds.includes(q.id);
+    });
 
     if (targetPool.length === 0) {
       showToast("Vui lòng chọn các câu hỏi trước khi trộn đề!");
@@ -1078,10 +1107,10 @@ export default function Home() {
                           setActiveQuestionIds([]);
                           setGeneratedExams([]);
                           setSelectedVariantIndex(0);
+                          setSelectedGradeId("ALL"); // Reset về tất cả khối của môn đó
                           setSidebarSearch("");
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
-                          setSidebarGrade("ALL");
                         }}
                         className="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
                       >
@@ -1099,9 +1128,20 @@ export default function Home() {
                       </label>
                       <select
                         value={selectedGradeId}
-                        onChange={(e) => setSelectedGradeId(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = e.target.value === "ALL" ? "ALL" : Number(e.target.value);
+                          setSelectedGradeId(val);
+                          // Bỏ chọn hết tất cả các câu hỏi khi đổi khối để người dùng tự chọn lại từ đầu
+                          setActiveQuestionIds([]);
+                          setGeneratedExams([]);
+                          setSelectedVariantIndex(0);
+                          setSidebarSearch("");
+                          setSidebarLevel("ALL");
+                          setSidebarType("ALL");
+                        }}
                         className="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
                       >
+                        <option value="ALL">Tất cả khối</option>
                         {GRADES.map((g) => (
                           <option key={g.id} value={g.id}>
                             {g.name}
@@ -1190,7 +1230,7 @@ export default function Home() {
                 <div className="flex items-center justify-between pb-2 border-b border-slate-100 flex-wrap gap-1">
                   <div>
                     <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-                      Câu hỏi {currentSubjectObj.name}
+                      Câu hỏi {currentSubjectObj.name} {selectedGradeId !== "ALL" ? `(${currentGradeObj.name})` : ""}
                     </span>
                     <span className="text-[11px] text-slate-500 font-medium">
                       Đã chọn: <strong className="text-indigo-600 font-bold">{activeQuestionsInSubject}</strong> / {subjectQuestionsTotal} câu
@@ -1228,28 +1268,34 @@ export default function Home() {
                     <span className="text-slate-300">|</span>
                     <button
                       onClick={() => {
-                        const subjectAllIds = questions
-                          .filter((q) => q.question.subject?.id === selectedSubjectId)
+                        const subjectGradeIds = questions
+                          .filter((q) => {
+                            if (q.question.subject?.id !== selectedSubjectId) return false;
+                            if (selectedGradeId !== "ALL" && Number(q.question.grade?.id) !== Number(selectedGradeId)) {
+                              return false;
+                            }
+                            return true;
+                          })
                           .map((q) => q.id);
                         const isAllSubjectChecked =
-                          subjectAllIds.length > 0 &&
-                          subjectAllIds.every((id) => activeQuestionIds.includes(id));
+                          subjectGradeIds.length > 0 &&
+                          subjectGradeIds.every((id) => activeQuestionIds.includes(id));
                         if (isAllSubjectChecked) {
                           setActiveQuestionIds((prev) =>
-                            prev.filter((id) => !subjectAllIds.includes(id))
+                            prev.filter((id) => !subjectGradeIds.includes(id))
                           );
                         } else {
                           setActiveQuestionIds((prev) =>
-                            Array.from(new Set([...prev, ...subjectAllIds]))
+                            Array.from(new Set([...prev, ...subjectGradeIds]))
                           );
                         }
                       }}
                       className="text-xs text-slate-600 hover:text-slate-800 font-bold cursor-pointer"
-                      title="Chọn hoặc bỏ chọn toàn bộ câu hỏi của môn này"
+                      title="Chọn hoặc bỏ chọn toàn bộ câu hỏi của môn và khối này"
                     >
                       {activeQuestionsInSubject === subjectQuestionsTotal && subjectQuestionsTotal > 0
-                        ? "Bỏ chọn môn"
-                        : "Tất cả môn"}
+                        ? "Bỏ chọn tất cả"
+                        : "Chọn tất cả"}
                     </button>
                   </div>
                 </div>
@@ -1304,26 +1350,38 @@ export default function Home() {
                     <div className="flex items-center gap-1.5 flex-1 min-w-0">
                       <span className="text-slate-500 font-semibold shrink-0">Khối:</span>
                       <select
-                        value={sidebarGrade}
-                        onChange={(e) => setSidebarGrade(e.target.value)}
+                        value={selectedGradeId}
+                        onChange={(e) => {
+                          const val = e.target.value === "ALL" ? "ALL" : Number(e.target.value);
+                          setSelectedGradeId(val);
+                          setActiveQuestionIds([]);
+                          setGeneratedExams([]);
+                          setSelectedVariantIndex(0);
+                          setSidebarSearch("");
+                          setSidebarLevel("ALL");
+                          setSidebarType("ALL");
+                        }}
                         className="text-[11px] bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 font-medium text-slate-700 cursor-pointer flex-1"
                       >
                         <option value="ALL">Tất cả khối</option>
                         {GRADES.map((g) => (
-                          <option key={g.id} value={String(g.id)}>
+                          <option key={g.id} value={g.id}>
                             {g.name}
                           </option>
                         ))}
                       </select>
                     </div>
 
-                    {(sidebarSearch || sidebarLevel !== "ALL" || sidebarType !== "ALL" || sidebarGrade !== "ALL") && (
+                    {(sidebarSearch || sidebarLevel !== "ALL" || sidebarType !== "ALL" || selectedGradeId !== "ALL") && (
                       <button
                         onClick={() => {
                           setSidebarSearch("");
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
-                          setSidebarGrade("ALL");
+                          setSelectedGradeId("ALL");
+                          setActiveQuestionIds([]);
+                          setGeneratedExams([]);
+                          setSelectedVariantIndex(0);
                         }}
                         className="text-rose-600 hover:text-rose-800 font-bold shrink-0 underline cursor-pointer"
                       >
@@ -1339,7 +1397,7 @@ export default function Home() {
                     <div className="p-4 text-center text-xs text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200 space-y-1.5">
                       <p className="font-semibold text-slate-700">
                         {subjectQuestionsTotal === 0
-                          ? `Chưa có câu hỏi nào thuộc môn ${currentSubjectObj.name} trong ngân hàng!`
+                          ? `Chưa có câu hỏi nào thuộc môn ${currentSubjectObj.name} ${selectedGradeId !== "ALL" ? `(${currentGradeObj.name})` : ""} trong ngân hàng!`
                           : `Không có câu hỏi ${currentSubjectObj.name} nào khớp bộ lọc.`}
                       </p>
                       {subjectQuestionsTotal === 0 ? (
@@ -1355,11 +1413,14 @@ export default function Home() {
                             setSidebarSearch("");
                             setSidebarLevel("ALL");
                             setSidebarType("ALL");
-                            setSidebarGrade("ALL");
+                            setSelectedGradeId("ALL");
+                            setActiveQuestionIds([]);
+                            setGeneratedExams([]);
+                            setSelectedVariantIndex(0);
                           }}
                           className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer"
                         >
-                          Đặt lại bộ lọc để xem {subjectQuestionsTotal} câu hỏi
+                          Đặt lại bộ lọc để xem {questions.filter((q) => q.question.subject?.id === selectedSubjectId).length} câu hỏi môn {currentSubjectObj.name}
                         </button>
                       )}
                     </div>
