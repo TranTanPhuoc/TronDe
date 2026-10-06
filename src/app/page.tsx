@@ -716,17 +716,23 @@ export default function Home() {
         <div className="w-full px-3 sm:px-6 lg:px-8">
           {/* Top Bar for Desktop & Tablet */}
           <div className="hidden sm:flex items-center justify-between gap-3 py-2.5 min-h-[58px]">
-            {/* Logo & Title */}
-            <div className="flex items-center gap-2.5 shrink-0">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-emerald-600 flex items-center justify-center text-white shadow-md shadow-indigo-100 shrink-0">
-                <Shuffle className="w-5 h-5" />
+            {/* Logo & Title with 3D aesthetic */}
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="relative group">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 flex items-center justify-center text-white shadow-[0_8px_16px_rgba(79,70,229,0.35),inset_0_1px_1px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.25)] border border-white/20 relative overflow-hidden shrink-0 transition-transform duration-200 group-hover:scale-105">
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-transparent pointer-events-none rounded-2xl"></div>
+                  <Shuffle className="w-5 h-5 relative z-10 drop-shadow-sm" />
+                </div>
+                {/* 3D shadow pedestal */}
+                <div className="absolute -bottom-1 left-2 right-2 h-2 bg-indigo-600/20 blur-sm rounded-full -z-10"></div>
               </div>
+
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-base lg:text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">
+                  <h1 className="text-base lg:text-lg font-black text-slate-900 tracking-tight whitespace-nowrap bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-800 bg-clip-text">
                     Hệ Thống Trộn Đề Thi
                   </h1>
-                  <span className="hidden md:inline-flex px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+                  <span className="hidden md:inline-flex px-2 py-0.5 text-[10px] font-extrabold bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200/80 rounded-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.04)]">
                     Chính Thức
                   </span>
                 </div>
@@ -738,37 +744,62 @@ export default function Home() {
 
             {/* Quick Actions & User Profile */}
             <div className="flex items-center gap-3 shrink-0">
-              {/* Create Question Button */}
+              {/* Create Question Button with 3D tactile button feel */}
               <button
                 onClick={handleOpenCreate}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm shadow-indigo-200 transition-colors cursor-pointer shrink-0"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-gradient-to-b from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 rounded-xl shadow-[0_4px_12px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_-2px_0_rgba(0,0,0,0.2)] active:translate-y-0.5 transition-all cursor-pointer shrink-0"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 drop-shadow-xs" />
                 <span>Thêm câu hỏi</span>
               </button>
 
-              {/* Logged in Teacher Profile Badge & Logout */}
-              <div className="flex items-center gap-2 pl-3 border-l border-slate-200 shrink-0">
-                <div
-                  className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0 select-none"
-                  title={currentUser.email}
-                >
-                  {currentUser.avatar || "GV"}
-                </div>
-                <div className="hidden xl:block text-left min-w-0">
-                  <div className="text-xs font-bold text-slate-800 leading-tight flex items-center gap-1">
-                    <span className="truncate max-w-[110px]">{currentUser.name}</span>
-                    <UserCheck className="w-3 h-3 text-emerald-600 shrink-0" />
+              {/* 3D Glassmorphic Teacher Profile Card */}
+              <div className="flex items-center gap-2.5 p-1.5 pr-2.5 bg-gradient-to-b from-white via-slate-50/90 to-indigo-50/30 border border-slate-200/90 rounded-2xl shadow-[0_4px_14px_rgba(15,23,42,0.05),0_1px_2px_rgba(0,0,0,0.03),inset_0_1px_1px_rgba(255,255,255,1)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.12),inset_0_1px_1px_rgba(255,255,255,1)] hover:border-indigo-200 transition-all duration-200 shrink-0">
+                {/* 3D Avatar Sphere */}
+                <div className="relative shrink-0">
+                  <div
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-700 via-indigo-600 to-teal-400 p-[2px] shadow-[0_4px_12px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.5)] relative overflow-hidden"
+                    title={currentUser.email}
+                  >
+                    {/* Glossy top specular light reflection */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-transparent rounded-xl pointer-events-none z-10"></div>
+                    <div className="w-full h-full rounded-[10px] bg-gradient-to-br from-indigo-600 via-indigo-700 to-emerald-700 flex items-center justify-center text-white font-black text-xs sm:text-sm tracking-wide shadow-inner select-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                      {currentUser.avatar || "GV"}
+                    </div>
                   </div>
-                  <div className="text-[10px] text-slate-500 truncate max-w-[110px]">
-                    {currentUser.school || "Giáo viên"}
+                  {/* 3D Online Active Indicator */}
+                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-full border-2 border-white shadow-[0_2px_4px_rgba(16,185,129,0.4)] ring-1 ring-emerald-500/30"></div>
+                </div>
+
+                {/* Name & School - Department Info */}
+                <div className="text-left min-w-0 space-y-0.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs sm:text-[13px] font-black text-slate-800 tracking-tight truncate max-w-[150px] sm:max-w-[200px]" title={currentUser.name}>
+                      {currentUser.name}
+                    </span>
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 text-[9px] font-extrabold bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-md shadow-[0_1px_3px_rgba(16,185,129,0.3)] shrink-0">
+                      <UserCheck className="w-2.5 h-2.5 text-white" />
+                      <span>{currentUser.role || "GV"}</span>
+                    </span>
+                  </div>
+
+                  {/* School & Department (Tổ chuyên môn) */}
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 flex items-center gap-1.5 font-medium leading-none">
+                    <span className="font-semibold text-slate-600 truncate max-w-[130px]" title={currentUser.school || schoolName}>
+                      {currentUser.school || schoolName}
+                    </span>
+                    <span className="text-slate-300">•</span>
+                    <span className="font-bold text-indigo-700 bg-indigo-50/90 px-1.5 py-0.5 rounded-md border border-indigo-200/80 truncate max-w-[140px] shadow-2xs" title={departmentName}>
+                      {departmentName}
+                    </span>
                   </div>
                 </div>
 
+                {/* 3D Tactile Logout Button */}
                 <button
                   onClick={handleLogout}
                   title="Đăng xuất khỏi hệ thống"
-                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer shrink-0"
+                  className="ml-1 p-2 text-slate-400 hover:text-rose-600 bg-white hover:bg-rose-50 border border-slate-200/80 hover:border-rose-200 rounded-xl shadow-[0_2px_5px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-95 transition-all cursor-pointer shrink-0"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -777,39 +808,49 @@ export default function Home() {
           </div>
 
           {/* Dedicated Header for Mobile (< sm) */}
-          <div className="sm:hidden py-2">
-            {/* Mobile: Brand, Add Question & User CTA */}
+          <div className="sm:hidden py-2.5">
+            {/* Mobile: Brand, Add Question & User CTA with 3D profile badge */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-600 to-emerald-600 flex items-center justify-center text-white shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 flex items-center justify-center text-white shadow-[0_4px_10px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-white/20 shrink-0">
                   <Shuffle className="w-4 h-4" />
                 </div>
-                <h1 className="text-sm font-bold text-slate-900 truncate">
-                  Trộn Đề Thi
-                </h1>
+                <div className="min-w-0">
+                  <h1 className="text-xs font-black text-slate-900 truncate">
+                    Trộn Đề Thi
+                  </h1>
+                  <p className="text-[10px] text-indigo-600 font-bold truncate">
+                    {departmentName}
+                  </p>
+                </div>
               </div>
 
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   onClick={handleOpenCreate}
-                  className="inline-flex items-center gap-1 py-1 px-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs"
+                  className="inline-flex items-center gap-1 py-1.5 px-2.5 text-xs font-bold text-white bg-gradient-to-b from-indigo-500 to-indigo-700 rounded-xl shadow-[0_2px_6px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.3)] active:scale-95 transition-all cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Thêm</span>
                 </button>
 
+                {/* 3D Mobile User Avatar */}
                 <div
-                  className="w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-600 to-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0"
+                  className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-teal-400 p-[1.5px] shadow-[0_2px_8px_rgba(79,70,229,0.25)] relative overflow-hidden shrink-0"
+                  title={`${currentUser.name} - ${currentUser.school || schoolName} - ${departmentName}`}
                 >
-                  {currentUser.avatar || "GV"}
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-transparent pointer-events-none rounded-xl z-10"></div>
+                  <div className="w-full h-full rounded-[9px] bg-gradient-to-br from-indigo-600 to-emerald-700 flex items-center justify-center text-white font-black text-[11px] shadow-inner select-none">
+                    {currentUser.avatar || "GV"}
+                  </div>
                 </div>
 
                 <button
                   onClick={handleLogout}
                   title="Đăng xuất"
-                  className="p-1 text-slate-400 hover:text-rose-600 rounded shrink-0"
+                  className="p-1.5 text-slate-400 hover:text-rose-600 bg-white hover:bg-rose-50 border border-slate-200/80 rounded-xl shadow-xs shrink-0"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
