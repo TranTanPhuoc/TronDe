@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useSyncExternalStore, useRef, useEffect } from "react";
+import React, { useState, useMemo, useSyncExternalStore, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { APP_ROUTES } from "@/route";
 import {
@@ -30,9 +30,6 @@ import {
 import {
   Shuffle,
   Plus,
-  Upload,
-  Download,
-  RotateCcw,
   CheckCircle2,
   AlertCircle,
   Info,
@@ -215,8 +212,6 @@ export default function Home() {
 
   // Toast status
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const showToast = (
     msg: string,
@@ -642,90 +637,6 @@ export default function Home() {
     showToast(`Đã xóa ${selectedBankIds.length} câu hỏi thành công!`);
   };
 
-  // Import / Export JSON
-  const handleExportJson = () => {
-    const exportData = questions.map(({ author, question }) => ({
-      author: {
-        id: author.id,
-        name: author.name,
-        created_at: author.created_at,
-        update_at: author.update_at,
-      },
-      question: {
-        content: question.content,
-        question: question.question,
-        solution_guide: question.solution_guide,
-        answer: question.answer,
-        level: question.level,
-        type: question.type,
-        subject: question.subject,
-        grade: question.grade,
-      },
-    }));
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `ngan-hang-cau-hoi-${Date.now()}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showToast("Đã xuất file JSON thành công!");
-  };
-
-  const handleImportJson = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const text = e.target?.result as string;
-        const parsed = JSON.parse(text);
-        if (!Array.isArray(parsed)) {
-          alert("File JSON không hợp lệ! Vui lòng chọn file chứa mảng câu hỏi.");
-          return;
-        }
-
-        const imported: ExamItem[] = parsed.map((item, idx) => ({
-          id: item.id || `q-imported-${Date.now()}-${idx}`,
-          author: {
-            id: item.author?.id || 1,
-            name: item.author?.name || currentUser?.name || "Tran Tan Phuoc",
-            created_at: item.author?.created_at || "26-06-2026 11:41:26",
-            update_at: item.author?.update_at || "26-06-2026 11:41:26",
-          },
-          question: {
-            content: item.question?.content || "",
-            question: item.question?.question || "",
-            solution_guide: item.question?.solution_guide || "",
-            answer: item.question?.answer || "",
-            level: item.question?.level || { id: 1, name: "Nhận Biết", short_name: "NB" },
-            type: item.question?.type || { id: 1, name: "Trắc Nghiệm", short_name: "TN" },
-            subject: item.question?.subject || { id: "TOAN", name: "Toán học" },
-            grade: item.question?.grade || { id: 12, name: "Khối 12" },
-          },
-        }));
-
-        const merged = [...imported, ...questions];
-        saveQuestions(merged);
-        setActiveQuestionIds(merged.map((q) => q.id));
-        showToast(`Đã nhập thành công ${imported.length} câu hỏi mới!`);
-      } catch {
-        alert("Lỗi khi đọc file JSON. Vui lòng kiểm tra định dạng file!");
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const handleResetData = () => {
-    if (confirm("Bạn có chắc chắn muốn đặt lại ngân hàng câu hỏi về dữ liệu mẫu ban đầu?")) {
-      saveQuestions(initialQuestions);
-      setActiveQuestionIds(initialQuestions.map((q) => q.id));
-      setSelectedBankIds([]);
-      showToast("Đã khôi phục dữ liệu mẫu ban đầu!");
-    }
-  };
-
   // Filtered in Bank Tab
   const filteredBankQuestions = useMemo(() => {
     return questions.filter((item) => {
@@ -800,21 +711,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Hidden File Input for JSON import */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        accept=".json"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            handleImportJson(file);
-            e.target.value = "";
-          }
-        }}
-        className="hidden"
-      />
-
       {/* Main Top Header - Full Screen Width */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs no-print backdrop-blur-md bg-white/95 w-full safe-padding-top">
         <div className="w-full px-3 sm:px-6 lg:px-8">
@@ -841,37 +737,7 @@ export default function Home() {
             </div>
 
             {/* Quick Actions & User Profile */}
-            <div className="flex items-center gap-2 shrink-0">
-              {/* JSON Data Management Group */}
-              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 shrink-0">
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  title="Nhập dữ liệu từ file JSON"
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:bg-white rounded-md transition-all cursor-pointer"
-                >
-                  <Upload className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Nhập</span>
-                </button>
-
-                <button
-                  onClick={handleExportJson}
-                  title="Xuất ngân hàng câu hỏi ra file JSON"
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:bg-white rounded-md transition-all cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Xuất</span>
-                </button>
-
-                <button
-                  onClick={handleResetData}
-                  title="Khôi phục câu hỏi mẫu ban đầu"
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100/70 rounded-md transition-all cursor-pointer"
-                >
-                  <RotateCcw className="w-3.5 h-3.5 text-amber-600" />
-                  <span className="hidden lg:inline">Mẫu</span>
-                </button>
-              </div>
-
+            <div className="flex items-center gap-3 shrink-0">
               {/* Create Question Button */}
               <button
                 onClick={handleOpenCreate}
@@ -880,16 +746,6 @@ export default function Home() {
                 <Plus className="w-4 h-4" />
                 <span>Thêm câu hỏi</span>
               </button>
-
-              {/* Shuffle Action Button */}
-              <button
-                onClick={handleShuffleExams}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-md shadow-emerald-200 transition-all cursor-pointer shrink-0"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>Trộn đề ngay</span>
-              </button>
-
 
               {/* Logged in Teacher Profile Badge & Logout */}
               <div className="flex items-center gap-2 pl-3 border-l border-slate-200 shrink-0">
@@ -921,8 +777,8 @@ export default function Home() {
           </div>
 
           {/* Dedicated Header for Mobile (< sm) */}
-          <div className="sm:hidden py-2 space-y-2">
-            {/* Mobile Row 1: Brand & Key CTA */}
+          <div className="sm:hidden py-2">
+            {/* Mobile: Brand, Add Question & User CTA */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-600 to-emerald-600 flex items-center justify-center text-white shrink-0">
@@ -935,11 +791,11 @@ export default function Home() {
 
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
-                  onClick={handleShuffleExams}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg shadow-xs"
+                  onClick={handleOpenCreate}
+                  className="inline-flex items-center gap-1 py-1 px-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Trộn đề</span>
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Thêm</span>
                 </button>
 
                 <div
@@ -954,42 +810,6 @@ export default function Home() {
                   className="p-1 text-slate-400 hover:text-rose-600 rounded shrink-0"
                 >
                   <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Mobile Row 2: Secondary Action Toolbar */}
-            <div className="flex items-center gap-1.5 pt-1 border-t border-slate-100">
-              <button
-                onClick={handleOpenCreate}
-                className="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Thêm câu hỏi</span>
-              </button>
-
-
-              <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 shrink-0">
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  title="Nhập JSON"
-                  className="px-2 py-1 text-xs font-semibold text-slate-700 hover:text-indigo-600"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={handleExportJson}
-                  title="Xuất JSON"
-                  className="px-2 py-1 text-xs font-semibold text-slate-700 hover:text-indigo-600"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={handleResetData}
-                  title="Dữ liệu mẫu"
-                  className="px-2 py-1 text-xs font-semibold text-amber-700"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
