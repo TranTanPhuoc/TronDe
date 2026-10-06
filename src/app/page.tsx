@@ -37,6 +37,7 @@ import {
   Copy,
   CheckCircle2,
   AlertCircle,
+  Info,
   FileText,
   FileDown,
   FileSpreadsheet,
@@ -109,6 +110,31 @@ export default function Home() {
       router.replace(APP_ROUTES.LOGIN);
     }
   }, [currentUser, isLoaded, router]);
+
+  // Xóa tiêu đề trang tạm thời trước khi in để trình duyệt không in tên website lên đầu trang
+  useEffect(() => {
+    let originalTitle = "";
+    const handleBeforePrint = () => {
+      originalTitle = document.title;
+      document.title = " ";
+    };
+
+    const handleAfterPrint = () => {
+      if (originalTitle) {
+        document.title = originalTitle;
+      } else {
+        document.title = "Phần Mềm Trộn Đề Thi Trắc Nghiệm Thông Minh";
+      }
+    };
+
+    window.addEventListener("beforeprint", handleBeforePrint);
+    window.addEventListener("afterprint", handleAfterPrint);
+
+    return () => {
+      window.removeEventListener("beforeprint", handleBeforePrint);
+      window.removeEventListener("afterprint", handleAfterPrint);
+    };
+  }, []);
 
   // Question Bank State - Luon dam bao tat ca cau hoi tu initialQuestions co mat
   const [questions, setQuestions] = useState<ExamItem[]>(() => {
@@ -195,9 +221,13 @@ export default function Home() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const showToast = (msg: string, type: "success" | "error" | "info" = "success") => {
+  const showToast = (
+    msg: string,
+    type: "success" | "error" | "info" = "success",
+    duration = 3000
+  ) => {
     setToast({ message: msg, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), duration);
   };
 
   const handleLogout = () => {
@@ -578,6 +608,18 @@ export default function Home() {
     }
   };
 
+  // In hoặc Lưu đề thi thành file PDF
+  const handlePrintExam = () => {
+    showToast(
+      "💡 Mẹo in PDF đẹp: Trong hộp thoại In, bấm 'Cài đặt khác' ➔ Bỏ chọn ô 'Tiêu đề đầu trang và chân trang' để ẩn hoàn toàn localhost và ngày giờ.",
+      "info",
+      6000
+    );
+    setTimeout(() => {
+      window.print();
+    }, 200);
+  };
+
   // Chunk matrix variants into groups of 10 for clean A4 printing/PDF without overflowing
   const matrixChunks = useMemo(() => {
     const chunkSize = 10;
@@ -771,14 +813,18 @@ export default function Home() {
       {/* Toast Notification */}
       {toast && (
         <div
-          className={`fixed bottom-5 right-5 z-50 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 animate-in slide-in-from-bottom duration-200 ${
+          className={`fixed bottom-5 right-5 z-50 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 animate-in slide-in-from-bottom duration-200 max-w-md ${
             toast.type === "error"
               ? "bg-red-600 border border-red-500 shadow-red-600/30 ring-2 ring-red-400/20"
+              : toast.type === "info"
+              ? "bg-indigo-950 border border-indigo-700 shadow-indigo-950/40 ring-2 ring-indigo-500/30 text-indigo-100"
               : "bg-slate-900 border border-slate-800 shadow-slate-900/30"
           }`}
         >
           {toast.type === "error" ? (
             <AlertCircle className="w-4.5 h-4.5 text-white shrink-0" />
+          ) : toast.type === "info" ? (
+            <Info className="w-4.5 h-4.5 text-indigo-300 shrink-0" />
           ) : (
             <CheckCircle2 className="w-4.5 h-4.5 text-emerald-400 shrink-0" />
           )}
@@ -1590,9 +1636,9 @@ export default function Home() {
 
                     {/* Print / Save PDF Button */}
                     <button
-                      onClick={() => window.print()}
+                      onClick={handlePrintExam}
                       className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-xs"
-                      title="In trực tiếp ra máy in hoặc Lưu thành file PDF"
+                      title="In trực tiếp hoặc Lưu thành PDF (Bỏ chọn 'Tiêu đề đầu trang và chân trang' trong hộp thoại in để không dính localhost/ngày giờ)"
                     >
                       <Printer className="w-3.5 h-3.5 text-slate-600" />
                       <span className="hidden sm:inline">In / PDF</span>
