@@ -135,10 +135,8 @@ export default function Home() {
     return initialQuestions;
   });
 
-  // Selected question IDs for shuffling (default to initially selected subject "TOAN")
-  const [activeQuestionIds, setActiveQuestionIds] = useState<string[]>(() =>
-    initialQuestions.filter((q) => q.question.subject?.id === "TOAN").map((q) => q.id)
-  );
+  // Selected question IDs for shuffling (Mac dinh khong chon truoc cau hoi nao, de nguoi dung tu chon)
+  const [activeQuestionIds, setActiveQuestionIds] = useState<string[]>([]);
 
   // Exam Configuration State
   const [schoolName, setSchoolName] = useState("TRƯỜNG THPT CHUYÊN");
@@ -165,25 +163,8 @@ export default function Home() {
   );
   const [selectedVariantIndex, setSelectedVariantIndex] = useState<number>(0);
 
-  // Generated Exam Variants State (scoped to initial subject "TOAN")
-  const [generatedExams, setGeneratedExams] = useState<ExamVariant[]>(() => {
-    const baseCodes = [101, 102, 103, 104];
-    const initialPool = initialQuestions.filter((q) => q.question.subject?.id === "TOAN");
-    return baseCodes.map((code) => ({
-      code: `${code}`,
-      questions: initialPool.map((q, idx) => ({
-        originalIndex: idx + 1,
-        questionText: q.question.question,
-        contentText: q.question.content,
-        answer: q.question.answer,
-        level: q.question.level.short_name,
-        type: q.question.type.name,
-        solutionGuide: q.question.solution_guide,
-        subject: q.question.subject?.name,
-        grade: q.question.grade?.name,
-      })),
-    }));
-  });
+  // Generated Exam Variants State (Mac dinh chua co de thi nao, chi duoc tao sau khi nguoi dung chon cau hoi va bam tron de)
+  const [generatedExams, setGeneratedExams] = useState<ExamVariant[]>([]);
 
   // Search & Filter in Bank Tab
   const [searchQuery, setSearchQuery] = useState("");
@@ -334,7 +315,7 @@ export default function Home() {
     );
 
     if (targetPool.length === 0) {
-      showToast(`Vui lòng tích chọn ít nhất 1 câu hỏi môn ${currentSubjectObj.name} để trộn đề!`);
+      showToast("Vui lòng chọn các câu hỏi trước khi trộn đề!");
       return;
     }
 
@@ -375,7 +356,7 @@ export default function Home() {
   // Tron de truc tiep tu cac cau hoi duoc tich chon trong tab Ngan hang cau hoi
   const handleShuffleFromBankSelection = () => {
     if (selectedBankIds.length === 0) {
-      showToast("Vui lòng tích chọn các câu hỏi bạn muốn đưa vào đề thi!");
+      showToast("Vui lòng chọn các câu hỏi trước khi trộn đề!");
       return;
     }
 
@@ -1093,10 +1074,10 @@ export default function Home() {
                           if (found) {
                             setSubjectName(`MÔN: ${found.name.toUpperCase()}`);
                           }
-                          const matchingIds = questions
-                            .filter((q) => q.question.subject?.id === sId)
-                            .map((q) => q.id);
-                          setActiveQuestionIds(matchingIds);
+                          // Bỏ chọn hết tất cả các câu hỏi để người dùng tự chọn lại từ đầu
+                          setActiveQuestionIds([]);
+                          setGeneratedExams([]);
+                          setSelectedVariantIndex(0);
                           setSidebarSearch("");
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
@@ -1192,18 +1173,13 @@ export default function Home() {
                 {/* Big Action Button */}
                 <button
                   onClick={handleShuffleExams}
-                  disabled={activeQuestionsInSubject === 0}
-                  className={`w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 text-xs font-bold rounded-xl shadow-md transition-all ${
-                    activeQuestionsInSubject > 0
-                      ? "text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-200 cursor-pointer"
-                      : "text-slate-400 bg-slate-100 border border-slate-200 shadow-none cursor-not-allowed"
-                  }`}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl shadow-md shadow-emerald-200 transition-all cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>
                     {activeQuestionsInSubject > 0
                       ? `Tiến hành trộn đề (${activeQuestionsInSubject} câu đã chọn)`
-                      : `Vui lòng chọn câu hỏi bên dưới`}
+                      : `Tiến hành trộn đề`}
                   </span>
                 </button>
               </div>
@@ -1449,18 +1425,13 @@ export default function Home() {
 
                   <button
                     onClick={handleShuffleExams}
-                    disabled={activeQuestionsInSubject === 0}
-                    className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 text-xs font-bold rounded-xl transition-all shadow-sm ${
-                      activeQuestionsInSubject > 0
-                        ? "text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-indigo-200 cursor-pointer"
-                        : "text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed"
-                    }`}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-3 text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-indigo-200 rounded-xl transition-all shadow-sm cursor-pointer"
                   >
                     <Sparkles className="w-4 h-4" />
                     <span>
                       {activeQuestionsInSubject > 0
                         ? `Trộn đề với đúng ${activeQuestionsInSubject} câu đã chọn`
-                        : "Chưa chọn câu hỏi nào"}
+                        : "Tiến hành trộn đề"}
                     </span>
                   </button>
                 </div>
@@ -1657,19 +1628,52 @@ export default function Home() {
               </div>
             )}
 
+            {/* TAB 1: EMPTY STATE KHI CHUA CO DE THI */}
+            {activeTab === "exam" && !currentExam && (
+              <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-8 sm:p-14 text-center space-y-4 shadow-xs w-full">
+                <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                  <FileText className="w-8 h-8" />
+                </div>
+                <div className="space-y-1.5 max-w-md mx-auto">
+                  <h3 className="text-base font-bold text-slate-800">
+                    Chưa có đề thi nào được tạo
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Vui lòng tích chọn các câu hỏi môn <strong>{currentSubjectObj.name}</strong> ở danh sách bên trái, sau đó bấm nút <strong>&quot;Tiến hành trộn đề&quot;</strong> để hệ thống tạo các mã đề thi hoán vị.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* TAB 2: ANSWER MATRIX */}
             {activeTab === "matrix" && (
               <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-4 w-full">
-                {/* Matrix Header & Actions Bar (no-print) */}
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2.5 no-print">
-                  <div>
-                    <h3 className="text-sm sm:text-base font-bold text-slate-900">
-                      Bảng Ma Trận Đáp Án Đối Chiếu Các Mã Đề
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      Tổng hợp đáp án đối chiếu của {generatedExams.length} mã đề thi ({subjectName})
-                    </p>
+                {generatedExams.length === 0 ? (
+                  <div className="py-12 text-center space-y-3">
+                    <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                      <TableProperties className="w-7 h-7" />
+                    </div>
+                    <div className="space-y-1.5 max-w-md mx-auto">
+                      <h3 className="text-base font-bold text-slate-800">
+                        Chưa có ma trận đáp án
+                      </h3>
+                      <p className="text-xs text-slate-500 leading-relaxed">
+                        Vui lòng chọn câu hỏi môn <strong>{currentSubjectObj.name}</strong> ở danh sách bên trái và bấm <strong>&quot;Tiến hành trộn đề&quot;</strong> để xem bảng đối chiếu đáp án các mã đề thi.
+                      </p>
+                    </div>
                   </div>
+                ) : (
+                  <>
+                    {/* Matrix Header & Actions Bar (no-print) */}
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2.5 no-print">
+                      <div>
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                          Bảng Ma Trận Đáp Án Đối Chiếu Các Mã Đề
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                          Tổng hợp đáp án đối chiếu của {generatedExams.length} mã đề thi ({subjectName})
+                        </p>
+                      </div>
 
                   {/* Export and Action Buttons */}
                   <div className="flex items-center flex-wrap gap-2">
@@ -1841,11 +1845,30 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+                </>
+              )}
+            </div>
+          )}
 
-            {/* TAB 3: STEP-BY-STEP SOLUTIONS */}
-            {activeTab === "solution" && currentExam && (
+          {/* TAB 3: EMPTY STATE KHI CHUA CO DE THI */}
+          {activeTab === "solution" && !currentExam && (
+            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-8 sm:p-14 text-center space-y-4 shadow-xs w-full">
+              <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                <BookOpen className="w-8 h-8" />
+              </div>
+              <div className="space-y-1.5 max-w-md mx-auto">
+                <h3 className="text-base font-bold text-slate-800">
+                  Chưa có lời giải chi tiết
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Vui lòng chọn câu hỏi môn <strong>{currentSubjectObj.name}</strong> ở danh sách bên trái và bấm <strong>&quot;Tiến hành trộn đề&quot;</strong> để xem hướng dẫn giải chi tiết cho từng mã đề.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: STEP-BY-STEP SOLUTIONS */}
+          {activeTab === "solution" && currentExam && (
               <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-5 w-full">
                 <div className="pb-3 border-b border-slate-100 space-y-3">
                   <div className="flex items-center justify-between flex-wrap gap-2">
