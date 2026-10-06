@@ -33,8 +33,6 @@ import {
   Upload,
   Download,
   RotateCcw,
-  Printer,
-  Copy,
   CheckCircle2,
   AlertCircle,
   Info,
@@ -215,9 +213,8 @@ export default function Home() {
   const [itemToDelete, setItemToDelete] = useState<ExamItem | null>(null);
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
-  // Toast & Copy status
+  // Toast status
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
-  const [copiedExam, setCopiedExam] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -484,23 +481,6 @@ export default function Home() {
     showToast(`Đã tạo thành công ${numVariants} mã đề từ đúng ${selectedQuestions.length} câu hỏi đã chọn trong ngân hàng!`);
   };
 
-  // Copy current exam content
-  const handleCopyCurrentExam = () => {
-    const current = generatedExams[selectedVariantIndex];
-    if (!current) return;
-
-    let text = `${schoolName.toUpperCase()}\n${departmentName}\n${examTitle.toUpperCase()}\n${subjectName} - THỜI GIAN: ${duration} PHÚT\nMÃ ĐỀ: ${current.code}\n\n`;
-    current.questions.forEach((q, idx) => {
-      text += `Câu ${idx + 1}: ${q.questionText}\n`;
-      if (q.contentText) text += `${q.contentText}\n`;
-      text += `\n`;
-    });
-
-    navigator.clipboard.writeText(text);
-    setCopiedExam(true);
-    setTimeout(() => setCopiedExam(false), 2000);
-  };
-
   // Export current exam variant to standard Microsoft Word (.docx) with A4 format, Times New Roman 13pt
   const handleExportWord = () => {
     const current = generatedExams[selectedVariantIndex];
@@ -606,18 +586,6 @@ export default function Home() {
       console.error("Lỗi xuất ma trận Excel:", err);
       showToast("Có lỗi xảy ra khi tạo file Excel ma trận đáp án!", "error");
     }
-  };
-
-  // In hoặc Lưu đề thi thành file PDF
-  const handlePrintExam = () => {
-    showToast(
-      "💡 Mẹo in PDF đẹp: Trong hộp thoại In, bấm 'Cài đặt khác' ➔ Bỏ chọn ô 'Tiêu đề đầu trang và chân trang' để ẩn hoàn toàn localhost và ngày giờ.",
-      "info",
-      6000
-    );
-    setTimeout(() => {
-      window.print();
-    }, 200);
   };
 
   // Chunk matrix variants into groups of 10 for clean A4 printing/PDF without overflowing
@@ -1603,47 +1571,28 @@ export default function Home() {
                     </div>
 
                     {/* Actions */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={handleCopyCurrentExam}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
-                    >
-                      {copiedExam ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span className="hidden sm:inline">{copiedExam ? "Đã sao chép!" : "Sao chép đề"}</span>
-                      <span className="sm:hidden">{copiedExam ? "Đã chép" : "Chép"}</span>
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {/* Export directly to Word (.docx) with A4 format */}
+                      <button
+                        onClick={handleExportWord}
+                        className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-blue-200"
+                        title="Tự động xuất đề thi sang file Word (.docx) chuẩn khổ giấy A4"
+                      >
+                        <FileDown className="w-4 h-4" />
+                        <span>Xuất Word</span>
+                      </button>
 
-                    {/* Export directly to Word (.docx) with A4 format */}
-                    <button
-                      onClick={handleExportWord}
-                      className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-blue-200"
-                      title="Tự động xuất đề thi sang file Word (.docx) chuẩn khổ giấy A4"
-                    >
-                      <FileDown className="w-4 h-4" />
-                      <span>Xuất Word</span>
-                    </button>
-
-                    {/* Export ALL exams into a single .zip archive */}
-                    <button
-                      onClick={handleExportAllZip}
-                      className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-emerald-200"
-                      title={`Tự động xuất tất cả ${generatedExams.length} mã đề thi (.docx) vào 1 file ZIP`}
-                    >
-                      <FolderArchive className="w-4 h-4" />
-                      <span className="hidden sm:inline">Xuất tất cả ({generatedExams.length} đề .zip)</span>
-                      <span className="sm:hidden">Tất cả ({generatedExams.length} đề .zip)</span>
-                    </button>
-
-                    {/* Print / Save PDF Button */}
-                    <button
-                      onClick={handlePrintExam}
-                      className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-xs"
-                      title="In trực tiếp hoặc Lưu thành PDF (Bỏ chọn 'Tiêu đề đầu trang và chân trang' trong hộp thoại in để không dính localhost/ngày giờ)"
-                    >
-                      <Printer className="w-3.5 h-3.5 text-slate-600" />
-                      <span className="hidden sm:inline">In / PDF</span>
-                    </button>
-                  </div>
+                      {/* Export ALL exams into a single .zip archive */}
+                      <button
+                        onClick={handleExportAllZip}
+                        className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-emerald-200"
+                        title={`Tự động xuất tất cả ${generatedExams.length} mã đề thi (.docx) vào 1 file ZIP`}
+                      >
+                        <FolderArchive className="w-4 h-4" />
+                        <span className="hidden sm:inline">Xuất tất cả ({generatedExams.length} đề .zip)</span>
+                        <span className="sm:hidden">Tất cả ({generatedExams.length} đề .zip)</span>
+                      </button>
+                    </div>
                 </div>
 
                 {/* Row 2: All Variant Switcher Buttons (Wrap automatically on width limit) */}
