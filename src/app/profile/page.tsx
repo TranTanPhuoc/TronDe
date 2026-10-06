@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { APP_ROUTES } from "@/route";
 import {
@@ -11,10 +11,13 @@ import {
   BookOpen,
   Shield,
   ArrowLeft,
-  Check,
   AlertCircle,
   Save,
   CheckCircle2,
+  Lock,
+  Camera,
+  Trash2,
+  Upload,
 } from "lucide-react";
 import { ProfileUserData } from "@/components/ProfileModal";
 
@@ -38,6 +41,8 @@ const AVATAR_PALETTES = [
 ];
 
 export default function ProfilePage() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [initialUser] = useState<ProfileUserData>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -54,15 +59,74 @@ export default function ProfilePage() {
   const [email, setEmail] = useState(initialUser.email || "");
   const [phone, setPhone] = useState(initialUser.phone || "0912 345 678");
   const [school, setSchool] = useState(initialUser.school || DEFAULT_TEACHER.school);
-  const [department, setDepartment] = useState(
+  // Tổ bộ môn chuyên môn: Hiển thị theo tài khoản, KHÔNG cho phép chỉnh sửa
+  const [department] = useState(
     initialUser.department || "TỔ TOÁN HỌC"
   );
   const [role, setRole] = useState(initialUser.role || DEFAULT_TEACHER.role);
+
+  // Avatar text & custom uploaded image
   const [avatarText, setAvatarText] = useState(initialUser.avatar || "TP");
+  const [avatarImage, setAvatarImage] = useState<string | null>(
+    initialUser.avatarImage || null
+  );
   const [selectedPalette, setSelectedPalette] = useState(0);
 
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  // Handle image upload & crop to square 256x256
+  const handleImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("Vui lòng chọn file định dạng hình ảnh hợp lệ (PNG, JPG, WEBP)!");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage("Dung lượng file ảnh tối đa là 5MB!");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (!result) return;
+
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const size = 256;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          const minDim = Math.min(img.width, img.height);
+          const sx = (img.width - minDim) / 2;
+          const sy = (img.height - minDim) / 2;
+          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+          const compressed = canvas.toDataURL("image/jpeg", 0.88);
+          setAvatarImage(compressed);
+        } else {
+          setAvatarImage(result);
+        }
+        setSuccessMessage("Đã chọn ảnh đại diện mới! Hãy nhấn 'Lưu thông tin hồ sơ' để áp dụng.");
+        setErrorMessage("");
+      };
+      img.src = result;
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input value so same file can be selected again
+    e.target.value = "";
+  };
+
+  const handleRemoveImage = () => {
+    setAvatarImage(null);
+    setSuccessMessage("Đã chuyển về sử dụng ảnh Avatar chữ viết tắt 3D!");
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,19 +144,20 @@ export default function ProfilePage() {
     }
 
     const updatedUser: ProfileUserData = {
-      id: "demo-teacher-01",
+      id: initialUser.id || "demo-teacher-01",
       name: name.trim(),
       email: email.trim(),
       phone: phone.trim(),
       school: school.trim(),
-      department: department.trim(),
+      department: department.trim(), // Giữ nguyên tổ bộ môn cố định
       role: role.trim(),
       avatar: avatarText.trim().toUpperCase() || "GV",
+      avatarImage: avatarImage || undefined,
     };
 
     try {
       localStorage.setItem("tron_de_auth_user", JSON.stringify(updatedUser));
-      setSuccessMessage("Cập nhật thông tin cá nhân giáo viên thành công!");
+      setSuccessMessage("Cập nhật thông tin cá nhân và ảnh đại diện giáo viên thành công!");
       setTimeout(() => {
         setSuccessMessage("");
       }, 4000);
@@ -103,6 +168,15 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-indigo-50/20 to-slate-100 flex flex-col font-sans py-6 px-4 sm:px-6 lg:px-8">
+      {/* Hidden file input for uploading avatar image */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png, image/jpeg, image/webp"
+        onChange={handleImageFile}
+        className="hidden"
+      />
+
       {/* Top Navbar */}
       <div className="max-w-4xl w-full mx-auto mb-6 flex items-center justify-between">
         <Link
@@ -131,7 +205,7 @@ export default function ProfilePage() {
               Thông Tin Cá Nhân Giáo Viên
             </h1>
             <p className="text-xs sm:text-sm text-indigo-100 font-medium">
-              Quản lý hồ sơ công tác, chữ ký hiển thị đề thi và tổ chuyên môn
+              Quản lý hồ sơ công tác, ảnh đại diện Avatar và tổ chuyên môn
             </p>
           </div>
         </div>
@@ -152,55 +226,105 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* 3D Avatar Profile Spotlight Box */}
-          <div className="p-5 bg-gradient-to-b from-slate-50 via-indigo-50/30 to-white rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center gap-5 shadow-2xs">
-            {/* 3D Avatar Orb */}
+          {/* 3D Avatar Profile Spotlight Box with Image Upload */}
+          <div className="p-5 sm:p-6 bg-gradient-to-b from-slate-50 via-indigo-50/30 to-white rounded-2xl border border-slate-200 flex flex-col md:flex-row items-center gap-6 shadow-2xs">
+            {/* 3D Avatar Orb / Photo Display */}
             <div className="relative group shrink-0">
               <div
-                className={`w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-tr ${AVATAR_PALETTES[selectedPalette].gradient} p-[3px] shadow-[0_8px_24px_rgba(79,70,229,0.35),inset_0_1px_2px_rgba(255,255,255,0.6)] relative overflow-hidden`}
+                className={`w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr ${
+                  avatarImage
+                    ? "from-indigo-600 to-teal-400"
+                    : AVATAR_PALETTES[selectedPalette].gradient
+                } p-[3px] shadow-[0_8px_24px_rgba(79,70,229,0.35),inset_0_1px_2px_rgba(255,255,255,0.6)] relative overflow-hidden`}
               >
-                <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-transparent rounded-2xl pointer-events-none z-10"></div>
-                <div className="w-full h-full rounded-[14px] bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900 flex items-center justify-center text-white font-black text-2xl sm:text-3xl tracking-wider select-none shadow-inner drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                  {avatarText || "GV"}
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-transparent rounded-2xl pointer-events-none z-10"></div>
+                {avatarImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarImage}
+                    alt={name}
+                    className="w-full h-full rounded-[14px] object-cover shadow-inner select-none"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-[14px] bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900 flex items-center justify-center text-white font-black text-3xl sm:text-4xl tracking-wider select-none shadow-inner drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                    {avatarText || "GV"}
+                  </div>
+                )}
               </div>
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-full border-2 border-white shadow-[0_2px_5px_rgba(16,185,129,0.4)] flex items-center justify-center">
-                <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
-              </div>
+
+              {/* Upload trigger button overlay */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                title="Tải ảnh đại diện từ máy tính"
+                className="absolute -bottom-1 -right-1 p-2 bg-gradient-to-tr from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-full border-2 border-white shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer"
+              >
+                <Camera className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* Avatar Initials & Color Palette Picker */}
-            <div className="space-y-2.5 text-center sm:text-left flex-1 min-w-0">
-              <div className="flex flex-col sm:flex-row items-center gap-2">
-                <label className="text-xs sm:text-sm font-bold text-slate-700">
-                  Chữ ký viết tắt trên Avatar (2–3 ký tự):
-                </label>
-                <input
-                  type="text"
-                  maxLength={3}
-                  value={avatarText}
-                  onChange={(e) => setAvatarText(e.target.value.toUpperCase())}
-                  className="w-24 px-3 py-1.5 text-center font-extrabold text-sm uppercase bg-white border border-slate-300 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
-                />
-              </div>
-              <p className="text-xs text-slate-500 font-medium">
-                Chọn phong cách màu 3D nổi bật cho ảnh đại diện của Thầy/Cô:
-              </p>
-              <div className="flex items-center justify-center sm:justify-start gap-2 pt-1">
-                {AVATAR_PALETTES.map((pal, idx) => (
+            {/* Avatar Actions & Controls */}
+            <div className="space-y-3 text-center md:text-left flex-1 min-w-0">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-colors cursor-pointer"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{avatarImage ? "Đổi ảnh đại diện" : "Tải ảnh từ máy tính"}</span>
+                </button>
+
+                {avatarImage && (
                   <button
-                    key={idx}
                     type="button"
-                    onClick={() => setSelectedPalette(idx)}
-                    title={pal.name}
-                    className={`w-7 h-7 rounded-xl bg-gradient-to-tr ${pal.gradient} transition-all cursor-pointer ${
-                      selectedPalette === idx
-                        ? "ring-2 ring-offset-2 ring-indigo-600 scale-110 shadow-md"
-                        : "opacity-75 hover:opacity-100"
-                    }`}
-                  />
-                ))}
+                    onClick={handleRemoveImage}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Xóa ảnh (dùng chữ 3D)</span>
+                  </button>
+                )}
               </div>
+
+              <p className="text-xs text-slate-500 font-medium">
+                Hỗ trợ định dạng PNG, JPG, WEBP. Ảnh sẽ được tự động căn chỉnh khung vuông chuẩn 3D.
+              </p>
+
+              {/* Initials & Color Palette (Available when not using custom image) */}
+              {!avatarImage && (
+                <div className="pt-2 border-t border-slate-200/80 space-y-2">
+                  <div className="flex flex-col sm:flex-row items-center gap-2">
+                    <label className="text-xs font-bold text-slate-700">
+                      Chữ ký viết tắt trên Avatar (2–3 ký tự):
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={3}
+                      value={avatarText}
+                      onChange={(e) => setAvatarText(e.target.value.toUpperCase())}
+                      className="w-20 px-2.5 py-1 text-center font-extrabold text-xs uppercase bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-center md:justify-start gap-2 pt-0.5">
+                    <span className="text-[11px] text-slate-500 font-semibold mr-1">Tông màu 3D:</span>
+                    {AVATAR_PALETTES.map((pal, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setSelectedPalette(idx)}
+                        title={pal.name}
+                        className={`w-6 h-6 rounded-lg bg-gradient-to-tr ${pal.gradient} transition-all cursor-pointer ${
+                          selectedPalette === idx
+                            ? "ring-2 ring-offset-2 ring-indigo-600 scale-110 shadow-md"
+                            : "opacity-75 hover:opacity-100"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -242,22 +366,31 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Department */}
+            {/* Department / Tổ chuyên môn - CỐ ĐỊNH, KHÔNG CHO THAY ĐỔI */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Tổ bộ môn chuyên môn <span className="text-rose-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Tổ bộ môn chuyên môn
+                </label>
+                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                  <Lock className="w-3 h-3 text-amber-600" />
+                  <span>Cố định (Không thể sửa)</span>
+                </span>
+              </div>
               <div className="relative">
                 <BookOpen className="w-4 h-4 text-indigo-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
-                  required
+                  readOnly
+                  disabled
                   value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  placeholder="VD: TỔ TOÁN HỌC"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-indigo-50/40 border border-indigo-200 rounded-xl text-indigo-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                  className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-100/90 border border-slate-300 rounded-xl text-slate-800 font-black cursor-not-allowed select-none shadow-inner"
                 />
+                <Lock className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
               </div>
+              <p className="mt-1 text-[11px] text-slate-500 font-medium">
+                Tổ chuyên môn được liên kết tự động theo tài khoản của Thầy/Cô và không thể tự chỉnh sửa.
+              </p>
             </div>
 
             {/* Email */}

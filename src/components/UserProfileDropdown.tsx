@@ -90,9 +90,18 @@ export default function UserProfileDropdown({
             title={`${user.name} - ${user.school || schoolName} - ${departmentName}`}
           >
             <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-transparent pointer-events-none rounded-xl z-10"></div>
-            <div className="w-full h-full rounded-[9px] bg-gradient-to-br from-indigo-600 to-emerald-700 flex items-center justify-center text-white font-black text-[11px] shadow-inner select-none">
-              {user.avatar || "GV"}
-            </div>
+            {user.avatarImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.avatarImage}
+                alt={user.name}
+                className="w-full h-full rounded-[9px] object-cover"
+              />
+            ) : (
+              <div className="w-full h-full rounded-[9px] bg-gradient-to-br from-indigo-600 to-emerald-700 flex items-center justify-center text-white font-black text-[11px] shadow-inner select-none">
+                {user.avatar || "GV"}
+              </div>
+            )}
           </div>
           <ChevronDown
             className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
@@ -106,8 +115,17 @@ export default function UserProfileDropdown({
             {/* Header info */}
             <div className="p-3 bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 rounded-xl border border-indigo-100/80 mb-1.5 text-left">
               <div className="flex items-center gap-2 mb-1.5">
-                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs">
-                  {user.avatar || "GV"}
+                <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs shrink-0 overflow-hidden">
+                  {user.avatarImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={user.avatarImage}
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    user.avatar || "GV"
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-black text-slate-900 truncate">
@@ -221,9 +239,18 @@ export default function UserProfileDropdown({
           >
             {/* Glossy top specular light reflection */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-transparent rounded-xl pointer-events-none z-10"></div>
-            <div className="w-full h-full rounded-[10px] bg-gradient-to-br from-indigo-600 via-indigo-700 to-emerald-700 flex items-center justify-center text-white font-black text-xs sm:text-sm tracking-wide shadow-inner select-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
-              {user.avatar || "GV"}
-            </div>
+            {user.avatarImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.avatarImage}
+                alt={user.name}
+                className="w-full h-full rounded-[10px] object-cover select-none drop-shadow-xs"
+              />
+            ) : (
+              <div className="w-full h-full rounded-[10px] bg-gradient-to-br from-indigo-600 via-indigo-700 to-emerald-700 flex items-center justify-center text-white font-black text-xs sm:text-sm tracking-wide shadow-inner select-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                {user.avatar || "GV"}
+              </div>
+            )}
           </div>
           {/* 3D Online Active Indicator */}
           <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-full border-2 border-white shadow-[0_2px_4px_rgba(16,185,129,0.4)] ring-1 ring-emerald-500/30"></div>
@@ -278,10 +305,19 @@ export default function UserProfileDropdown({
           {/* Header Card inside Dropdown */}
           <div className="p-3 bg-gradient-to-br from-indigo-50/70 via-white to-slate-50 rounded-xl border border-indigo-100/80 mb-2">
             <div className="flex items-center gap-2.5 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-700 to-teal-400 p-[1.5px] shadow-xs shrink-0">
-                <div className="w-full h-full rounded-[10px] bg-gradient-to-br from-indigo-600 to-emerald-700 flex items-center justify-center text-white font-black text-xs shadow-inner">
-                  {user.avatar || "GV"}
-                </div>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-700 to-teal-400 p-[1.5px] shadow-xs shrink-0 overflow-hidden">
+                {user.avatarImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={user.avatarImage}
+                    alt={user.name}
+                    className="w-full h-full rounded-[10px] object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-[10px] bg-gradient-to-br from-indigo-600 to-emerald-700 flex items-center justify-center text-white font-black text-xs shadow-inner">
+                    {user.avatar || "GV"}
+                  </div>
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-1">

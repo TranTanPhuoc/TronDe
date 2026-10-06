@@ -11,6 +11,7 @@ import {
   BookOpen,
   Shield,
   AlertCircle,
+  Lock,
 } from "lucide-react";
 
 export interface ProfileUserData {
@@ -20,6 +21,7 @@ export interface ProfileUserData {
   school: string;
   role: string;
   avatar: string;
+  avatarImage?: string;
   department?: string;
   phone?: string;
   subject?: string;
@@ -60,7 +62,7 @@ function ProfileModalContent({
   const [email, setEmail] = useState(currentUser.email || "");
   const [phone, setPhone] = useState(currentUser.phone || "0912 345 678");
   const [school, setSchool] = useState(currentUser.school || schoolName);
-  const [department, setDepartment] = useState(
+  const [department] = useState(
     currentUser.department || departmentName
   );
   const [role, setRole] = useState(currentUser.role || "Tổ trưởng Chuyên môn");
@@ -222,21 +224,27 @@ function ProfileModalContent({
                 </div>
               </div>
 
-              {/* Department / Tổ chuyên môn */}
+              {/* Department / Tổ chuyên môn - Locked */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Tổ bộ môn chuyên môn <span className="text-rose-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Tổ bộ môn chuyên môn
+                  </label>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                    <Lock className="w-2.5 h-2.5 text-amber-600" />
+                    <span>Cố định</span>
+                  </span>
+                </div>
                 <div className="relative">
                   <BookOpen className="w-4 h-4 text-indigo-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    required
+                    readOnly
+                    disabled
                     value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    placeholder="VD: TỔ TOÁN HỌC"
-                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-indigo-50/40 border border-indigo-200 rounded-xl text-indigo-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                    className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-slate-100 border border-slate-300 rounded-xl text-slate-800 font-bold cursor-not-allowed select-none shadow-2xs"
                   />
+                  <Lock className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
 
