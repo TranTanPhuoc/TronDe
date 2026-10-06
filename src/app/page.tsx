@@ -21,9 +21,7 @@ import {
 import QuestionModal from "@/components/QuestionModal";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
-import ProfileModal, { ProfileUserData } from "@/components/ProfileModal";
-import ChangePasswordModal from "@/components/ChangePasswordModal";
-import FeedbackModal from "@/components/FeedbackModal";
+import { ProfileUserData } from "@/components/ProfileModal";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 import {
   downloadExamDocx,
@@ -92,8 +90,8 @@ export default function Home() {
   const router = useRouter();
   const isLoaded = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
-  // Auth state - Luôn có tài khoản giáo viên mặc định để đảm bảo giao diện luôn hiển thị
-  const [currentUser, setCurrentUser] = useState<CurrentUser>(() => {
+  // Auth state - Luôn có tài khoản giáo viên mặc định để giao diện luôn hiển thị
+  const [currentUser] = useState<CurrentUser>(() => {
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem("tron_de_auth_user");
@@ -104,20 +102,6 @@ export default function Home() {
     }
     return DEFAULT_TEACHER;
   });
-
-  // Tự động đồng bộ tài khoản mẫu vào localStorage nếu chưa có
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = localStorage.getItem("tron_de_auth_user");
-        if (!stored) {
-          localStorage.setItem("tron_de_auth_user", JSON.stringify(DEFAULT_TEACHER));
-        }
-      } catch {
-        // Storage error
-      }
-    }
-  }, []);
 
   // Xóa tiêu đề trang tạm thời trước khi in để trình duyệt không in tên website lên đầu trang
   useEffect(() => {
@@ -223,11 +207,6 @@ export default function Home() {
   const [itemToDelete, setItemToDelete] = useState<ExamItem | null>(null);
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
-  // Account Modals State
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
-
   // Toast status
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
@@ -245,18 +224,6 @@ export default function Home() {
       localStorage.removeItem("tron_de_auth_user");
       router.replace(APP_ROUTES.LOGIN);
     }
-  };
-
-  const handleSaveProfile = (updatedUser: ProfileUserData) => {
-    setCurrentUser(updatedUser);
-    if (updatedUser.school) setSchoolName(updatedUser.school);
-    if (updatedUser.department) setDepartmentName(updatedUser.department);
-    try {
-      localStorage.setItem("tron_de_auth_user", JSON.stringify(updatedUser));
-    } catch {
-      // Storage error
-    }
-    showToast("Cập nhật thông tin cá nhân thành công!", "success");
   };
 
   const saveQuestions = (newQuestions: ExamItem[]) => {
@@ -788,9 +755,6 @@ export default function Home() {
                 currentUser={currentUser}
                 schoolName={schoolName}
                 departmentName={departmentName}
-                onOpenProfile={() => setIsProfileModalOpen(true)}
-                onOpenChangePassword={() => setIsPasswordModalOpen(true)}
-                onOpenFeedback={() => setIsFeedbackModalOpen(true)}
                 onLogout={handleLogout}
               />
             </div>
@@ -828,9 +792,6 @@ export default function Home() {
                   currentUser={currentUser}
                   schoolName={schoolName}
                   departmentName={departmentName}
-                  onOpenProfile={() => setIsProfileModalOpen(true)}
-                  onOpenChangePassword={() => setIsPasswordModalOpen(true)}
-                  onOpenFeedback={() => setIsFeedbackModalOpen(true)}
                   onLogout={handleLogout}
                   isMobile={true}
                 />
@@ -2131,33 +2092,6 @@ export default function Home() {
         itemToDelete={null}
         countToDelete={selectedBankIds.length}
       />
-
-      {/* Account Modals */}
-      {currentUser && (
-        <>
-          <ProfileModal
-            isOpen={isProfileModalOpen}
-            onClose={() => setIsProfileModalOpen(false)}
-            currentUser={currentUser}
-            onSave={handleSaveProfile}
-            schoolName={schoolName}
-            departmentName={departmentName}
-          />
-
-          <ChangePasswordModal
-            isOpen={isPasswordModalOpen}
-            onClose={() => setIsPasswordModalOpen(false)}
-            onSuccess={(msg) => showToast(msg, "success")}
-          />
-
-          <FeedbackModal
-            isOpen={isFeedbackModalOpen}
-            onClose={() => setIsFeedbackModalOpen(false)}
-            currentUser={currentUser}
-            onSuccess={(msg) => showToast(msg, "success")}
-          />
-        </>
-      )}
     </div>
   );
 }

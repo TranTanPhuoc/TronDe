@@ -11,6 +11,11 @@ export const APP_ROUTES = {
   LOGIN: "/login",
   REGISTER: "/register",
   FORGOT_PASSWORD: "/forgotpassword",
+
+  // Màn hình tài khoản & Tiện ích riêng biệt
+  PROFILE: "/profile",
+  CHANGE_PASSWORD: "/changepassword",
+  FEEDBACK: "/feedback",
 } as const;
 
 export type AppRouteKey = keyof typeof APP_ROUTES;
@@ -50,6 +55,24 @@ export const ROUTE_METADATA: Record<AppRouteKey, RouteMeta> = {
     name: "Quên Mật Khẩu",
     description: "Khôi phục mật khẩu thông qua mã xác nhận bảo mật",
     requiresAuth: false,
+  },
+  PROFILE: {
+    path: APP_ROUTES.PROFILE,
+    name: "Thông Tin Cá Nhân",
+    description: "Quản lý hồ sơ công tác, trường học và tổ chuyên môn giáo viên",
+    requiresAuth: true,
+  },
+  CHANGE_PASSWORD: {
+    path: APP_ROUTES.CHANGE_PASSWORD,
+    name: "Đổi Mật Khẩu",
+    description: "Cập nhật mật khẩu bảo mật tài khoản giáo viên",
+    requiresAuth: true,
+  },
+  FEEDBACK: {
+    path: APP_ROUTES.FEEDBACK,
+    name: "Đóng Góp Ý Kiến",
+    description: "Gửi ý kiến phản hồi, đánh giá và đề xuất tính năng mới",
+    requiresAuth: true,
   },
 };
 

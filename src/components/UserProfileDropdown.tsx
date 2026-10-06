@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { APP_ROUTES } from "@/route";
 import {
   User,
   KeyRound,
@@ -16,9 +18,9 @@ interface UserProfileDropdownProps {
   currentUser?: ProfileUserData | null;
   schoolName: string;
   departmentName: string;
-  onOpenProfile: () => void;
-  onOpenChangePassword: () => void;
-  onOpenFeedback: () => void;
+  onOpenProfile?: () => void;
+  onOpenChangePassword?: () => void;
+  onOpenFeedback?: () => void;
   onLogout: () => void;
   isMobile?: boolean;
 }
@@ -128,11 +130,11 @@ export default function UserProfileDropdown({
 
             {/* Menu Items */}
             <div className="space-y-0.5">
-              <button
-                type="button"
+              <Link
+                href={APP_ROUTES.PROFILE}
                 onClick={() => {
                   setIsOpen(false);
-                  onOpenProfile();
+                  if (onOpenProfile) onOpenProfile();
                 }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/80 rounded-xl transition-colors cursor-pointer text-left"
               >
@@ -141,15 +143,15 @@ export default function UserProfileDropdown({
                 </div>
                 <div className="min-w-0">
                   <p className="font-bold">Thông tin cá nhân</p>
-                  <p className="text-[10px] text-slate-400">Hồ sơ trường, tổ & liên hệ</p>
+                  <p className="text-[10px] text-slate-400">Giao diện quản lý hồ sơ riêng</p>
                 </div>
-              </button>
+              </Link>
 
-              <button
-                type="button"
+              <Link
+                href={APP_ROUTES.CHANGE_PASSWORD}
                 onClick={() => {
                   setIsOpen(false);
-                  onOpenChangePassword();
+                  if (onOpenChangePassword) onOpenChangePassword();
                 }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-amber-600 hover:bg-amber-50/80 rounded-xl transition-colors cursor-pointer text-left"
               >
@@ -158,15 +160,15 @@ export default function UserProfileDropdown({
                 </div>
                 <div className="min-w-0">
                   <p className="font-bold">Đổi mật khẩu</p>
-                  <p className="text-[10px] text-slate-400">Bảo mật tài khoản giáo viên</p>
+                  <p className="text-[10px] text-slate-400">Màn hình đổi mật khẩu riêng</p>
                 </div>
-              </button>
+              </Link>
 
-              <button
-                type="button"
+              <Link
+                href={APP_ROUTES.FEEDBACK}
                 onClick={() => {
                   setIsOpen(false);
-                  onOpenFeedback();
+                  if (onOpenFeedback) onOpenFeedback();
                 }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-rose-600 hover:bg-rose-50/80 rounded-xl transition-colors cursor-pointer text-left"
               >
@@ -175,9 +177,9 @@ export default function UserProfileDropdown({
                 </div>
                 <div className="min-w-0">
                   <p className="font-bold">Đóng góp ý kiến</p>
-                  <p className="text-[10px] text-slate-400">Góp ý tính năng & báo lỗi</p>
+                  <p className="text-[10px] text-slate-400">Góp ý & đánh giá phần mềm</p>
                 </div>
-              </button>
+              </Link>
             </div>
 
             <div className="border-t border-slate-100 mt-1 pt-1">
@@ -309,11 +311,11 @@ export default function UserProfileDropdown({
           {/* Navigation Options List */}
           <div className="space-y-1">
             {/* Option 1: Personal Profile */}
-            <button
-              type="button"
+            <Link
+              href={APP_ROUTES.PROFILE}
               onClick={() => {
                 setIsOpen(false);
-                onOpenProfile();
+                if (onOpenProfile) onOpenProfile();
               }}
               className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/70 rounded-xl transition-all cursor-pointer group text-left"
             >
@@ -325,17 +327,17 @@ export default function UserProfileDropdown({
                   Thông tin cá nhân
                 </div>
                 <div className="text-[10px] text-slate-400 group-hover:text-slate-500">
-                  Cập nhật hồ sơ, tên trường & tổ bộ môn
+                  Mở màn hình hồ sơ & tổ chuyên môn riêng
                 </div>
               </div>
-            </button>
+            </Link>
 
             {/* Option 2: Change Password */}
-            <button
-              type="button"
+            <Link
+              href={APP_ROUTES.CHANGE_PASSWORD}
               onClick={() => {
                 setIsOpen(false);
-                onOpenChangePassword();
+                if (onOpenChangePassword) onOpenChangePassword();
               }}
               className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-amber-600 hover:bg-amber-50/70 rounded-xl transition-all cursor-pointer group text-left"
             >
@@ -347,17 +349,17 @@ export default function UserProfileDropdown({
                   Đổi mật khẩu
                 </div>
                 <div className="text-[10px] text-slate-400 group-hover:text-slate-500">
-                  Cập nhật mật khẩu bảo mật tài khoản
+                  Mở màn hình đổi mật khẩu riêng
                 </div>
               </div>
-            </button>
+            </Link>
 
             {/* Option 3: Feedback / Suggestions */}
-            <button
-              type="button"
+            <Link
+              href={APP_ROUTES.FEEDBACK}
               onClick={() => {
                 setIsOpen(false);
-                onOpenFeedback();
+                if (onOpenFeedback) onOpenFeedback();
               }}
               className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-rose-600 hover:bg-rose-50/70 rounded-xl transition-all cursor-pointer group text-left"
             >
@@ -369,10 +371,10 @@ export default function UserProfileDropdown({
                   Đóng góp ý kiến
                 </div>
                 <div className="text-[10px] text-slate-400 group-hover:text-slate-500">
-                  Gửi góp ý tính năng & đánh giá sao
+                  Mở màn hình gửi đánh giá & góp ý riêng
                 </div>
               </div>
-            </button>
+            </Link>
           </div>
 
           {/* Divider & Option 4: Logout */}
