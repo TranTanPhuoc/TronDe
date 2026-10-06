@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   X,
-  Check,
   User,
   Mail,
   Phone,
@@ -12,6 +11,10 @@ import {
   Shield,
   AlertCircle,
   Lock,
+  Camera,
+  Upload,
+  Trash2,
+  Check,
 } from "lucide-react";
 
 export interface ProfileUserData {
@@ -58,17 +61,71 @@ function ProfileModalContent({
   departmentName: string;
   schoolName: string;
 }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [name, setName] = useState(currentUser.name || "");
   const [email, setEmail] = useState(currentUser.email || "");
   const [phone, setPhone] = useState(currentUser.phone || "0912 345 678");
   const [school, setSchool] = useState(currentUser.school || schoolName);
+  // Tổ bộ môn chuyên môn: Cố định theo tài khoản, không cho phép chỉnh sửa
   const [department] = useState(
     currentUser.department || departmentName
   );
   const [role, setRole] = useState(currentUser.role || "Tổ trưởng Chuyên môn");
   const [avatarText, setAvatarText] = useState(currentUser.avatar || "GV");
+  const [avatarImage, setAvatarImage] = useState<string | null>(
+    currentUser.avatarImage || null
+  );
   const [selectedPalette, setSelectedPalette] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const handleImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("Vui lòng chọn file định dạng hình ảnh hợp lệ (PNG, JPG, WEBP)!");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage("Dung lượng file ảnh tối đa là 5MB!");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (!result) return;
+
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const size = 256;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          const minDim = Math.min(img.width, img.height);
+          const sx = (img.width - minDim) / 2;
+          const sy = (img.height - minDim) / 2;
+          ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+          const compressed = canvas.toDataURL("image/jpeg", 0.88);
+          setAvatarImage(compressed);
+        } else {
+          setAvatarImage(result);
+        }
+        setErrorMessage("");
+      };
+      img.src = result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleRemoveImage = () => {
+    setAvatarImage(null);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +149,7 @@ function ProfileModalContent({
       department: department.trim(),
       role: role.trim(),
       avatar: avatarText.trim().toUpperCase() || "GV",
+      avatarImage: avatarImage || undefined,
     };
 
     onSave(updatedUser);
@@ -100,6 +158,15 @@ function ProfileModalContent({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png, image/jpeg, image/webp"
+        onChange={handleImageFile}
+        className="hidden"
+      />
+
       <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-indigo-50/70 via-white to-slate-50 shrink-0">
@@ -112,7 +179,7 @@ function ProfileModalContent({
                 Thông Tin Cá Nhân Giáo Viên
               </h2>
               <p className="text-xs text-slate-500">
-                Quản lý hồ sơ công tác, trường học và tổ chuyên môn
+                Quản lý hồ sơ công tác, ảnh Avatar và tổ chuyên môn
               </p>
             </div>
           </div>
@@ -134,55 +201,98 @@ function ProfileModalContent({
               </div>
             )}
 
-            {/* 3D Avatar Profile Spotlight */}
+            {/* 3D Avatar Profile Spotlight with Image Upload */}
             <div className="p-4 bg-gradient-to-b from-slate-50 via-indigo-50/30 to-white rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row items-center gap-4 shadow-2xs">
-              {/* 3D Avatar Orb */}
+              {/* 3D Avatar Orb / Photo */}
               <div className="relative group shrink-0">
                 <div
-                  className={`w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr ${AVATAR_PALETTES[selectedPalette].gradient} p-[2.5px] shadow-[0_8px_20px_rgba(79,70,229,0.3),inset_0_1px_2px_rgba(255,255,255,0.6)] relative overflow-hidden`}
+                  className={`w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-gradient-to-tr ${
+                    avatarImage
+                      ? "from-indigo-600 to-teal-400"
+                      : AVATAR_PALETTES[selectedPalette].gradient
+                  } p-[2.5px] shadow-[0_8px_20px_rgba(79,70,229,0.3),inset_0_1px_2px_rgba(255,255,255,0.6)] relative overflow-hidden`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-transparent rounded-2xl pointer-events-none z-10"></div>
-                  <div className="w-full h-full rounded-[14px] bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900 flex items-center justify-center text-white font-black text-2xl sm:text-3xl tracking-wider select-none shadow-inner drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                    {avatarText || "GV"}
-                  </div>
+                  {avatarImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={avatarImage}
+                      alt={name}
+                      className="w-full h-full rounded-[14px] object-cover shadow-inner select-none"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-[14px] bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900 flex items-center justify-center text-white font-black text-2xl sm:text-3xl tracking-wider select-none shadow-inner drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                      {avatarText || "GV"}
+                    </div>
+                  )}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-full border-2 border-white shadow-[0_2px_4px_rgba(16,185,129,0.4)] flex items-center justify-center">
-                  <Check className="w-3 h-3 text-white stroke-[3]" />
-                </div>
+
+                {/* Upload Camera trigger */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Tải ảnh đại diện từ máy tính"
+                  className="absolute -bottom-1 -right-1 p-1.5 bg-gradient-to-tr from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-full border-2 border-white shadow-md hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              {/* Avatar Initials & Color Palette Picker */}
+              {/* Avatar Actions & Initials / Palette */}
               <div className="space-y-2 text-center sm:text-left flex-1 min-w-0">
-                <div className="flex flex-col sm:flex-row items-center gap-2">
-                  <label className="text-xs font-bold text-slate-700">
-                    Chữ hiển thị Avatar (2-3 ký tự):
-                  </label>
-                  <input
-                    type="text"
-                    maxLength={3}
-                    value={avatarText}
-                    onChange={(e) => setAvatarText(e.target.value.toUpperCase())}
-                    className="w-20 px-2.5 py-1 text-center font-extrabold text-xs uppercase bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
-                  />
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Chọn tông màu 3D cho ảnh đại diện của Thầy/Cô:
-                </p>
-                <div className="flex items-center justify-center sm:justify-start gap-1.5 pt-0.5">
-                  {AVATAR_PALETTES.map((pal, idx) => (
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{avatarImage ? "Đổi ảnh đại diện" : "Tải ảnh từ máy tính"}</span>
+                  </button>
+
+                  {avatarImage && (
                     <button
-                      key={idx}
                       type="button"
-                      onClick={() => setSelectedPalette(idx)}
-                      title={pal.name}
-                      className={`w-6 h-6 rounded-lg bg-gradient-to-tr ${pal.gradient} transition-transform cursor-pointer ${
-                        selectedPalette === idx
-                          ? "ring-2 ring-offset-2 ring-indigo-600 scale-110 shadow-xs"
-                          : "opacity-75 hover:opacity-100"
-                      }`}
-                    />
-                  ))}
+                      onClick={handleRemoveImage}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Xóa ảnh</span>
+                    </button>
+                  )}
                 </div>
+
+                {!avatarImage && (
+                  <>
+                    <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+                      <label className="text-xs font-bold text-slate-700">
+                        Chữ hiển thị Avatar:
+                      </label>
+                      <input
+                        type="text"
+                        maxLength={3}
+                        value={avatarText}
+                        onChange={(e) => setAvatarText(e.target.value.toUpperCase())}
+                        className="w-16 px-2 py-0.5 text-center font-extrabold text-xs uppercase bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                      />
+                    </div>
+                    <div className="flex items-center justify-center sm:justify-start gap-1.5 pt-0.5">
+                      {AVATAR_PALETTES.map((pal, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setSelectedPalette(idx)}
+                          title={pal.name}
+                          className={`w-5 h-5 rounded-md bg-gradient-to-tr ${pal.gradient} transition-transform cursor-pointer ${
+                            selectedPalette === idx
+                              ? "ring-2 ring-offset-1 ring-indigo-600 scale-110 shadow-xs"
+                              : "opacity-75 hover:opacity-100"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -224,7 +334,7 @@ function ProfileModalContent({
                 </div>
               </div>
 
-              {/* Department / Tổ chuyên môn - Locked */}
+              {/* Department / Tổ chuyên môn - CỐ ĐỊNH, KHÔNG CHO THAY ĐỔI */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
