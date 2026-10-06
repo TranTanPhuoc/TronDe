@@ -1617,10 +1617,10 @@ export default function Home() {
                   {/* Formal Exam Header */}
                   <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-start border-b-2 border-slate-900 pb-4 gap-3 sm:gap-4">
                     {/* School Box */}
-                    <div className="flex items-center justify-between sm:block sm:w-1/3 text-left sm:text-center font-bold space-y-0.5 sm:space-y-1">
+                    <div className="flex items-center justify-between sm:block sm:w-1/3 text-left sm:text-center space-y-0.5 sm:space-y-1">
                       <div>
-                        <p className="uppercase font-bold tracking-tight" style={{ fontSize: "12pt" }}>{schoolName}</p>
-                        <p className="font-normal text-slate-700" style={{ fontSize: "11pt" }}>{departmentName}</p>
+                        <p className="uppercase font-normal text-slate-700 tracking-tight" style={{ fontSize: "12pt" }}>{schoolName}</p>
+                        <p className="uppercase font-bold text-slate-900 tracking-tight" style={{ fontSize: "11pt" }}>{departmentName}</p>
                         <div className="hidden sm:block w-20 h-0.5 bg-slate-900 mx-auto mt-1"></div>
                       </div>
                       <div className="sm:hidden border-2 border-slate-900 rounded-lg px-2.5 py-1 text-center bg-indigo-50/50">
@@ -1871,9 +1871,9 @@ export default function Home() {
                     >
                       {/* Formal School & Exam Header */}
                       <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-3 text-xs">
-                        <div className="text-left font-bold space-y-0.5">
-                          <p className="uppercase text-sm">{schoolName}</p>
-                          <p className="font-normal text-slate-700 text-xs">{departmentName}</p>
+                        <div className="text-left space-y-0.5">
+                          <p className="uppercase text-sm font-normal text-slate-700">{schoolName}</p>
+                          <p className="uppercase text-xs font-bold text-slate-900">{departmentName}</p>
                         </div>
                         <div className="text-right font-bold space-y-0.5">
                           <p className="uppercase text-sm">{examTitle}</p>

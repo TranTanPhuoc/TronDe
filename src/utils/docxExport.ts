@@ -283,15 +283,15 @@ export function generateExamDocxBytes(options: ExportDocxOptions): Uint8Array {
           <w:p>
             <w:pPr><w:jc w:val="center"/><w:spacing w:after="30"/></w:pPr>
             <w:r>
-              <w:rPr><w:b/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr>
+              <w:rPr><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr>
               <w:t>${escapeXml(schoolName).toUpperCase()}</w:t>
             </w:r>
           </w:p>
           <w:p>
             <w:pPr><w:jc w:val="center"/><w:spacing w:after="80"/></w:pPr>
             <w:r>
-              <w:rPr><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>
-              <w:t>${escapeXml(departmentName || "TỔ BỘ MÔN CHUYÊN MÔN")}</w:t>
+              <w:rPr><w:b/><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>
+              <w:t>${escapeXml((departmentName || "TỔ BỘ MÔN CHUYÊN MÔN").toUpperCase())}</w:t>
             </w:r>
           </w:p>
         </w:tc>
@@ -725,11 +725,11 @@ export function generateMatrixDocxBytes(options: ExportMatrixOptions): Uint8Arra
               <w:tcPr><w:tcW w:w="4200" w:type="dxa"/></w:tcPr>
               <w:p>
                 <w:pPr><w:jc w:val="center"/><w:spacing w:after="20"/></w:pPr>
-                <w:r><w:rPr><w:b/><w:sz w:val="22"/></w:rPr><w:t>${escapeXml(schoolName).toUpperCase()}</w:t></w:r>
+                <w:r><w:rPr><w:sz w:val="22"/></w:rPr><w:t>${escapeXml(schoolName).toUpperCase()}</w:t></w:r>
               </w:p>
               <w:p>
                 <w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr>
-                <w:r><w:rPr><w:sz w:val="20"/></w:rPr><w:t>${escapeXml(departmentName || "TỔ BỘ MÔN CHUYÊN MÔN")}</w:t></w:r>
+                <w:r><w:rPr><w:b/><w:sz w:val="20"/></w:rPr><w:t>${escapeXml((departmentName || "TỔ BỘ MÔN CHUYÊN MÔN").toUpperCase())}</w:t></w:r>
               </w:p>
             </w:tc>
             <w:tc>
