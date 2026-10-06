@@ -56,7 +56,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-const STORAGE_KEY = "phan_mem_tron_de_questions_v4";
+const STORAGE_KEY = "phan_mem_tron_de_questions_v3";
 const emptySubscribe = () => () => {};
 
 interface ShuffledQuestion {
@@ -109,7 +109,7 @@ export default function Home() {
     }
   }, [currentUser, isLoaded, router]);
 
-  // Question Bank State - Luon dam bao tat ca cac cau hoi tu initialQuestions co mat
+  // Question Bank State
   const [questions, setQuestions] = useState<ExamItem[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -117,14 +117,7 @@ export default function Home() {
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const existingIds = new Set(parsed.map((item: ExamItem) => item.id));
-            const merged = [...parsed];
-            for (const initQ of initialQuestions) {
-              if (!existingIds.has(initQ.id)) {
-                merged.push(initQ);
-              }
-            }
-            return merged.map((item, idx) => ({
+            return parsed.map((item, idx) => ({
               ...item,
               id: item.id || `q-${idx + 1}-${Date.now()}`,
               question: {
@@ -331,17 +324,17 @@ export default function Home() {
     });
   }, [questions, selectedSubjectId, sidebarGrade, sidebarLevel, sidebarType, sidebarSearch]);
 
-  // Shuffling logic
+  // Shuffling logic: Chi tron DUY NHAT cac cau hoi da duoc nguoi dung tich chon
   const handleShuffleExams = () => {
     // Only pick questions that belong to the currently selected subject AND are checked in activeQuestionIds
     const targetPool = questions.filter(
       (q) =>
         q.question.subject?.id === selectedSubjectId &&
-        (activeQuestionIds.length > 0 ? activeQuestionIds.includes(q.id) : true)
+        activeQuestionIds.includes(q.id)
     );
 
     if (targetPool.length === 0) {
-      showToast(`Vui lòng chọn ít nhất 1 câu hỏi môn ${currentSubjectObj.name} để trộn đề!`);
+      showToast(`Vui lòng tích chọn ít nhất 1 câu hỏi môn ${currentSubjectObj.name} để trộn đề!`);
       return;
     }
 
@@ -356,7 +349,7 @@ export default function Home() {
         );
 
         return {
-          originalIndex: questions.findIndex((orig) => orig.id === q.id) + 1,
+          originalIndex: targetPool.findIndex((orig) => orig.id === q.id) + 1,
           questionText: q.question.question,
           contentText: content,
           answer: answer,
@@ -376,7 +369,61 @@ export default function Home() {
 
     setGeneratedExams(variants);
     setSelectedVariantIndex(0);
-    showToast(`Đã tạo thành công ${numVariants} mã đề thi mới!`);
+    showToast(`Đã tạo thành công ${numVariants} mã đề từ đúng ${targetPool.length} câu hỏi bạn đã chọn!`);
+  };
+
+  // Tron de truc tiep tu cac cau hoi duoc tich chon trong tab Ngan hang cau hoi
+  const handleShuffleFromBankSelection = () => {
+    if (selectedBankIds.length === 0) {
+      showToast("Vui lòng tích chọn các câu hỏi bạn muốn đưa vào đề thi!");
+      return;
+    }
+
+    const selectedQuestions = questions.filter((q) => selectedBankIds.includes(q.id));
+    if (selectedQuestions.length === 0) return;
+
+    // Tu dong cap nhat mon hoc neu cac cau hoi chon cung thuoc mot mon
+    const firstSubject = selectedQuestions[0].question.subject;
+    if (firstSubject) {
+      setSelectedSubjectId(firstSubject.id);
+      setSubjectName(`MÔN: ${firstSubject.name.toUpperCase()}`);
+    }
+
+    // Gan danh sach cau hoi duoc chon
+    setActiveQuestionIds(selectedBankIds);
+
+    const variants: ExamVariant[] = [];
+    for (let i = 0; i < numVariants; i++) {
+      const code = `${101 + i}`;
+      const shuffledList = shuffleArray(selectedQuestions).map((q) => {
+        const { content, answer } = shuffleOptionsForQuestion(
+          q.question.content,
+          q.question.answer
+        );
+
+        return {
+          originalIndex: selectedQuestions.findIndex((orig) => orig.id === q.id) + 1,
+          questionText: q.question.question,
+          contentText: content,
+          answer: answer,
+          level: q.question.level.short_name,
+          type: q.question.type.name,
+          solutionGuide: q.question.solution_guide,
+          subject: q.question.subject?.name,
+          grade: q.question.grade?.name,
+        };
+      });
+
+      variants.push({
+        code,
+        questions: shuffledList,
+      });
+    }
+
+    setGeneratedExams(variants);
+    setSelectedVariantIndex(0);
+    setActiveTab("exam");
+    showToast(`Đã tạo thành công ${numVariants} mã đề từ đúng ${selectedQuestions.length} câu hỏi đã chọn trong ngân hàng!`);
   };
 
   // Copy matrix to clipboard
@@ -968,7 +1015,7 @@ export default function Home() {
               <div className="flex items-center gap-2 min-w-0">
                 <Settings2 className="w-4 h-4 text-indigo-600 shrink-0" />
                 <span className="text-xs font-bold text-slate-800 truncate">
-                  Cấu hình đề ({numVariants} mã đề, {activeQuestionIds.length} câu)
+                  Cấu hình đề ({numVariants} mã đề, {activeQuestionsInSubject} câu)
                 </span>
               </div>
               <button
@@ -1046,39 +1093,14 @@ export default function Home() {
                           if (found) {
                             setSubjectName(`MÔN: ${found.name.toUpperCase()}`);
                           }
-                          const matchingQuestions = questions.filter(
-                            (q) => q.question.subject?.id === sId
-                          );
-                          const matchingIds = matchingQuestions.map((q) => q.id);
+                          const matchingIds = questions
+                            .filter((q) => q.question.subject?.id === sId)
+                            .map((q) => q.id);
                           setActiveQuestionIds(matchingIds);
                           setSidebarSearch("");
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
                           setSidebarGrade("ALL");
-
-                          if (matchingQuestions.length > 0) {
-                            const baseCodes = Array.from(
-                              { length: numVariants },
-                              (_, i) => 101 + i
-                            );
-                            setGeneratedExams(
-                              baseCodes.map((code) => ({
-                                code: `${code}`,
-                                questions: matchingQuestions.map((q, idx) => ({
-                                  originalIndex: idx + 1,
-                                  questionText: q.question.question,
-                                  contentText: q.question.content,
-                                  answer: q.question.answer,
-                                  level: q.question.level.short_name,
-                                  type: q.question.type.name,
-                                  solutionGuide: q.question.solution_guide,
-                                  subject: q.question.subject?.name,
-                                  grade: q.question.grade?.name,
-                                })),
-                              }))
-                            );
-                            setSelectedVariantIndex(0);
-                          }
                         }}
                         className="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
                       >
@@ -1170,10 +1192,19 @@ export default function Home() {
                 {/* Big Action Button */}
                 <button
                   onClick={handleShuffleExams}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl shadow-md shadow-emerald-200 transition-all cursor-pointer"
+                  disabled={activeQuestionsInSubject === 0}
+                  className={`w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 text-xs font-bold rounded-xl shadow-md transition-all ${
+                    activeQuestionsInSubject > 0
+                      ? "text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-200 cursor-pointer"
+                      : "text-slate-400 bg-slate-100 border border-slate-200 shadow-none cursor-not-allowed"
+                  }`}
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span>Tiến hành trộn lại đề thi</span>
+                  <span>
+                    {activeQuestionsInSubject > 0
+                      ? `Tiến hành trộn đề (${activeQuestionsInSubject} câu đã chọn)`
+                      : `Vui lòng chọn câu hỏi bên dưới`}
+                  </span>
                 </button>
               </div>
 
@@ -1403,6 +1434,35 @@ export default function Home() {
                       );
                     })
                   )}
+                </div>
+
+                {/* Bottom Action Bar: Tron de ngay sau khi chon cau hoi */}
+                <div className="pt-2 border-t border-slate-100 space-y-2">
+                  {currentExam && currentExam.questions.length !== activeQuestionsInSubject && (
+                    <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 flex items-start gap-1.5 leading-tight">
+                      <span className="font-bold shrink-0">⚠️ Lưu ý:</span>
+                      <span>
+                        Đề hiện tại ({currentExam.questions.length} câu) khác số câu bạn đang chọn ({activeQuestionsInSubject} câu). Bấm nút dưới để tạo lại đề thi!
+                      </span>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleShuffleExams}
+                    disabled={activeQuestionsInSubject === 0}
+                    className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 text-xs font-bold rounded-xl transition-all shadow-sm ${
+                      activeQuestionsInSubject > 0
+                        ? "text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-indigo-200 cursor-pointer"
+                        : "text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed"
+                    }`}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>
+                      {activeQuestionsInSubject > 0
+                        ? `Trộn đề với đúng ${activeQuestionsInSubject} câu đã chọn`
+                        : "Chưa chọn câu hỏi nào"}
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1932,6 +1992,34 @@ export default function Home() {
                       </select>
                     </div>
 
+                    {/* Select All in Bank */}
+                    <button
+                      onClick={() => {
+                        const filteredIds = filteredBankQuestions.map((q) => q.id);
+                        const isAllSelected =
+                          filteredIds.length > 0 &&
+                          filteredIds.every((id) => selectedBankIds.includes(id));
+                        if (isAllSelected) {
+                          setSelectedBankIds((prev) =>
+                            prev.filter((id) => !filteredIds.includes(id))
+                          );
+                        } else {
+                          setSelectedBankIds((prev) =>
+                            Array.from(new Set([...prev, ...filteredIds]))
+                          );
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg transition-colors cursor-pointer shrink-0"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>
+                        {filteredBankQuestions.length > 0 &&
+                        filteredBankQuestions.every((q) => selectedBankIds.includes(q.id))
+                          ? "Bỏ chọn tất cả"
+                          : "Chọn tất cả"}
+                      </span>
+                    </button>
+
                     {/* Add Question Button */}
                     <button
                       onClick={handleOpenCreate}
@@ -1942,19 +2030,32 @@ export default function Home() {
                     </button>
                   </div>
 
-                  {/* Bulk Delete Bar */}
+                  {/* Bulk Action Bar: Cho phep tron de hoac xoa tu cac cau hoi duoc chon */}
                   {selectedBankIds.length > 0 && (
-                    <div className="flex items-center justify-between p-2.5 bg-rose-50 border border-rose-200 rounded-lg flex-wrap gap-2">
-                      <span className="text-xs font-medium text-rose-900">
-                        Đang chọn <strong className="font-bold">{selectedBankIds.length}</strong> câu hỏi
-                      </span>
-                      <button
-                        onClick={() => setIsBulkDeleteOpen(true)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-rose-700 bg-white hover:bg-rose-100 border border-rose-200 rounded-md transition-colors cursor-pointer shrink-0"
-                      >
-                        <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                        <span>Xóa các câu đã chọn</span>
-                      </button>
+                    <div className="flex items-center justify-between p-2.5 bg-indigo-50/80 border border-indigo-200 rounded-xl flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
+                        <span className="text-xs font-medium text-indigo-950">
+                          Đang chọn <strong className="font-bold text-indigo-700">{selectedBankIds.length}</strong> câu hỏi
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleShuffleFromBankSelection}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm shadow-emerald-200 transition-all cursor-pointer shrink-0"
+                          title="Tạo đề thi và chuyển sang xem trước với đúng các câu hỏi đang chọn này"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>Trộn đề từ {selectedBankIds.length} câu đã chọn</span>
+                        </button>
+                        <button
+                          onClick={() => setIsBulkDeleteOpen(true)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors cursor-pointer shrink-0"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                          <span>Xóa</span>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
