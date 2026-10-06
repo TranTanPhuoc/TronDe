@@ -147,6 +147,7 @@ export default function Home() {
 
   // Exam Configuration State
   const [schoolName, setSchoolName] = useState("TRƯỜNG THPT CHUYÊN");
+  const [departmentName, setDepartmentName] = useState("TỔ BỘ MÔN CHUYÊN MÔN");
   const [examTitle, setExamTitle] = useState("KIỂM TRA CHẤT LƯỢNG ĐỊNH KỲ");
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("TOAN");
   const [subjectName, setSubjectName] = useState("MÔN: TOÁN HỌC");
@@ -459,7 +460,7 @@ export default function Home() {
     const current = generatedExams[selectedVariantIndex];
     if (!current) return;
 
-    let text = `${schoolName.toUpperCase()}\n${examTitle.toUpperCase()}\n${subjectName} - THỜI GIAN: ${duration} PHÚT\nMÃ ĐỀ: ${current.code}\n\n`;
+    let text = `${schoolName.toUpperCase()}\n${departmentName}\n${examTitle.toUpperCase()}\n${subjectName} - THỜI GIAN: ${duration} PHÚT\nMÃ ĐỀ: ${current.code}\n\n`;
     current.questions.forEach((q, idx) => {
       text += `Câu ${idx + 1}: ${q.questionText}\n`;
       if (q.contentText) text += `${q.contentText}\n`;
@@ -482,6 +483,7 @@ export default function Home() {
     try {
       const fileName = downloadExamDocx({
         schoolName,
+        departmentName,
         examTitle,
         subjectName,
         duration,
@@ -505,6 +507,7 @@ export default function Home() {
     try {
       const fileName = downloadAllExamsZip({
         schoolName,
+        departmentName,
         examTitle,
         subjectName,
         duration,
@@ -530,6 +533,7 @@ export default function Home() {
     try {
       const fileName = downloadMatrixDocx({
         schoolName,
+        departmentName,
         examTitle,
         subjectName,
         duration,
@@ -555,6 +559,7 @@ export default function Home() {
     try {
       const fileName = downloadMatrixXlsx({
         schoolName,
+        departmentName,
         examTitle,
         subjectName,
         duration,
@@ -1073,6 +1078,20 @@ export default function Home() {
                       type="text"
                       value={schoolName}
                       onChange={(e) => setSchoolName(e.target.value)}
+                      placeholder="VD: TRƯỜNG THPT CHUYÊN..."
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-600 mb-1">
+                      Tổ bộ môn chuyên môn
+                    </label>
+                    <input
+                      type="text"
+                      value={departmentName}
+                      onChange={(e) => setDepartmentName(e.target.value)}
+                      placeholder="VD: TỔ TOÁN - TIN, TỔ TỰ NHIÊN..."
                       className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
@@ -1601,7 +1620,7 @@ export default function Home() {
                     <div className="flex items-center justify-between sm:block sm:w-1/3 text-left sm:text-center font-bold space-y-0.5 sm:space-y-1">
                       <div>
                         <p className="uppercase font-bold tracking-tight" style={{ fontSize: "12pt" }}>{schoolName}</p>
-                        <p className="font-normal text-slate-700" style={{ fontSize: "11pt" }}>TỔ BỘ MÔN CHUYÊN MÔN</p>
+                        <p className="font-normal text-slate-700" style={{ fontSize: "11pt" }}>{departmentName}</p>
                         <div className="hidden sm:block w-20 h-0.5 bg-slate-900 mx-auto mt-1"></div>
                       </div>
                       <div className="sm:hidden border-2 border-slate-900 rounded-lg px-2.5 py-1 text-center bg-indigo-50/50">
@@ -1854,7 +1873,7 @@ export default function Home() {
                       <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-3 text-xs">
                         <div className="text-left font-bold space-y-0.5">
                           <p className="uppercase text-sm">{schoolName}</p>
-                          <p className="font-normal text-slate-700 text-xs">TỔ BỘ MÔN CHUYÊN MÔN</p>
+                          <p className="font-normal text-slate-700 text-xs">{departmentName}</p>
                         </div>
                         <div className="text-right font-bold space-y-0.5">
                           <p className="uppercase text-sm">{examTitle}</p>

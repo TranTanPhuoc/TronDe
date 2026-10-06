@@ -11,6 +11,7 @@ interface ShuffledQuestionItem {
 
 interface ExportDocxOptions {
   schoolName: string;
+  departmentName?: string;
   examTitle: string;
   subjectName: string;
   duration: string;
@@ -169,7 +170,7 @@ function escapeXml(str: string): string {
 }
 
 export function generateExamDocxBytes(options: ExportDocxOptions): Uint8Array {
-  const { schoolName, examTitle, subjectName, duration, examCode, questions } = options;
+  const { schoolName, departmentName, examTitle, subjectName, duration, examCode, questions } = options;
 
   const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -290,7 +291,7 @@ export function generateExamDocxBytes(options: ExportDocxOptions): Uint8Array {
             <w:pPr><w:jc w:val="center"/><w:spacing w:after="80"/></w:pPr>
             <w:r>
               <w:rPr><w:sz w:val="22"/><w:szCs w:val="22"/></w:rPr>
-              <w:t>TỔ BỘ MÔN CHUYÊN MÔN</w:t>
+              <w:t>${escapeXml(departmentName || "TỔ BỘ MÔN CHUYÊN MÔN")}</w:t>
             </w:r>
           </w:p>
         </w:tc>
@@ -471,6 +472,7 @@ export function downloadExamDocx(options: ExportDocxOptions): string {
 
 export interface ExportAllExamsZipOptions {
   schoolName: string;
+  departmentName?: string;
   examTitle: string;
   subjectName: string;
   duration: string;
@@ -490,6 +492,7 @@ export function downloadAllExamsZip(options: ExportAllExamsZipOptions): string {
   for (const exam of options.exams) {
     const docxBytes = generateExamDocxBytes({
       schoolName: options.schoolName,
+      departmentName: options.departmentName,
       examTitle: options.examTitle,
       subjectName: options.subjectName,
       duration: options.duration,
@@ -530,6 +533,7 @@ export function downloadAllExamsZip(options: ExportAllExamsZipOptions): string {
 
 export interface ExportMatrixOptions {
   schoolName: string;
+  departmentName?: string;
   examTitle: string;
   subjectName: string;
   duration: string;
@@ -545,7 +549,7 @@ export interface ExportMatrixOptions {
  * so columns never overflow standard A4 paper width, regardless of whether there are 10, 20, or 50 exam codes.
  */
 export function generateMatrixDocxBytes(options: ExportMatrixOptions): Uint8Array {
-  const { schoolName, examTitle, subjectName, duration, exams } = options;
+  const { schoolName, departmentName, examTitle, subjectName, duration, exams } = options;
   const maxQuestions = exams[0]?.questions.length || 0;
 
   // Maximum 10 exam code columns per table to guarantee perfect fit on A4 portrait (9638 dxa printable width)
@@ -725,7 +729,7 @@ export function generateMatrixDocxBytes(options: ExportMatrixOptions): Uint8Arra
               </w:p>
               <w:p>
                 <w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr>
-                <w:r><w:rPr><w:sz w:val="20"/></w:rPr><w:t>TỔ BỘ MÔN CHUYÊN MÔN</w:t></w:r>
+                <w:r><w:rPr><w:sz w:val="20"/></w:rPr><w:t>${escapeXml(departmentName || "TỔ BỘ MÔN CHUYÊN MÔN")}</w:t></w:r>
               </w:p>
             </w:tc>
             <w:tc>
@@ -840,7 +844,7 @@ function getExcelColName(n: number): string {
  * Generates an OpenXML Spreadsheet (.xlsx) document for the Answer Matrix.
  */
 export function generateMatrixXlsxBytes(options: ExportMatrixOptions): Uint8Array {
-  const { schoolName, examTitle, subjectName, exams } = options;
+  const { schoolName, departmentName, examTitle, subjectName, exams } = options;
   const maxQuestions = exams[0]?.questions.length || 0;
 
   const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -907,10 +911,13 @@ export function generateMatrixXlsxBytes(options: ExportMatrixOptions): Uint8Arra
   // Build Sheet Rows
   const sheetRows: string[] = [];
 
-  // Row 1: School Name
+  // Row 1: School Name & Department Name
+  const headerSchoolText = departmentName
+    ? `${escapeXml(schoolName).toUpperCase()} - ${escapeXml(departmentName).toUpperCase()}`
+    : escapeXml(schoolName).toUpperCase();
   sheetRows.push(`
     <row r="1">
-      <c r="A1" t="inlineStr" s="1"><is><t>${escapeXml(schoolName).toUpperCase()}</t></is></c>
+      <c r="A1" t="inlineStr" s="1"><is><t>${headerSchoolText}</t></is></c>
     </row>`);
 
   // Row 2: Exam Title & Subject
