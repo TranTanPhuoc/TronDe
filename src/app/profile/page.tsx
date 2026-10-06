@@ -446,14 +446,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <Link
-              href={APP_ROUTES.HOME}
-              className="w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors text-center cursor-pointer"
-            >
-              Hủy / Về trang chủ
-            </Link>
-
+          <div className="pt-4 border-t border-slate-200 flex items-center justify-end">
             <button
               type="submit"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 rounded-xl shadow-lg shadow-indigo-200 active:scale-95 transition-all cursor-pointer"
