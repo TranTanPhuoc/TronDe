@@ -220,10 +220,12 @@ export default function Home() {
   };
 
   const handleLogout = () => {
-    if (confirm("Thầy/Cô có chắc chắn muốn đăng xuất khỏi hệ thống không?")) {
+    try {
       localStorage.removeItem("tron_de_auth_user");
-      router.replace(APP_ROUTES.LOGIN);
+    } catch {
+      // Storage error
     }
+    router.replace(APP_ROUTES.LOGIN);
   };
 
   const saveQuestions = (newQuestions: ExamItem[]) => {
