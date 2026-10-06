@@ -279,6 +279,23 @@ export default function Home() {
     );
   }, [selectedGradeId]);
 
+  // Xác định tên khối lớp để đặt tên file xuất (Word, Zip, Excel)
+  const getExportGradeName = (variant?: ExamVariant): string => {
+    if (selectedGradeId !== "ALL") {
+      return `Khối ${selectedGradeId}`;
+    }
+    const checkTarget = variant || generatedExams[0];
+    if (checkTarget && checkTarget.questions.length > 0) {
+      const grades = Array.from(
+        new Set(checkTarget.questions.map((q) => q.grade).filter(Boolean))
+      );
+      if (grades.length === 1 && grades[0]) {
+        return grades[0] as string;
+      }
+    }
+    return "";
+  };
+
   // Total questions belonging to currently selected subject and grade
   const subjectQuestionsTotal = useMemo(() => {
     return questions.filter((q) => {
@@ -487,6 +504,7 @@ export default function Home() {
         departmentName,
         examTitle,
         subjectName,
+        gradeName: getExportGradeName(current),
         duration,
         examCode: current.code,
         questions: current.questions,
@@ -511,6 +529,7 @@ export default function Home() {
         departmentName,
         examTitle,
         subjectName,
+        gradeName: getExportGradeName(),
         duration,
         exams: generatedExams.map((v) => ({
           code: v.code,
@@ -537,6 +556,7 @@ export default function Home() {
         departmentName,
         examTitle,
         subjectName,
+        gradeName: getExportGradeName(),
         duration,
         exams: generatedExams.map((v) => ({
           code: v.code,
@@ -563,6 +583,7 @@ export default function Home() {
         departmentName,
         examTitle,
         subjectName,
+        gradeName: getExportGradeName(),
         duration,
         exams: generatedExams.map((v) => ({
           code: v.code,

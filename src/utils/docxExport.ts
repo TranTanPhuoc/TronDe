@@ -14,6 +14,7 @@ interface ExportDocxOptions {
   departmentName?: string;
   examTitle: string;
   subjectName: string;
+  gradeName?: string;
   duration: string;
   examCode: string;
   questions: ShuffledQuestionItem[];
@@ -170,7 +171,7 @@ function escapeXml(str: string): string {
 }
 
 export function generateExamDocxBytes(options: ExportDocxOptions): Uint8Array {
-  const { schoolName, departmentName, examTitle, subjectName, duration, examCode, questions } = options;
+  const { schoolName, departmentName, examTitle, subjectName, gradeName, duration, examCode, questions } = options;
 
   const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -310,7 +311,7 @@ export function generateExamDocxBytes(options: ExportDocxOptions): Uint8Array {
             <w:pPr><w:jc w:val="center"/><w:spacing w:after="30"/></w:pPr>
             <w:r>
               <w:rPr><w:b/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr>
-              <w:t>${escapeXml(subjectName)}</w:t>
+              <w:t>${escapeXml(subjectName)}${gradeName && !subjectName.toLowerCase().includes(gradeName.toLowerCase()) ? ` - ${escapeXml(gradeName).toUpperCase()}` : ""}</w:t>
             </w:r>
           </w:p>
           <w:p>
@@ -451,10 +452,41 @@ export function generateExamDocxBlob(options: ExportDocxOptions): Blob {
   });
 }
 
+export function formatGradePart(gradeName?: string): string {
+  if (!gradeName) return "";
+  const trimmed = gradeName.trim();
+  if (
+    !trimmed ||
+    trimmed.toLowerCase() === "tất cả khối" ||
+    trimmed.toLowerCase() === "tat ca khoi" ||
+    trimmed.toUpperCase() === "ALL"
+  ) {
+    return "";
+  }
+  if (/^\d+$/.test(trimmed)) {
+    return `Khoi_${trimmed}`;
+  }
+  return trimmed
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .replace(/[\/\\?%*:|"<>]/g, "_")
+    .replace(/\s+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
 export function downloadExamDocx(options: ExportDocxOptions): string {
   const blob = generateExamDocxBlob(options);
   const cleanSubject = options.subjectName.replace(/^MÔN:\s*/i, "").trim();
-  const safeFileName = `De_Thi_${cleanSubject || "Mon_Hoc"}_Ma_${options.examCode}.docx`
+  const gradePart = formatGradePart(options.gradeName);
+
+  const parts = ["De_Thi", cleanSubject || "Mon_Hoc"];
+  if (gradePart) parts.push(gradePart);
+  parts.push(`Ma_${options.examCode}`);
+
+  const safeFileName = `${parts.join("_")}.docx`
     .replace(/[\/\\?%*:|"<>]/g, "_")
     .replace(/\s+/g, "_");
 
@@ -475,6 +507,7 @@ export interface ExportAllExamsZipOptions {
   departmentName?: string;
   examTitle: string;
   subjectName: string;
+  gradeName?: string;
   duration: string;
   exams: {
     code: string;
@@ -487,6 +520,7 @@ export interface ExportAllExamsZipOptions {
  */
 export function downloadAllExamsZip(options: ExportAllExamsZipOptions): string {
   const cleanSubject = options.subjectName.replace(/^MÔN:\s*/i, "").trim();
+  const gradePart = formatGradePart(options.gradeName);
   const zipEntries: ZipFileEntry[] = [];
 
   for (const exam of options.exams) {
@@ -495,12 +529,17 @@ export function downloadAllExamsZip(options: ExportAllExamsZipOptions): string {
       departmentName: options.departmentName,
       examTitle: options.examTitle,
       subjectName: options.subjectName,
+      gradeName: options.gradeName,
       duration: options.duration,
       examCode: exam.code,
       questions: exam.questions,
     });
 
-    const fileName = `De_Thi_${cleanSubject || "Mon_Hoc"}_Ma_${exam.code}.docx`
+    const fileParts = ["De_Thi", cleanSubject || "Mon_Hoc"];
+    if (gradePart) fileParts.push(gradePart);
+    fileParts.push(`Ma_${exam.code}`);
+
+    const fileName = `${fileParts.join("_")}.docx`
       .replace(/[\/\\?%*:|"<>]/g, "_")
       .replace(/\s+/g, "_");
 
@@ -515,7 +554,11 @@ export function downloadAllExamsZip(options: ExportAllExamsZipOptions): string {
     type: "application/zip",
   });
 
-  const zipFileName = `Bo_De_Thi_${cleanSubject || "Mon_Hoc"}_${options.exams.length}_De.zip`
+  const zipParts = ["Bo_De_Thi", cleanSubject || "Mon_Hoc"];
+  if (gradePart) zipParts.push(gradePart);
+  zipParts.push(`${options.exams.length}_De`);
+
+  const zipFileName = `${zipParts.join("_")}.zip`
     .replace(/[\/\\?%*:|"<>]/g, "_")
     .replace(/\s+/g, "_");
 
@@ -536,6 +579,7 @@ export interface ExportMatrixOptions {
   departmentName?: string;
   examTitle: string;
   subjectName: string;
+  gradeName?: string;
   duration: string;
   exams: {
     code: string;
@@ -815,7 +859,13 @@ export function downloadMatrixDocx(options: ExportMatrixOptions): string {
     type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   });
   const cleanSubject = options.subjectName.replace(/^MÔN:\s*/i, "").trim();
-  const safeFileName = `Ma_Tran_Dap_An_${cleanSubject || "Mon_Hoc"}_${options.exams.length}_De.docx`
+  const gradePart = formatGradePart(options.gradeName);
+
+  const parts = ["Ma_Tran_Dap_An", cleanSubject || "Mon_Hoc"];
+  if (gradePart) parts.push(gradePart);
+  parts.push(`${options.exams.length}_De`);
+
+  const safeFileName = `${parts.join("_")}.docx`
     .replace(/[\/\\?%*:|"<>]/g, "_")
     .replace(/\s+/g, "_");
 
@@ -994,7 +1044,13 @@ export function downloadMatrixXlsx(options: ExportMatrixOptions): string {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
   const cleanSubject = options.subjectName.replace(/^MÔN:\s*/i, "").trim();
-  const safeFileName = `Ma_Tran_Dap_An_${cleanSubject || "Mon_Hoc"}_${options.exams.length}_De.xlsx`
+  const gradePart = formatGradePart(options.gradeName);
+
+  const parts = ["Ma_Tran_Dap_An", cleanSubject || "Mon_Hoc"];
+  if (gradePart) parts.push(gradePart);
+  parts.push(`${options.exams.length}_De`);
+
+  const safeFileName = `${parts.join("_")}.xlsx`
     .replace(/[\/\\?%*:|"<>]/g, "_")
     .replace(/\s+/g, "_");
 
