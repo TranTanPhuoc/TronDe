@@ -36,6 +36,7 @@ import {
   Printer,
   Copy,
   CheckCircle2,
+  AlertCircle,
   FileText,
   FileDown,
   FileSpreadsheet,
@@ -189,15 +190,15 @@ export default function Home() {
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
   // Toast & Copy status
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
   const [copiedMatrix, setCopiedMatrix] = useState(false);
   const [copiedExam, setCopiedExam] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+  const showToast = (msg: string, type: "success" | "error" | "info" = "success") => {
+    setToast({ message: msg, type });
+    setTimeout(() => setToast(null), 3000);
   };
 
   const handleLogout = () => {
@@ -345,7 +346,7 @@ export default function Home() {
     });
 
     if (targetPool.length === 0) {
-      showToast("Vui lòng chọn các câu hỏi trước khi trộn đề!");
+      showToast("Vui lòng chọn các câu hỏi trước khi trộn đề!", "error");
       return;
     }
 
@@ -386,7 +387,7 @@ export default function Home() {
   // Tron de truc tiep tu cac cau hoi duoc tich chon trong tab Ngan hang cau hoi
   const handleShuffleFromBankSelection = () => {
     if (selectedBankIds.length === 0) {
-      showToast("Vui lòng chọn các câu hỏi trước khi trộn đề!");
+      showToast("Vui lòng chọn các câu hỏi trước khi trộn đề!", "error");
       return;
     }
 
@@ -476,7 +477,7 @@ export default function Home() {
   const handleExportWord = () => {
     const current = generatedExams[selectedVariantIndex];
     if (!current) {
-      showToast("Không tìm thấy mã đề thi để xuất!");
+      showToast("Không tìm thấy mã đề thi để xuất!", "error");
       return;
     }
 
@@ -493,14 +494,14 @@ export default function Home() {
       showToast(`Đã xuất đề thi mã ${current.code} ra file Word (${fileName}) thành công!`);
     } catch (err) {
       console.error("Lỗi xuất file docx:", err);
-      showToast("Có lỗi xảy ra khi tạo file Word (.docx)!");
+      showToast("Có lỗi xảy ra khi tạo file Word (.docx)!", "error");
     }
   };
 
   // Export all generated exam variants to individual .docx files packaged in a single .zip archive
   const handleExportAllZip = () => {
     if (!generatedExams || generatedExams.length === 0) {
-      showToast("Chưa có danh sách đề thi để xuất!");
+      showToast("Chưa có danh sách đề thi để xuất!", "error");
       return;
     }
 
@@ -519,14 +520,14 @@ export default function Home() {
       showToast(`Đã xuất thành công toàn bộ ${generatedExams.length} mã đề thi vào file zip (${fileName})!`);
     } catch (err) {
       console.error("Lỗi xuất file zip tất cả đề thi:", err);
-      showToast("Có lỗi xảy ra khi tạo file zip đề thi!");
+      showToast("Có lỗi xảy ra khi tạo file zip đề thi!", "error");
     }
   };
 
   // Export Answer Matrix to Word (.docx) with automatic page-chunking for A4 paper
   const handleExportMatrixWord = () => {
     if (!generatedExams || generatedExams.length === 0) {
-      showToast("Chưa có danh sách mã đề thi để xuất!");
+      showToast("Chưa có danh sách mã đề thi để xuất!", "error");
       return;
     }
 
@@ -545,14 +546,14 @@ export default function Home() {
       showToast(`Đã xuất ma trận đáp án ra file Word A4 (${fileName}) thành công!`);
     } catch (err) {
       console.error("Lỗi xuất ma trận Word:", err);
-      showToast("Có lỗi xảy ra khi tạo file Word ma trận đáp án!");
+      showToast("Có lỗi xảy ra khi tạo file Word ma trận đáp án!", "error");
     }
   };
 
   // Export Answer Matrix to Excel (.xlsx) spreadsheet
   const handleExportMatrixExcel = () => {
     if (!generatedExams || generatedExams.length === 0) {
-      showToast("Chưa có danh sách mã đề thi để xuất!");
+      showToast("Chưa có danh sách mã đề thi để xuất!", "error");
       return;
     }
 
@@ -571,7 +572,7 @@ export default function Home() {
       showToast(`Đã xuất ma trận đáp án ra file Excel (${fileName}) thành công!`);
     } catch (err) {
       console.error("Lỗi xuất ma trận Excel:", err);
-      showToast("Có lỗi xảy ra khi tạo file Excel ma trận đáp án!");
+      showToast("Có lỗi xảy ra khi tạo file Excel ma trận đáp án!", "error");
     }
   };
 
@@ -766,10 +767,20 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full bg-slate-100 flex flex-col font-sans overflow-x-hidden">
       {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 animate-in slide-in-from-bottom duration-200">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{toastMessage}</span>
+      {toast && (
+        <div
+          className={`fixed bottom-5 right-5 z-50 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 animate-in slide-in-from-bottom duration-200 ${
+            toast.type === "error"
+              ? "bg-red-600 border border-red-500 shadow-red-600/30 ring-2 ring-red-400/20"
+              : "bg-slate-900 border border-slate-800 shadow-slate-900/30"
+          }`}
+        >
+          {toast.type === "error" ? (
+            <AlertCircle className="w-4.5 h-4.5 text-white shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4.5 h-4.5 text-emerald-400 shrink-0" />
+          )}
+          <span>{toast.message}</span>
         </div>
       )}
 
