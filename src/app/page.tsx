@@ -21,6 +21,10 @@ import {
 import QuestionModal from "@/components/QuestionModal";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import ProfileModal, { ProfileUserData } from "@/components/ProfileModal";
+import ChangePasswordModal from "@/components/ChangePasswordModal";
+import FeedbackModal from "@/components/FeedbackModal";
+import UserProfileDropdown from "@/components/UserProfileDropdown";
 import {
   downloadExamDocx,
   downloadAllExamsZip,
@@ -47,8 +51,6 @@ import {
   Trash2,
   Sparkles,
   Check,
-  LogOut,
-  UserCheck,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -73,21 +75,14 @@ interface ExamVariant {
   questions: ShuffledQuestion[];
 }
 
-interface CurrentUser {
-  id: string;
-  name: string;
-  email: string;
-  school: string;
-  role: string;
-  avatar: string;
-}
+type CurrentUser = ProfileUserData;
 
 export default function Home() {
   const router = useRouter();
   const isLoaded = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   // Auth state
-  const [currentUser] = useState<CurrentUser | null>(() => {
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() => {
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem("tron_de_auth_user");
@@ -210,6 +205,11 @@ export default function Home() {
   const [itemToDelete, setItemToDelete] = useState<ExamItem | null>(null);
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
+  // Account Modals State
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+
   // Toast status
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
 
@@ -227,6 +227,18 @@ export default function Home() {
       localStorage.removeItem("tron_de_auth_user");
       router.replace(APP_ROUTES.LOGIN);
     }
+  };
+
+  const handleSaveProfile = (updatedUser: ProfileUserData) => {
+    setCurrentUser(updatedUser);
+    if (updatedUser.school) setSchoolName(updatedUser.school);
+    if (updatedUser.department) setDepartmentName(updatedUser.department);
+    try {
+      localStorage.setItem("tron_de_auth_user", JSON.stringify(updatedUser));
+    } catch {
+      // Storage error
+    }
+    showToast("Cập nhật thông tin cá nhân thành công!", "success");
   };
 
   const saveQuestions = (newQuestions: ExamItem[]) => {
@@ -753,63 +765,22 @@ export default function Home() {
                 <span>Thêm câu hỏi</span>
               </button>
 
-              {/* 3D Glassmorphic Teacher Profile Card */}
-              <div className="flex items-center gap-2.5 p-1.5 pr-2.5 bg-gradient-to-b from-white via-slate-50/90 to-indigo-50/30 border border-slate-200/90 rounded-2xl shadow-[0_4px_14px_rgba(15,23,42,0.05),0_1px_2px_rgba(0,0,0,0.03),inset_0_1px_1px_rgba(255,255,255,1)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.12),inset_0_1px_1px_rgba(255,255,255,1)] hover:border-indigo-200 transition-all duration-200 shrink-0">
-                {/* 3D Avatar Sphere */}
-                <div className="relative shrink-0">
-                  <div
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-700 via-indigo-600 to-teal-400 p-[2px] shadow-[0_4px_12px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.5)] relative overflow-hidden"
-                    title={currentUser.email}
-                  >
-                    {/* Glossy top specular light reflection */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-transparent rounded-xl pointer-events-none z-10"></div>
-                    <div className="w-full h-full rounded-[10px] bg-gradient-to-br from-indigo-600 via-indigo-700 to-emerald-700 flex items-center justify-center text-white font-black text-xs sm:text-sm tracking-wide shadow-inner select-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
-                      {currentUser.avatar || "GV"}
-                    </div>
-                  </div>
-                  {/* 3D Online Active Indicator */}
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-full border-2 border-white shadow-[0_2px_4px_rgba(16,185,129,0.4)] ring-1 ring-emerald-500/30"></div>
-                </div>
-
-                {/* Name & School - Department Info */}
-                <div className="text-left min-w-0 space-y-0.5">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs sm:text-[13px] font-black text-slate-800 tracking-tight truncate max-w-[150px] sm:max-w-[200px]" title={currentUser.name}>
-                      {currentUser.name}
-                    </span>
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 text-[9px] font-extrabold bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-md shadow-[0_1px_3px_rgba(16,185,129,0.3)] shrink-0">
-                      <UserCheck className="w-2.5 h-2.5 text-white" />
-                      <span>{currentUser.role || "GV"}</span>
-                    </span>
-                  </div>
-
-                  {/* School & Department (Tổ chuyên môn) */}
-                  <div className="text-[10px] sm:text-[11px] text-slate-500 flex items-center gap-1.5 font-medium leading-none">
-                    <span className="font-semibold text-slate-600 truncate max-w-[130px]" title={currentUser.school || schoolName}>
-                      {currentUser.school || schoolName}
-                    </span>
-                    <span className="text-slate-300">•</span>
-                    <span className="font-bold text-indigo-700 bg-indigo-50/90 px-1.5 py-0.5 rounded-md border border-indigo-200/80 truncate max-w-[140px] shadow-2xs" title={departmentName}>
-                      {departmentName}
-                    </span>
-                  </div>
-                </div>
-
-                {/* 3D Tactile Logout Button */}
-                <button
-                  onClick={handleLogout}
-                  title="Đăng xuất khỏi hệ thống"
-                  className="ml-1 p-2 text-slate-400 hover:text-rose-600 bg-white hover:bg-rose-50 border border-slate-200/80 hover:border-rose-200 rounded-xl shadow-[0_2px_5px_rgba(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.8)] active:scale-95 transition-all cursor-pointer shrink-0"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
+              {/* 3D Glassmorphic Teacher Profile Dropdown */}
+              <UserProfileDropdown
+                currentUser={currentUser}
+                schoolName={schoolName}
+                departmentName={departmentName}
+                onOpenProfile={() => setIsProfileModalOpen(true)}
+                onOpenChangePassword={() => setIsPasswordModalOpen(true)}
+                onOpenFeedback={() => setIsFeedbackModalOpen(true)}
+                onLogout={handleLogout}
+              />
             </div>
           </div>
 
           {/* Dedicated Header for Mobile (< sm) */}
           <div className="sm:hidden py-2.5">
-            {/* Mobile: Brand, Add Question & User CTA with 3D profile badge */}
+            {/* Mobile: Brand, Add Question & User CTA with 3D profile dropdown */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 flex items-center justify-center text-white shadow-[0_4px_10px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.4)] border border-white/20 shrink-0">
@@ -834,24 +805,17 @@ export default function Home() {
                   <span>Thêm</span>
                 </button>
 
-                {/* 3D Mobile User Avatar */}
-                <div
-                  className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-teal-400 p-[1.5px] shadow-[0_2px_8px_rgba(79,70,229,0.25)] relative overflow-hidden shrink-0"
-                  title={`${currentUser.name} - ${currentUser.school || schoolName} - ${departmentName}`}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-transparent pointer-events-none rounded-xl z-10"></div>
-                  <div className="w-full h-full rounded-[9px] bg-gradient-to-br from-indigo-600 to-emerald-700 flex items-center justify-center text-white font-black text-[11px] shadow-inner select-none">
-                    {currentUser.avatar || "GV"}
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleLogout}
-                  title="Đăng xuất"
-                  className="p-1.5 text-slate-400 hover:text-rose-600 bg-white hover:bg-rose-50 border border-slate-200/80 rounded-xl shadow-xs shrink-0"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
+                {/* 3D Mobile User Avatar Dropdown */}
+                <UserProfileDropdown
+                  currentUser={currentUser}
+                  schoolName={schoolName}
+                  departmentName={departmentName}
+                  onOpenProfile={() => setIsProfileModalOpen(true)}
+                  onOpenChangePassword={() => setIsPasswordModalOpen(true)}
+                  onOpenFeedback={() => setIsFeedbackModalOpen(true)}
+                  onLogout={handleLogout}
+                  isMobile={true}
+                />
               </div>
             </div>
           </div>
@@ -2149,6 +2113,33 @@ export default function Home() {
         itemToDelete={null}
         countToDelete={selectedBankIds.length}
       />
+
+      {/* Account Modals */}
+      {currentUser && (
+        <>
+          <ProfileModal
+            isOpen={isProfileModalOpen}
+            onClose={() => setIsProfileModalOpen(false)}
+            currentUser={currentUser}
+            onSave={handleSaveProfile}
+            schoolName={schoolName}
+            departmentName={departmentName}
+          />
+
+          <ChangePasswordModal
+            isOpen={isPasswordModalOpen}
+            onClose={() => setIsPasswordModalOpen(false)}
+            onSuccess={(msg) => showToast(msg, "success")}
+          />
+
+          <FeedbackModal
+            isOpen={isFeedbackModalOpen}
+            onClose={() => setIsFeedbackModalOpen(false)}
+            currentUser={currentUser}
+            onSuccess={(msg) => showToast(msg, "success")}
+          />
+        </>
+      )}
     </div>
   );
 }
