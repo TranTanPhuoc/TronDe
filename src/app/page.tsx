@@ -191,7 +191,6 @@ export default function Home() {
 
   // Toast & Copy status
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
-  const [copiedMatrix, setCopiedMatrix] = useState(false);
   const [copiedExam, setCopiedExam] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -453,24 +452,6 @@ export default function Home() {
     setSelectedVariantIndex(0);
     setActiveTab("exam");
     showToast(`Đã tạo thành công ${numVariants} mã đề từ đúng ${selectedQuestions.length} câu hỏi đã chọn trong ngân hàng!`);
-  };
-
-  // Copy matrix to clipboard
-  const handleCopyMatrix = () => {
-    if (generatedExams.length === 0) return;
-    let text = `BẢNG ĐÁP ÁN CÁC MÃ ĐỀ (${examTitle})\n`;
-    text += `Câu\t` + generatedExams.map((v) => `Mã ${v.code}`).join("\t") + "\n";
-
-    const maxQuestions = generatedExams[0]?.questions.length || 0;
-    for (let i = 0; i < maxQuestions; i++) {
-      text += `Câu ${i + 1}\t`;
-      text += generatedExams.map((v) => v.questions[i]?.answer || "-").join("\t");
-      text += "\n";
-    }
-
-    navigator.clipboard.writeText(text);
-    setCopiedMatrix(true);
-    setTimeout(() => setCopiedMatrix(false), 2000);
   };
 
   // Copy current exam content
@@ -1593,7 +1574,7 @@ export default function Home() {
                       title="Tự động xuất đề thi sang file Word (.docx) chuẩn khổ giấy A4"
                     >
                       <FileDown className="w-4 h-4" />
-                      <span>Xuất Word (.docx)</span>
+                      <span>Xuất Word</span>
                     </button>
 
                     {/* Export ALL exams into a single .zip archive */}
@@ -1796,7 +1777,7 @@ export default function Home() {
                       title="Xuất bảng ma trận đáp án ra file Word chuẩn khổ A4, tự động ngắt trang khi có nhiều mã đề để không bị tràn"
                     >
                       <FileDown className="w-3.5 h-3.5" />
-                      <span>Xuất Word A4 (.docx)</span>
+                      <span>Xuất Word</span>
                     </button>
 
                     {/* Export Excel (.xlsx) Spreadsheet */}
@@ -1809,16 +1790,6 @@ export default function Home() {
                       <span>Xuất Excel (.xlsx)</span>
                     </button>
 
-                    {/* Print / Save A4 PDF with Page-Break */}
-                    <button
-                      onClick={() => window.print()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer shadow-xs"
-                      title="In trực tiếp hoặc Lưu thành file PDF chuẩn khổ A4 (tự động phân trang chống tràn)"
-                    >
-                      <Printer className="w-3.5 h-3.5 text-slate-600" />
-                      <span>In / PDF A4</span>
-                    </button>
-
                     {/* Export All Exam Variants Zip */}
                     <button
                       onClick={handleExportAllZip}
@@ -1828,16 +1799,6 @@ export default function Home() {
                       <FolderArchive className="w-3.5 h-3.5 text-indigo-600" />
                       <span className="hidden xl:inline">Xuất tất cả đề (.zip)</span>
                       <span className="xl:hidden">Đề (.zip)</span>
-                    </button>
-
-                    {/* Copy Matrix to Clipboard */}
-                    <button
-                      onClick={handleCopyMatrix}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
-                      title="Sao chép toàn bộ bảng đáp án vào bộ nhớ tạm"
-                    >
-                      {copiedMatrix ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span className="hidden sm:inline">{copiedMatrix ? "Đã sao chép!" : "Sao chép"}</span>
                     </button>
                   </div>
                 </div>
@@ -1851,7 +1812,7 @@ export default function Home() {
                         Đang có {generatedExams.length} mã đề thi: Hệ thống đã bật tính năng tự động ngắt trang A4 chống tràn!
                       </p>
                       <p className="text-slate-600">
-                        Khi chọn <strong>Xuất Word A4</strong> hoặc <strong>In / PDF A4</strong>, ma trận sẽ tự động chia đều thành <strong>{matrixChunks.length} trang A4</strong> chuẩn (mỗi trang chứa 10 mã đề) kèm tiêu đề riêng biệt. Bạn cũng có thể chọn <strong>Xuất Excel (.xlsx)</strong> để xem toàn bộ {generatedExams.length} mã đề trên cùng một trang tính.
+                        Khi chọn <strong>Xuất Word</strong>, ma trận sẽ tự động chia đều thành <strong>{matrixChunks.length} trang A4</strong> chuẩn (mỗi trang chứa 10 mã đề) kèm tiêu đề riêng biệt. Bạn cũng có thể chọn <strong>Xuất Excel (.xlsx)</strong> để xem toàn bộ {generatedExams.length} mã đề trên cùng một trang tính.
                       </p>
                     </div>
                   </div>
