@@ -415,27 +415,168 @@ export const initialQuestions: ExamItem[] = [
     },
   },
 
-  // ================= GDCD / KT-PL =================
+  // ================= BỔ SUNG CÂU HỎI ĐA DẠNG CHO CÁC MÔN =================
+  // TOÁN (VD, VDC, TL)
   {
-    id: "gdcd-10-1",
-    author: {
-      id: 10,
-      name: "Hoang Thu Thao",
-      created_at: "05-07-2026 16:00:00",
-      update_at: "05-07-2026 16:00:00",
-    },
+    id: "toan-12-vd-1",
+    author: { id: 1, name: "Tran Tan Phuoc", created_at: "06-07-2026 09:00:00", update_at: "06-07-2026 09:00:00" },
     question: {
-      subject: { id: "GDCD", name: "GDCD / KT-PL" },
-      grade: { id: 10, name: "Khối 10" },
-      content:
-        "A. Quy luật giá trị\nB. Quy luật cung - cầu\nC. Quy luật cạnh tranh\nD. Quy luật lưu thông tiền tệ",
-      question:
-        "Quy luật kinh tế cơ bản nhất chi phối sản xuất và lưu thông hàng hóa trong nền kinh tế thị trường là quy luật nào?",
-      solution_guide:
-        "Quy luật giá trị là quy luật kinh tế cơ bản của sản xuất và lưu thông hàng hóa, đòi hỏi sản xuất và trao đổi hàng hóa phải dựa trên cơ sở hao phí lao động xã hội cần thiết.",
+      subject: { id: "TOAN", name: "Toán học" },
+      grade: { id: 12, name: "Khối 12" },
+      content: "A. m ∈ (1; 3)\nB. m ∈ [-1; 2]\nC. m ∈ (2; +∞)\nD. m ∈ (-∞; 0]",
+      question: "Tìm tất cả các giá trị thực của tham số m để hàm số y = x³ - 3mx² + 3(m² - 1)x đạt cực tiểu tại x = 2.",
+      solution_guide: "y' = 3x² - 6mx + 3(m² - 1). Để x = 2 là điểm cực tiểu thì y'(2) = 0 và y''(2) > 0. Giải hệ phương trình tìm được m = 1 hoặc m = 3, thử lại điều kiện cực tiểu suy ra m = 1.",
       answer: "A",
-      level: { id: 1, name: "Nhận Biết", short_name: "NB" },
+      level: { id: 3, name: "Vận Dụng", short_name: "VD" },
       type: { id: 1, name: "Trắc Nghiệm", short_name: "TN" },
+    },
+  },
+  {
+    id: "toan-12-vdc-1",
+    author: { id: 1, name: "Tran Tan Phuoc", created_at: "06-07-2026 09:15:00", update_at: "06-07-2026 09:15:00" },
+    question: {
+      subject: { id: "TOAN", name: "Toán học" },
+      grade: { id: 12, name: "Khối 12" },
+      content: "Cho hình lăng trụ đứng ABC.A'B'C' có đáy ABC là tam giác vuông cân tại B, AB = BC = a. Biết khoảng cách từ A đến mặt phẳng (A'BC) bằng (a√2)/2.",
+      question: "Tính góc giữa đường thẳng A'B và mặt phẳng đáy (ABC) theo độ.",
+      solution_guide: "Đặt chiều cao AA' = h. Dựng AH ⊥ A'B tại H => AH = (a√2)/2. Áp dụng 1/AH² = 1/AA'² + 1/AB² => h = a. Khi đó tan(A'BA) = AA'/AB = a/a = 1 => góc A'BA = 45°.",
+      answer: "45",
+      level: { id: 4, name: "Vận Dụng Cao", short_name: "VDC" },
+      type: { id: 3, name: "Trả Lời Ngắn", short_name: "TLN" },
+    },
+  },
+  {
+    id: "toan-10-tl-1",
+    author: { id: 1, name: "Tran Tan Phuoc", created_at: "06-07-2026 09:30:00", update_at: "06-07-2026 09:30:00" },
+    question: {
+      subject: { id: "TOAN", name: "Toán học" },
+      grade: { id: 10, name: "Khối 10" },
+      content: "Giải bất phương trình: √(x² - 3x - 10) ≤ x - 2.",
+      question: "Trình bày các bước tìm tập nghiệm của bất phương trình chứa căn bậc hai đã cho.",
+      solution_guide: "Điều kiện: x² - 3x - 10 ≥ 0 và x - 2 ≥ 0. Bình phương hai vế: x² - 3x - 10 ≤ x² - 4x + 4 <=> x ≤ 14. Kết hợp điều kiện x ≥ 5 => Tập nghiệm S = [5; 14].",
+      answer: "S = [5; 14]",
+      level: { id: 3, name: "Vận Dụng", short_name: "VD" },
+      type: { id: 4, name: "Tự Luận", short_name: "TL" },
+    },
+  },
+
+  // VẬT LÝ (DS, VD, TL)
+  {
+    id: "ly-12-ds-1",
+    author: { id: 2, name: "Nguyen Thi Lan", created_at: "06-07-2026 10:00:00", update_at: "06-07-2026 10:00:00" },
+    question: {
+      subject: { id: "LY", name: "Vật lý" },
+      grade: { id: 12, name: "Khối 12" },
+      content: "a) Trong sóng cơ, bước sóng λ là quãng đường sóng truyền đi trong 1 chu kì T.\nb) Các phân tử vật chất của môi trường chuyển động thẳng đều theo chiều truyền sóng.\nc) Sóng ngang truyền được trong chất rắn và bề mặt chất lỏng.\nd) Vận tốc truyền sóng phụ thuộc vào tần số sóng và không phụ thuộc bản chất môi trường.",
+      question: "Xét các phát biểu về sự truyền sóng cơ trong môi trường đàn hồi, chọn tính Đúng/Sai:",
+      solution_guide: "• a: Đúng (định nghĩa bước sóng).\n• b: Sai (phân tử dao động tại chỗ quanh vị trí cân bằng, không truyền đi).\n• c: Đúng (đặc tính sóng ngang).\n• d: Sai (vận tốc truyền sóng phụ thuộc bản chất và nhiệt độ môi trường).",
+      answer: "a) Đúng | b) Sai | c) Đúng | d) Sai",
+      level: { id: 2, name: "Thông Hiểu", short_name: "TH" },
+      type: { id: 2, name: "Đúng Sai", short_name: "DS" },
+    },
+  },
+  {
+    id: "ly-11-vd-1",
+    author: { id: 2, name: "Nguyen Thi Lan", created_at: "06-07-2026 10:15:00", update_at: "06-07-2026 10:15:00" },
+    question: {
+      subject: { id: "LY", name: "Vật lý" },
+      grade: { id: 11, name: "Khối 11" },
+      content: "A. 1.5 A\nB. 2.0 A\nC. 0.8 A\nD. 3.0 A",
+      question: "Cho mạch điện kín gồm nguồn điện E = 12V, r = 1Ω và điện trở ngoài R = 5Ω. Cường độ dòng điện chạy trong mạch là:",
+      solution_guide: "Áp dụng định luật Ohm cho toàn mạch: I = E / (R + r) = 12 / (5 + 1) = 12 / 6 = 2 A.",
+      answer: "B",
+      level: { id: 3, name: "Vận Dụng", short_name: "VD" },
+      type: { id: 1, name: "Trắc Nghiệm", short_name: "TN" },
+    },
+  },
+  {
+    id: "ly-10-tl-1",
+    author: { id: 2, name: "Nguyen Thi Lan", created_at: "06-07-2026 10:30:00", update_at: "06-07-2026 10:30:00" },
+    question: {
+      subject: { id: "LY", name: "Vật lý" },
+      grade: { id: 10, name: "Khối 10" },
+      content: "Một vật có khối lượng m = 2 kg trượt từ đỉnh mặt phẳng nghiêng dài s = 10 m, góc nghiêng α = 30° so với phương ngang. Hệ số ma sát µ = 0.1, lấy g = 9.8 m/s².",
+      question: "Tính gia tốc chuyển động của vật trên mặt phẳng nghiêng (m/s²).",
+      solution_guide: "Áp dụng định luật II Newton chiếu lên phương chuyển động: a = g(sin α - µ cos α) = 9.8 · (sin 30° - 0.1 · cos 30°) = 9.8 · (0.5 - 0.0866) ≈ 4.05 m/s².",
+      answer: "4.05 m/s²",
+      level: { id: 4, name: "Vận Dụng Cao", short_name: "VDC" },
+      type: { id: 4, name: "Tự Luận", short_name: "TL" },
+    },
+  },
+
+  // HÓA HỌC (DS, VD, TLN)
+  {
+    id: "hoa-12-ds-1",
+    author: { id: 3, name: "Le Hoang Nam", created_at: "06-07-2026 11:00:00", update_at: "06-07-2026 11:00:00" },
+    question: {
+      subject: { id: "HOA", name: "Hóa học" },
+      grade: { id: 12, name: "Khối 12" },
+      content: "a) Glucozơ và fructozơ đều tham gia phản ứng tráng bạc sinh ra Ag.\nb) Xenlulozơ và tinh bột là đồng phân của nhau.\nc) Saccarozơ bị thủy phân trong môi trường axit cho ra glucozơ và fructozơ.\nd) Dung dịch glucozơ hòa tan Cu(OH)₂ ở nhiệt độ thường tạo phức màu xanh lam.",
+      question: "Xét tính Đúng / Sai của các phát biểu về cacbohiđrat sau đây:",
+      solution_guide: "• a: Đúng (đều tráng bạc).\n• b: Sai (hệ số polime hóa n khác nhau nên không phải đồng phân).\n• c: Đúng (thủy phân saccarozơ).\n• d: Đúng (glucozơ có nhiều nhóm -OH kề nhau).",
+      answer: "a) Đúng | b) Sai | c) Đúng | d) Đúng",
+      level: { id: 2, name: "Thông Hiểu", short_name: "TH" },
+      type: { id: 2, name: "Đúng Sai", short_name: "DS" },
+    },
+  },
+  {
+    id: "hoa-11-vd-1",
+    author: { id: 3, name: "Le Hoang Nam", created_at: "06-07-2026 11:15:00", update_at: "06-07-2026 11:15:00" },
+    question: {
+      subject: { id: "HOA", name: "Hóa học" },
+      grade: { id: 11, name: "Khối 11" },
+      content: "A. pH = 12\nB. pH = 2\nC. pH = 13\nD. pH = 1",
+      question: "Hòa tan hoàn toàn 0.4 gam NaOH vào nước thu được 1 lít dung dịch X. Giá trị pH của dung dịch X là bao nhiêu?",
+      solution_guide: "n_NaOH = 0.4 / 40 = 0.01 mol. Nồng độ [OH⁻] = 0.01 / 1 = 10⁻² M => pOH = 2 => pH = 14 - 2 = 12.",
+      answer: "A",
+      level: { id: 3, name: "Vận Dụng", short_name: "VD" },
+      type: { id: 1, name: "Trắc Nghiệm", short_name: "TN" },
+    },
+  },
+
+  // TIẾNG ANH (DS, VD, TLN)
+  {
+    id: "anh-12-vd-1",
+    author: { id: 5, name: "Pham Thu Ha", created_at: "06-07-2026 14:00:00", update_at: "06-07-2026 14:00:00" },
+    question: {
+      subject: { id: "ANH", name: "Tiếng Anh" },
+      grade: { id: 12, name: "Khối 12" },
+      content: "A. had they arrived / when\nB. did they arrive / than\nC. had they arrived / that\nD. they had arrived / then",
+      question: "Scarcely _______ at the airport _______ the severe storm hit the city.",
+      solution_guide: "Cấu trúc đảo ngữ: Scarcely had + S + V(pII) + when + S + V(quá khứ đơn).",
+      answer: "A",
+      level: { id: 3, name: "Vận Dụng", short_name: "VD" },
+      type: { id: 1, name: "Trắc Nghiệm", short_name: "TN" },
+    },
+  },
+  {
+    id: "anh-11-ds-1",
+    author: { id: 5, name: "Pham Thu Ha", created_at: "06-07-2026 14:20:00", update_at: "06-07-2026 14:20:00" },
+    question: {
+      subject: { id: "ANH", name: "Tiếng Anh" },
+      grade: { id: 11, name: "Khối 11" },
+      content: "a) 'Look forward to' is followed by a gerund (V-ing).\nb) In passive voice of Present Perfect: S + have/has + been + V3/ed.\nc) 'Unless' has the same meaning as 'If'.\nd) Conditional Sentence Type 2 expresses an imaginary situation in the present or future.",
+      question: "Determine whether each grammatical statement below is True (Đúng) or False (Sai):",
+      solution_guide: "• a: Đúng (look forward to doing sth).\n• b: Đúng (công thức bị động HTHT).\n• c: Sai (Unless = If not).\n• d: Đúng (câu điều kiện loại 2).",
+      answer: "a) Đúng | b) Đúng | c) Sai | d) Đúng",
+      level: { id: 2, name: "Thông Hiểu", short_name: "TH" },
+      type: { id: 2, name: "Đúng Sai", short_name: "DS" },
+    },
+  },
+
+  // NGỮ VĂN (TL, VD)
+  {
+    id: "van-12-vdc-1",
+    author: { id: 6, name: "Nguyen Van Tam", created_at: "06-07-2026 15:00:00", update_at: "06-07-2026 15:00:00" },
+    question: {
+      subject: { id: "VAN", name: "Ngữ văn" },
+      grade: { id: 12, name: "Khối 12" },
+      content: "Cảm nhận về vẻ đẹp trữ tình và dòng chảy thiên nhiên thơ mộng của sông Đà trong đoạn văn: 'Con Sông Đà tuôn dài tuôn dài như một áng tóc trữ tình, đầu tóc chân tóc ẩn hiện trong mây trời Tây Bắc...'",
+      question: "Viết đoạn văn nghị luận văn học khoảng 200 chữ phân tích nghệ thuật so sánh độc đáo của Nguyễn Tuân trong đoạn văn trên.",
+      solution_guide: "1. Mở đoạn: Giới thiệu Nguyễn Tuân và hình tượng Sông Đà trữ tình.\n2. Thân đoạn: Phân tích phép so sánh 'như một áng tóc trữ tình', từ láy 'tuôn dài tuôn dài' gợi nhịp điệu êm đềm, vẻ đẹp kiều diễm như thiếu nữ Tây Bắc.\n3. Kết đoạn: Khẳng định tài hoa uyên bác và tình yêu tha thiết với vẻ đẹp đất nước của nhà văn.",
+      answer: "Đoạn văn nghị luận hoàn chỉnh",
+      level: { id: 4, name: "Vận Dụng Cao", short_name: "VDC" },
+      type: { id: 4, name: "Tự Luận", short_name: "TL" },
     },
   },
 ];

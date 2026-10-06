@@ -56,7 +56,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-const STORAGE_KEY = "phan_mem_tron_de_questions_v2";
+const STORAGE_KEY = "phan_mem_tron_de_questions_v3";
 const emptySubscribe = () => () => {};
 
 interface ShuffledQuestion {
@@ -135,9 +135,9 @@ export default function Home() {
     return initialQuestions;
   });
 
-  // Selected question IDs for shuffling
+  // Selected question IDs for shuffling (default to initially selected subject "TOAN")
   const [activeQuestionIds, setActiveQuestionIds] = useState<string[]>(() =>
-    initialQuestions.map((q) => q.id)
+    initialQuestions.filter((q) => q.question.subject?.id === "TOAN").map((q) => q.id)
   );
 
   // Exam Configuration State
@@ -150,6 +150,12 @@ export default function Home() {
   const [numVariants, setNumVariants] = useState<number>(4);
   const [shuffleChoices, setShuffleChoices] = useState<boolean>(true);
 
+  // Search & Filter in Sidebar Question Selector
+  const [sidebarSearch, setSidebarSearch] = useState("");
+  const [sidebarLevel, setSidebarLevel] = useState("ALL");
+  const [sidebarType, setSidebarType] = useState("ALL");
+  const [sidebarGrade, setSidebarGrade] = useState("ALL");
+
   // Mobile Accordion state for Exam Settings
   const [showMobileConfig, setShowMobileConfig] = useState(false);
 
@@ -159,12 +165,13 @@ export default function Home() {
   );
   const [selectedVariantIndex, setSelectedVariantIndex] = useState<number>(0);
 
-  // Generated Exam Variants State
+  // Generated Exam Variants State (scoped to initial subject "TOAN")
   const [generatedExams, setGeneratedExams] = useState<ExamVariant[]>(() => {
     const baseCodes = [101, 102, 103, 104];
+    const initialPool = initialQuestions.filter((q) => q.question.subject?.id === "TOAN");
     return baseCodes.map((code) => ({
       code: `${code}`,
-      questions: initialQuestions.map((q, idx) => ({
+      questions: initialPool.map((q, idx) => ({
         originalIndex: idx + 1,
         questionText: q.question.question,
         contentText: q.question.content,
@@ -262,14 +269,72 @@ export default function Home() {
     };
   };
 
+  // Current subject metadata object
+  const currentSubjectObj = useMemo(() => {
+    return (
+      SUBJECTS.find((s) => s.id === selectedSubjectId) || {
+        id: selectedSubjectId,
+        name: "Toán học",
+      }
+    );
+  }, [selectedSubjectId]);
+
+  // Total questions belonging to the currently selected subject
+  const subjectQuestionsTotal = useMemo(() => {
+    return questions.filter((q) => q.question.subject?.id === selectedSubjectId).length;
+  }, [questions, selectedSubjectId]);
+
+  // Checked/active questions belonging to the currently selected subject
+  const activeQuestionsInSubject = useMemo(() => {
+    return questions.filter(
+      (q) => q.question.subject?.id === selectedSubjectId && activeQuestionIds.includes(q.id)
+    ).length;
+  }, [questions, selectedSubjectId, activeQuestionIds]);
+
+  // Filtered questions for the Sidebar Question Selector (Strictly within selectedSubjectId)
+  const sidebarFilteredQuestions = useMemo(() => {
+    return questions.filter((q) => {
+      // 1. MUST strictly match currently selected subject
+      if (q.question.subject?.id !== selectedSubjectId) {
+        return false;
+      }
+      // 2. Filter by Grade
+      if (sidebarGrade !== "ALL" && String(q.question.grade?.id) !== String(sidebarGrade)) {
+        return false;
+      }
+      // 3. Filter by Level (4 mức độ: NB, TH, VD, VDC)
+      if (sidebarLevel !== "ALL" && q.question.level.short_name !== sidebarLevel) {
+        return false;
+      }
+      // 4. Filter by Type (4 định dạng: TN, DS, TLN, TL)
+      if (sidebarType !== "ALL" && q.question.type.short_name !== sidebarType) {
+        return false;
+      }
+      // 5. Search query
+      if (sidebarSearch.trim() !== "") {
+        const query = sidebarSearch.toLowerCase();
+        const matchQ = q.question.question.toLowerCase().includes(query);
+        const matchC = q.question.content.toLowerCase().includes(query);
+        const matchA = q.question.answer.toLowerCase().includes(query);
+        if (!matchQ && !matchC && !matchA) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [questions, selectedSubjectId, sidebarGrade, sidebarLevel, sidebarType, sidebarSearch]);
+
   // Shuffling logic
   const handleShuffleExams = () => {
-    const targetPool = questions.filter((q) =>
-      activeQuestionIds.length > 0 ? activeQuestionIds.includes(q.id) : true
+    // Only pick questions that belong to the currently selected subject AND are checked in activeQuestionIds
+    const targetPool = questions.filter(
+      (q) =>
+        q.question.subject?.id === selectedSubjectId &&
+        (activeQuestionIds.length > 0 ? activeQuestionIds.includes(q.id) : true)
     );
 
     if (targetPool.length === 0) {
-      showToast("Vui lòng chọn ít nhất 1 câu hỏi để trộn đề!");
+      showToast(`Vui lòng chọn ít nhất 1 câu hỏi môn ${currentSubjectObj.name} để trộn đề!`);
       return;
     }
 
@@ -974,6 +1039,14 @@ export default function Home() {
                           if (found) {
                             setSubjectName(`MÔN: ${found.name.toUpperCase()}`);
                           }
+                          const matchingIds = questions
+                            .filter((q) => q.question.subject?.id === sId)
+                            .map((q) => q.id);
+                          setActiveQuestionIds(matchingIds);
+                          setSidebarSearch("");
+                          setSidebarLevel("ALL");
+                          setSidebarType("ALL");
+                          setSidebarGrade("ALL");
                         }}
                         className="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
                       >
@@ -1074,94 +1147,230 @@ export default function Home() {
 
               {/* Questions to Include Selector */}
               <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3">
+                {/* Header & Quick Action */}
                 <div className="flex items-center justify-between pb-2 border-b border-slate-100 flex-wrap gap-1">
-                  <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                    Câu hỏi ({activeQuestionIds.length}/{questions.length})
-                  </span>
+                  <div>
+                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                      Câu hỏi {currentSubjectObj.name}
+                    </span>
+                    <span className="text-[11px] text-slate-500 font-medium">
+                      Đã chọn: <strong className="text-indigo-600 font-bold">{activeQuestionsInSubject}</strong> / {subjectQuestionsTotal} câu
+                    </span>
+                  </div>
+
                   <div className="flex items-center gap-1.5 text-xs">
                     <button
                       onClick={() => {
-                        const matchingIds = questions
-                          .filter((q) => q.question.subject?.id === selectedSubjectId)
-                          .map((q) => q.id);
-                        if (matchingIds.length > 0) {
-                          setActiveQuestionIds(matchingIds);
-                          showToast(`Đã chọn ${matchingIds.length} câu hỏi thuộc môn đang cấu hình!`);
+                        const filteredIds = sidebarFilteredQuestions.map((q) => q.id);
+                        const allFilteredChecked =
+                          filteredIds.length > 0 &&
+                          filteredIds.every((id) => activeQuestionIds.includes(id));
+
+                        if (allFilteredChecked) {
+                          // Uncheck all currently filtered questions
+                          setActiveQuestionIds((prev) =>
+                            prev.filter((id) => !filteredIds.includes(id))
+                          );
                         } else {
-                          showToast("Chưa có câu hỏi nào thuộc môn này trong ngân hàng!");
+                          // Check all currently filtered questions
+                          setActiveQuestionIds((prev) =>
+                            Array.from(new Set([...prev, ...filteredIds]))
+                          );
                         }
                       }}
-                      className="text-xs text-emerald-600 hover:text-emerald-800 font-bold cursor-pointer"
-                      title="Chỉ chọn các câu hỏi thuộc môn học đang được chọn ở trên"
+                      className="text-xs text-indigo-600 hover:text-indigo-800 font-bold cursor-pointer"
+                      title="Chọn hoặc bỏ chọn tất cả các câu hỏi đang hiển thị trong bộ lọc"
                     >
-                      Chỉ môn này
+                      {sidebarFilteredQuestions.length > 0 &&
+                      sidebarFilteredQuestions.every((q) => activeQuestionIds.includes(q.id))
+                        ? "Bỏ chọn lọc"
+                        : "Chọn tất cả lọc"}
                     </button>
                     <span className="text-slate-300">|</span>
                     <button
                       onClick={() => {
-                        if (activeQuestionIds.length === questions.length) {
-                          setActiveQuestionIds([]);
+                        const subjectAllIds = questions
+                          .filter((q) => q.question.subject?.id === selectedSubjectId)
+                          .map((q) => q.id);
+                        const isAllSubjectChecked =
+                          subjectAllIds.length > 0 &&
+                          subjectAllIds.every((id) => activeQuestionIds.includes(id));
+                        if (isAllSubjectChecked) {
+                          setActiveQuestionIds((prev) =>
+                            prev.filter((id) => !subjectAllIds.includes(id))
+                          );
                         } else {
-                          setActiveQuestionIds(questions.map((q) => q.id));
+                          setActiveQuestionIds((prev) =>
+                            Array.from(new Set([...prev, ...subjectAllIds]))
+                          );
                         }
                       }}
-                      className="text-xs text-indigo-600 hover:text-indigo-800 font-bold cursor-pointer"
+                      className="text-xs text-slate-600 hover:text-slate-800 font-bold cursor-pointer"
+                      title="Chọn hoặc bỏ chọn toàn bộ câu hỏi của môn này"
                     >
-                      {activeQuestionIds.length === questions.length ? "Bỏ chọn" : "Tất cả"}
+                      {activeQuestionsInSubject === subjectQuestionsTotal && subjectQuestionsTotal > 0
+                        ? "Bỏ chọn môn"
+                        : "Tất cả môn"}
                     </button>
                   </div>
                 </div>
 
-                <div className="max-h-60 overflow-y-auto space-y-2 pr-1">
-                  {questions.map((q, idx) => {
-                    const isChecked = activeQuestionIds.includes(q.id);
-                    const lvl = getLevelBadge(q.question.level.short_name);
-                    const subBadge = getSubjectBadge(q.question.subject);
-                    const grdBadge = getGradeBadge(q.question.grade);
-                    return (
-                      <label
-                        key={q.id}
-                        className={`flex items-start gap-2.5 p-2 rounded-lg border text-xs cursor-pointer transition-colors ${
-                          isChecked
-                            ? "bg-indigo-50/50 border-indigo-200 text-slate-800"
-                            : "bg-slate-50 border-slate-200 text-slate-500 opacity-60"
-                        }`}
+                {/* Filter and Search Controls for Question Selection */}
+                <div className="space-y-2 pt-1">
+                  {/* Search input */}
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={sidebarSearch}
+                      onChange={(e) => setSidebarSearch(e.target.value)}
+                      placeholder={`Tìm câu hỏi ${currentSubjectObj.name}...`}
+                      className="w-full pl-8 pr-2.5 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    />
+                  </div>
+
+                  {/* Level & Type Select Dropdowns */}
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {/* 4 Mức độ */}
+                    <select
+                      value={sidebarLevel}
+                      onChange={(e) => setSidebarLevel(e.target.value)}
+                      className="text-[11px] bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 font-medium text-slate-700 cursor-pointer"
+                    >
+                      <option value="ALL">Tất cả mức độ</option>
+                      {QUESTION_LEVELS.map((lvl) => (
+                        <option key={lvl.id} value={lvl.short_name}>
+                          {lvl.short_name} - {lvl.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* 4 Dạng câu hỏi */}
+                    <select
+                      value={sidebarType}
+                      onChange={(e) => setSidebarType(e.target.value)}
+                      className="text-[11px] bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 font-medium text-slate-700 cursor-pointer"
+                    >
+                      <option value="ALL">Tất cả định dạng</option>
+                      {QUESTION_TYPES.map((t) => (
+                        <option key={t.id} value={t.short_name}>
+                          {t.short_name} - {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Grade Filter & Reset button */}
+                  <div className="flex items-center justify-between text-[11px] gap-2 pt-0.5">
+                    <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                      <span className="text-slate-500 font-semibold shrink-0">Khối:</span>
+                      <select
+                        value={sidebarGrade}
+                        onChange={(e) => setSidebarGrade(e.target.value)}
+                        className="text-[11px] bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 font-medium text-slate-700 cursor-pointer flex-1"
                       >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => {
-                            setActiveQuestionIds((prev) =>
-                              prev.includes(q.id)
-                                ? prev.filter((id) => id !== q.id)
-                                : [...prev, q.id]
-                            );
+                        <option value="ALL">Tất cả khối</option>
+                        {GRADES.map((g) => (
+                          <option key={g.id} value={String(g.id)}>
+                            {g.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {(sidebarSearch || sidebarLevel !== "ALL" || sidebarType !== "ALL" || sidebarGrade !== "ALL") && (
+                      <button
+                        onClick={() => {
+                          setSidebarSearch("");
+                          setSidebarLevel("ALL");
+                          setSidebarType("ALL");
+                          setSidebarGrade("ALL");
+                        }}
+                        className="text-rose-600 hover:text-rose-800 font-bold shrink-0 underline cursor-pointer"
+                      >
+                        Xóa lọc
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Question List (Filtered strictly by selected subject & search/level/type) */}
+                <div className="max-h-72 overflow-y-auto space-y-2 pr-1 pt-1">
+                  {sidebarFilteredQuestions.length === 0 ? (
+                    <div className="p-4 text-center text-xs text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200 space-y-1.5">
+                      <p className="font-semibold text-slate-700">
+                        {subjectQuestionsTotal === 0
+                          ? `Chưa có câu hỏi nào thuộc môn ${currentSubjectObj.name} trong ngân hàng!`
+                          : `Không có câu hỏi ${currentSubjectObj.name} nào khớp bộ lọc.`}
+                      </p>
+                      {subjectQuestionsTotal === 0 ? (
+                        <button
+                          onClick={handleOpenCreate}
+                          className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer"
+                        >
+                          + Thêm câu hỏi môn {currentSubjectObj.name}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setSidebarSearch("");
+                            setSidebarLevel("ALL");
+                            setSidebarType("ALL");
+                            setSidebarGrade("ALL");
                           }}
-                          className="w-4 h-4 mt-0.5 rounded text-indigo-600 shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                            <span className="font-bold text-indigo-700">Câu {idx + 1}</span>
-                            <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${subBadge.bg}`}>
-                              {q.question.subject?.name || "Toán"}
-                            </span>
-                            <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${grdBadge.bg}`}>
-                              {q.question.grade?.name || "Khối 12"}
-                            </span>
-                            <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${lvl.bg}`}>
-                              {q.question.level.short_name}
-                            </span>
-                            <span className="text-[10px] text-slate-400">
-                              [{q.question.type.short_name}]
-                            </span>
+                          className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer"
+                        >
+                          Đặt lại bộ lọc để xem {subjectQuestionsTotal} câu hỏi
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    sidebarFilteredQuestions.map((q, idx) => {
+                      const isChecked = activeQuestionIds.includes(q.id);
+                      const lvl = getLevelBadge(q.question.level.short_name);
+                      const grdBadge = getGradeBadge(q.question.grade);
+                      return (
+                        <label
+                          key={q.id}
+                          className={`flex items-start gap-2.5 p-2 rounded-lg border text-xs cursor-pointer transition-colors ${
+                            isChecked
+                              ? "bg-indigo-50/50 border-indigo-200 text-slate-800"
+                              : "bg-slate-50 border-slate-200 text-slate-500 opacity-60"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              setActiveQuestionIds((prev) =>
+                                prev.includes(q.id)
+                                  ? prev.filter((id) => id !== q.id)
+                                  : [...prev, q.id]
+                              );
+                            }}
+                            className="w-4 h-4 mt-0.5 rounded text-indigo-600 shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                              <span className="font-bold text-indigo-700">Câu {idx + 1}</span>
+                              <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${grdBadge.bg}`}>
+                                {q.question.grade?.name || "Khối 12"}
+                              </span>
+                              <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${lvl.bg}`}>
+                                {q.question.level.short_name}
+                              </span>
+                              <span className="text-[10px] text-slate-500 font-medium">
+                                [{q.question.type.short_name}]
+                              </span>
+                            </div>
+                            <p className="truncate text-slate-800 font-medium">
+                              {q.question.question}
+                            </p>
                           </div>
-                          <p className="truncate text-slate-700 font-medium">
-                            {q.question.question}
-                          </p>
-                        </div>
-                      </label>
-                    );
-                  })}
+                        </label>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             </div>
