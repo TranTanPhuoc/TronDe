@@ -77,29 +77,47 @@ interface ExamVariant {
 
 type CurrentUser = ProfileUserData;
 
+const DEFAULT_TEACHER: CurrentUser = {
+  id: "demo-teacher-01",
+  name: "Thầy Trần Tấn Phước",
+  email: "phuoc.tran@edu.vn",
+  school: "TRƯỜNG THPT CHUYÊN",
+  department: "TỔ TOÁN HỌC",
+  role: "Tổ trưởng Chuyên môn",
+  avatar: "TP",
+  phone: "0912 345 678",
+};
+
 export default function Home() {
   const router = useRouter();
   const isLoaded = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
-  // Auth state
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() => {
+  // Auth state - Luôn có tài khoản giáo viên mặc định để đảm bảo giao diện luôn hiển thị
+  const [currentUser, setCurrentUser] = useState<CurrentUser>(() => {
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem("tron_de_auth_user");
-        return stored ? JSON.parse(stored) : null;
+        if (stored) return JSON.parse(stored);
       } catch {
-        return null;
+        // Storage error
       }
     }
-    return null;
+    return DEFAULT_TEACHER;
   });
 
-  // Verify authentication on mount
+  // Tự động đồng bộ tài khoản mẫu vào localStorage nếu chưa có
   useEffect(() => {
-    if (!currentUser && isLoaded) {
-      router.replace(APP_ROUTES.LOGIN);
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("tron_de_auth_user");
+        if (!stored) {
+          localStorage.setItem("tron_de_auth_user", JSON.stringify(DEFAULT_TEACHER));
+        }
+      } catch {
+        // Storage error
+      }
     }
-  }, [currentUser, isLoaded, router]);
+  }, []);
 
   // Xóa tiêu đề trang tạm thời trước khi in để trình duyệt không in tên website lên đầu trang
   useEffect(() => {
