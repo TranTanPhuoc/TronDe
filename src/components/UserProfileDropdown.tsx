@@ -118,7 +118,7 @@ export default function UserProfileDropdown({
         {isOpen && (
           <div className="absolute right-0 top-full mt-2 w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
             {/* Header info */}
-            <div className="p-3 bg-gradient-to-br from-indigo-50/80 dark:from-slate-800 via-white dark:via-slate-850 to-slate-50 dark:to-slate-800 rounded-xl border border-indigo-100/80 dark:border-slate-700 mb-1.5 text-left">
+            <div className="p-3 bg-slate-50/90 dark:bg-slate-800 rounded-xl border border-indigo-100/80 dark:border-slate-700 mb-1.5 text-left">
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs shrink-0 overflow-hidden">
                   {user.avatarImage ? (
@@ -133,7 +133,7 @@ export default function UserProfileDropdown({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-black text-slate-900 dark:text-white truncate">
+                  <p className="text-xs font-black text-slate-900 dark:text-slate-100 truncate">
                     {user.name}
                   </p>
                   <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
@@ -141,11 +141,11 @@ export default function UserProfileDropdown({
                   </p>
                 </div>
               </div>
-              <div className="text-[10px] text-slate-600 dark:text-slate-400 font-medium border-t border-slate-100 dark:border-slate-700/60 pt-1.5 flex items-center gap-1 truncate">
-                <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
+              <div className="text-[10px] text-slate-700 dark:text-slate-200 font-semibold border-t border-slate-200 dark:border-slate-700/80 pt-1.5 flex items-center gap-1 truncate">
+                <Building2 className="w-3 h-3 text-slate-400 dark:text-slate-400 shrink-0" />
                 <span className="truncate">{user.school || schoolName}</span>
                 <span className="text-slate-300 dark:text-slate-600">•</span>
-                <span className="text-indigo-600 dark:text-indigo-400 font-bold truncate">
+                <span className="text-indigo-700 dark:text-indigo-300 font-extrabold truncate">
                   {departmentName}
                 </span>
               </div>
@@ -294,14 +294,14 @@ export default function UserProfileDropdown({
           {/* School & Department (Tổ chuyên môn) */}
           <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium leading-none">
             <span
-              className="font-semibold text-slate-600 dark:text-slate-300 truncate max-w-[130px]"
+              className="font-semibold text-slate-700 dark:text-slate-200 truncate max-w-[130px]"
               title={user.school || schoolName}
             >
               {user.school || schoolName}
             </span>
             <span className="text-slate-300 dark:text-slate-600">•</span>
             <span
-              className="font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/90 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded-md border border-indigo-200/80 dark:border-indigo-800 truncate max-w-[140px] shadow-2xs"
+              className="font-extrabold text-indigo-700 dark:text-indigo-300 bg-indigo-50/90 dark:bg-indigo-900/60 px-1.5 py-0.5 rounded-md border border-indigo-200/80 dark:border-indigo-700 truncate max-w-[140px] shadow-2xs"
               title={departmentName}
             >
               {departmentName}
@@ -323,7 +323,7 @@ export default function UserProfileDropdown({
       {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in zoom-in-95 duration-150">
           {/* Header Card inside Dropdown */}
-          <div className="p-3 bg-gradient-to-br from-indigo-50/70 dark:from-slate-800 via-white dark:via-slate-850 to-slate-50 dark:to-slate-800 rounded-xl border border-indigo-100/80 dark:border-slate-700 mb-2">
+          <div className="p-3 bg-slate-50/90 dark:bg-slate-800 rounded-xl border border-indigo-100/80 dark:border-slate-700 mb-2">
             <div className="flex items-center gap-2.5 mb-2">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-700 to-teal-400 p-[1.5px] shadow-xs shrink-0 overflow-hidden">
                 {user.avatarImage ? (
@@ -341,10 +341,10 @@ export default function UserProfileDropdown({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-1">
-                  <h4 className="text-xs font-black text-slate-900 dark:text-white truncate">
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 truncate">
                     {user.name}
                   </h4>
-                  <span className="px-1.5 py-0.2 text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 rounded border border-indigo-200/60 dark:border-indigo-800 shrink-0">
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 rounded border border-indigo-200/60 dark:border-indigo-800 shrink-0">
                     {user.role || "Giáo viên"}
                   </span>
                 </div>
@@ -354,11 +354,12 @@ export default function UserProfileDropdown({
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-400 font-medium">
-              <span className="truncate text-slate-500 dark:text-slate-300 font-semibold max-w-[130px]">
-                {user.school || schoolName}
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-700/80 flex items-center justify-between text-[10px] text-slate-700 dark:text-slate-200 font-medium">
+              <span className="truncate text-slate-700 dark:text-slate-200 font-semibold max-w-[130px] flex items-center gap-1">
+                <Building2 className="w-3 h-3 text-slate-400 dark:text-slate-400 shrink-0" />
+                <span className="truncate">{user.school || schoolName}</span>
               </span>
-              <span className="font-bold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950 px-1.5 py-0.5 rounded border border-indigo-100 dark:border-indigo-800 shrink-0 truncate max-w-[110px]">
+              <span className="font-extrabold text-indigo-700 dark:text-indigo-300 bg-indigo-100/80 dark:bg-indigo-900/60 px-2 py-0.5 rounded-md border border-indigo-200/80 dark:border-indigo-700 shrink-0 truncate max-w-[120px] shadow-2xs">
                 {departmentName}
               </span>
             </div>
