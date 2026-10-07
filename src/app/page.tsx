@@ -21,6 +21,7 @@ import {
 import QuestionModal from "@/components/QuestionModal";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import CustomSelect from "@/components/CustomSelect";
 import { ProfileUserData } from "@/components/ProfileModal";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 import {
@@ -1001,12 +1002,12 @@ export default function Home() {
                       <label className="block font-bold text-slate-600 mb-1">
                         Môn học
                       </label>
-                      <select
+                      <CustomSelect
                         value={selectedSubjectId}
-                        onChange={(e) => {
-                          const sId = e.target.value;
-                          setSelectedSubjectId(sId);
-                          const found = SUBJECTS.find((s) => s.id === sId);
+                        onChange={(sId) => {
+                          const val = String(sId);
+                          setSelectedSubjectId(val);
+                          const found = SUBJECTS.find((s) => s.id === val);
                           if (found) {
                             setSubjectName(`MÔN: ${found.name.toUpperCase()}`);
                           }
@@ -1019,24 +1020,17 @@ export default function Home() {
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
                         }}
-                        className="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
-                      >
-                        {SUBJECTS.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name}
-                          </option>
-                        ))}
-                      </select>
+                        options={SUBJECTS.map((s) => ({ value: s.id, label: s.name }))}
+                      />
                     </div>
 
                     <div>
                       <label className="block font-bold text-slate-600 mb-1">
                         Khối lớp
                       </label>
-                      <select
+                      <CustomSelect
                         value={selectedGradeId}
-                        onChange={(e) => {
-                          const val = e.target.value === "ALL" ? "ALL" : Number(e.target.value);
+                        onChange={(val) => {
                           setSelectedGradeId(val);
                           // Bỏ chọn hết tất cả các câu hỏi khi đổi khối để người dùng tự chọn lại từ đầu
                           setActiveQuestionIds([]);
@@ -1046,15 +1040,11 @@ export default function Home() {
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
                         }}
-                        className="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
-                      >
-                        <option value="ALL">Tất cả khối</option>
-                        {GRADES.map((g) => (
-                          <option key={g.id} value={g.id}>
-                            {g.name}
-                          </option>
-                        ))}
-                      </select>
+                        options={[
+                          { value: "ALL", label: "Tất cả khối" },
+                          ...GRADES.map((g) => ({ value: g.id, label: g.name })),
+                        ]}
+                      />
                     </div>
                   </div>
 
@@ -1087,21 +1077,21 @@ export default function Home() {
                     <label className="block font-bold text-slate-600 mb-1">
                       Số lượng mã đề cần tạo
                     </label>
-                    <select
+                    <CustomSelect
                       value={numVariants}
-                      onChange={(e) => setNumVariants(Number(e.target.value))}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-semibold cursor-pointer"
-                    >
-                      <option value={2}>2 mã đề (101, 102)</option>
-                      <option value={4}>4 mã đề (101 - 104)</option>
-                      <option value={6}>6 mã đề (101 - 106)</option>
-                      <option value={8}>8 mã đề (101 - 108)</option>
-                      <option value={10}>10 mã đề (101 - 110)</option>
-                      <option value={20}>20 mã đề (101 - 120)</option>
-                      <option value={30}>30 mã đề (101 - 130)</option>
-                      <option value={40}>40 mã đề (101 - 140)</option>
-                      <option value={50}>50 mã đề (101 - 150)</option>
-                    </select>
+                      onChange={(val) => setNumVariants(Number(val))}
+                      options={[
+                        { value: 2, label: "2 mã đề (101, 102)" },
+                        { value: 4, label: "4 mã đề (101 - 104)" },
+                        { value: 6, label: "6 mã đề (101 - 106)" },
+                        { value: 8, label: "8 mã đề (101 - 108)" },
+                        { value: 10, label: "10 mã đề (101 - 110)" },
+                        { value: 20, label: "20 mã đề (101 - 120)" },
+                        { value: 30, label: "30 mã đề (101 - 130)" },
+                        { value: 40, label: "40 mã đề (101 - 140)" },
+                        { value: 50, label: "50 mã đề (101 - 150)" },
+                      ]}
+                    />
                   </div>
 
                   <div className="pt-2 border-t border-slate-100 space-y-2">
@@ -1224,42 +1214,41 @@ export default function Home() {
                   {/* Level & Type Select Dropdowns */}
                   <div className="grid grid-cols-2 gap-1.5">
                     {/* 4 Mức độ */}
-                    <select
+                    <CustomSelect
                       value={sidebarLevel}
-                      onChange={(e) => setSidebarLevel(e.target.value)}
-                      className="text-[11px] bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 font-medium text-slate-700 cursor-pointer"
-                    >
-                      <option value="ALL">Tất cả mức độ</option>
-                      {QUESTION_LEVELS.map((lvl) => (
-                        <option key={lvl.id} value={lvl.short_name}>
-                          {lvl.short_name} - {lvl.name}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setSidebarLevel(String(val))}
+                      options={[
+                        { value: "ALL", label: "Tất cả mức độ" },
+                        ...QUESTION_LEVELS.map((lvl) => ({
+                          value: lvl.short_name,
+                          label: `${lvl.short_name} - ${lvl.name}`,
+                        })),
+                      ]}
+                      size="sm"
+                    />
 
                     {/* 4 Dạng câu hỏi */}
-                    <select
+                    <CustomSelect
                       value={sidebarType}
-                      onChange={(e) => setSidebarType(e.target.value)}
-                      className="text-[11px] bg-slate-50 border border-slate-300 rounded-lg px-2 py-1.5 font-medium text-slate-700 cursor-pointer"
-                    >
-                      <option value="ALL">Tất cả định dạng</option>
-                      {QUESTION_TYPES.map((t) => (
-                        <option key={t.id} value={t.short_name}>
-                          {t.short_name} - {t.name}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setSidebarType(String(val))}
+                      options={[
+                        { value: "ALL", label: "Tất cả định dạng" },
+                        ...QUESTION_TYPES.map((t) => ({
+                          value: t.short_name,
+                          label: `${t.short_name} - ${t.name}`,
+                        })),
+                      ]}
+                      size="sm"
+                    />
                   </div>
 
                   {/* Grade Filter & Reset button */}
                   <div className="flex items-center justify-between text-[11px] gap-2 pt-0.5">
                     <div className="flex items-center gap-1.5 flex-1 min-w-0">
                       <span className="text-slate-500 font-semibold shrink-0">Khối:</span>
-                      <select
+                      <CustomSelect
                         value={selectedGradeId}
-                        onChange={(e) => {
-                          const val = e.target.value === "ALL" ? "ALL" : Number(e.target.value);
+                        onChange={(val) => {
                           setSelectedGradeId(val);
                           setActiveQuestionIds([]);
                           setGeneratedExams([]);
@@ -1268,15 +1257,13 @@ export default function Home() {
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
                         }}
-                        className="text-[11px] bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 font-medium text-slate-700 cursor-pointer flex-1"
-                      >
-                        <option value="ALL">Tất cả khối</option>
-                        {GRADES.map((g) => (
-                          <option key={g.id} value={g.id}>
-                            {g.name}
-                          </option>
-                        ))}
-                      </select>
+                        options={[
+                          { value: "ALL", label: "Tất cả khối" },
+                          ...GRADES.map((g) => ({ value: g.id, label: g.name })),
+                        ]}
+                        size="sm"
+                        className="flex-1 min-w-0"
+                      />
                     </div>
 
                     {(sidebarSearch || sidebarLevel !== "ALL" || sidebarType !== "ALL" || selectedGradeId !== "ALL") && (
@@ -1888,60 +1875,54 @@ export default function Home() {
                     {/* Filter controls */}
                     <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto flex-wrap">
                       {/* Subject */}
-                      <select
+                      <CustomSelect
                         value={subjectFilter}
-                        onChange={(e) => setSubjectFilter(e.target.value)}
-                        className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 cursor-pointer"
-                      >
-                        <option value="ALL">Tất cả môn học</option>
-                        {SUBJECTS.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(val) => setSubjectFilter(String(val))}
+                        options={[
+                          { value: "ALL", label: "Tất cả môn học" },
+                          ...SUBJECTS.map((s) => ({ value: s.id, label: s.name })),
+                        ]}
+                        size="sm"
+                      />
 
                       {/* Grade */}
-                      <select
+                      <CustomSelect
                         value={gradeFilter}
-                        onChange={(e) => setGradeFilter(e.target.value)}
-                        className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 cursor-pointer"
-                      >
-                        <option value="ALL">Tất cả khối lớp</option>
-                        {GRADES.map((g) => (
-                          <option key={g.id} value={String(g.id)}>
-                            {g.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(val) => setGradeFilter(String(val))}
+                        options={[
+                          { value: "ALL", label: "Tất cả khối lớp" },
+                          ...GRADES.map((g) => ({ value: String(g.id), label: g.name })),
+                        ]}
+                        size="sm"
+                      />
 
                       {/* Level */}
-                      <select
+                      <CustomSelect
                         value={levelFilter}
-                        onChange={(e) => setLevelFilter(e.target.value)}
-                        className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 cursor-pointer"
-                      >
-                        <option value="ALL">Tất cả mức độ</option>
-                        {QUESTION_LEVELS.map((lvl) => (
-                          <option key={lvl.id} value={lvl.short_name}>
-                            {lvl.short_name} - {lvl.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(val) => setLevelFilter(String(val))}
+                        options={[
+                          { value: "ALL", label: "Tất cả mức độ" },
+                          ...QUESTION_LEVELS.map((lvl) => ({
+                            value: lvl.short_name,
+                            label: `${lvl.short_name} - ${lvl.name}`,
+                          })),
+                        ]}
+                        size="sm"
+                      />
 
                       {/* Type */}
-                      <select
+                      <CustomSelect
                         value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                        className="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 cursor-pointer"
-                      >
-                        <option value="ALL">Tất cả định dạng</option>
-                        {QUESTION_TYPES.map((t) => (
-                          <option key={t.id} value={t.short_name}>
-                            {t.short_name} - {t.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(val) => setTypeFilter(String(val))}
+                        options={[
+                          { value: "ALL", label: "Tất cả định dạng" },
+                          ...QUESTION_TYPES.map((t) => ({
+                            value: t.short_name,
+                            label: `${t.short_name} - ${t.name}`,
+                          })),
+                        ]}
+                        size="sm"
+                      />
                     </div>
 
                     {/* Select All in Bank */}

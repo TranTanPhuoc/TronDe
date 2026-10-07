@@ -12,6 +12,7 @@ import {
 } from "@/types/question";
 import { X, Check, AlertCircle, PenLine, FileSpreadsheet } from "lucide-react";
 import ImportQuestionSection from "./ImportQuestionSection";
+import CustomSelect from "./CustomSelect";
 import { ParsedQuestionCandidate } from "@/utils/questionImportExport";
 
 interface QuestionModalProps {
@@ -284,17 +285,11 @@ function QuestionModalForm({
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     Môn học <span className="text-rose-500">*</span>
                   </label>
-                  <select
+                  <CustomSelect
                     value={subjectId}
-                    onChange={(e) => setSubjectId(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
-                  >
-                    {SUBJECTS.map((sub) => (
-                      <option key={sub.id} value={sub.id}>
-                        {sub.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setSubjectId(String(val))}
+                    options={SUBJECTS.map((sub) => ({ value: sub.id, label: sub.name }))}
+                  />
                 </div>
 
                 {/* Grade */}
@@ -302,17 +297,11 @@ function QuestionModalForm({
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     Khối lớp <span className="text-rose-500">*</span>
                   </label>
-                  <select
+                  <CustomSelect
                     value={gradeId}
-                    onChange={(e) => setGradeId(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
-                  >
-                    {GRADES.map((gr) => (
-                      <option key={gr.id} value={gr.id}>
-                        {gr.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setGradeId(Number(val))}
+                    options={GRADES.map((gr) => ({ value: gr.id, label: gr.name }))}
+                  />
                 </div>
               </div>
 

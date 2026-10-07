@@ -3,6 +3,7 @@
 import React from "react";
 import { Search, LayoutGrid, List, Trash2, X } from "lucide-react";
 import { QUESTION_LEVELS, QUESTION_TYPES } from "@/types/question";
+import CustomSelect from "./CustomSelect";
 
 interface FilterBarProps {
   searchQuery: string;
@@ -61,35 +62,35 @@ export default function FilterBar({
           {/* Level Filter */}
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-slate-500 font-medium hidden sm:inline">Mức độ:</span>
-            <select
+            <CustomSelect
               value={levelFilter}
-              onChange={(e) => onLevelChange(e.target.value)}
-              className="text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="ALL">Tất cả mức độ</option>
-              {QUESTION_LEVELS.map((lvl) => (
-                <option key={lvl.id} value={lvl.short_name}>
-                  {lvl.short_name} - {lvl.name}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => onLevelChange(String(val))}
+              options={[
+                { value: "ALL", label: "Tất cả mức độ" },
+                ...QUESTION_LEVELS.map((lvl) => ({
+                  value: lvl.short_name,
+                  label: `${lvl.short_name} - ${lvl.name}`,
+                })),
+              ]}
+              size="sm"
+            />
           </div>
 
           {/* Type Filter */}
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-slate-500 font-medium hidden sm:inline">Dạng câu:</span>
-            <select
+            <CustomSelect
               value={typeFilter}
-              onChange={(e) => onTypeChange(e.target.value)}
-              className="text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
-            >
-              <option value="ALL">Tất cả định dạng</option>
-              {QUESTION_TYPES.map((t) => (
-                <option key={t.id} value={t.short_name}>
-                  {t.short_name} - {t.name}
-                </option>
-              ))}
-            </select>
+              onChange={(val) => onTypeChange(String(val))}
+              options={[
+                { value: "ALL", label: "Tất cả định dạng" },
+                ...QUESTION_TYPES.map((t) => ({
+                  value: t.short_name,
+                  label: `${t.short_name} - ${t.name}`,
+                })),
+              ]}
+              size="sm"
+            />
           </div>
 
           {/* Reset Filters */}

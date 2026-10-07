@@ -33,6 +33,7 @@ import {
   parseWordFile,
   convertCandidateToExamItem,
 } from "@/utils/questionImportExport";
+import CustomSelect from "./CustomSelect";
 
 interface ImportQuestionSectionProps {
   defaultSubjectId?: string;
@@ -323,33 +324,21 @@ export default function ImportQuestionSection({
               <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
                 Môn học mặc định
               </label>
-              <select
+              <CustomSelect
                 value={selectedSubjectId}
-                onChange={(e) => setSelectedSubjectId(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
-              >
-                {SUBJECTS.map((sub) => (
-                  <option key={sub.id} value={sub.id}>
-                    {sub.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setSelectedSubjectId(String(val))}
+                options={SUBJECTS.map((sub) => ({ value: sub.id, label: sub.name }))}
+              />
             </div>
             <div>
               <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
                 Khối lớp mặc định
               </label>
-              <select
+              <CustomSelect
                 value={selectedGradeId}
-                onChange={(e) => setSelectedGradeId(Number(e.target.value))}
-                className="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
-              >
-                {GRADES.map((gr) => (
-                  <option key={gr.id} value={gr.id}>
-                    {gr.name}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setSelectedGradeId(Number(val))}
+                options={GRADES.map((gr) => ({ value: gr.id, label: gr.name }))}
+              />
             </div>
           </div>
         </div>
@@ -590,21 +579,22 @@ export default function ImportQuestionSection({
                           <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
                             Mức độ:
                           </label>
-                          <select
+                          <CustomSelect
                             value={editForm.levelShort ?? cand.levelShort}
-                            onChange={(e) =>
+                            onChange={(val) =>
                               setEditForm((prev) => ({
                                 ...prev,
-                                levelShort: e.target.value as LevelShortName,
+                                levelShort: val as LevelShortName,
                               }))
                             }
-                            className="w-full p-1.5 text-xs bg-white border border-slate-300 rounded-md"
-                          >
-                            <option value="NB">Nhận Biết (NB)</option>
-                            <option value="TH">Thông Hiểu (TH)</option>
-                            <option value="VD">Vận Dụng (VD)</option>
-                            <option value="VDC">Vận Dụng Cao (VDC)</option>
-                          </select>
+                            options={[
+                              { value: "NB", label: "Nhận Biết (NB)" },
+                              { value: "TH", label: "Thông Hiểu (TH)" },
+                              { value: "VD", label: "Vận Dụng (VD)" },
+                              { value: "VDC", label: "Vận Dụng Cao (VDC)" },
+                            ]}
+                            size="sm"
+                          />
                         </div>
                       </div>
 
