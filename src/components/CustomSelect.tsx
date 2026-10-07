@@ -94,20 +94,20 @@ export default function CustomSelect<T extends string | number>({
         type="button"
         disabled={disabled}
         onClick={handleToggle}
-        className={`w-full group relative flex items-center justify-between text-left transition-all select-none cursor-pointer rounded-xl font-semibold text-xs ${
-          isSmall ? "px-2.5 py-1.5" : "px-3 py-2"
+        className={`w-full group relative flex items-center justify-between text-left transition-all select-none cursor-pointer rounded-xl font-medium text-xs ${
+          isSmall ? "px-2 py-1 text-[11px]" : "px-3 py-1.5 text-xs"
         } ${
           disabled
             ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none"
             : isOpen
             ? "bg-white text-indigo-900 border-indigo-500 ring-2 ring-indigo-500/20 shadow-[0_2px_8px_rgba(79,70,229,0.12),inset_0_1px_1px_rgba(255,255,255,1)]"
-            : "bg-gradient-to-b from-white via-white to-slate-50/90 text-slate-800 border border-slate-300/80 hover:border-indigo-400 hover:text-slate-900 shadow-[0_2px_4px_rgba(15,23,42,0.05),inset_0_1px_1px_rgba(255,255,255,1),inset_0_-1px_0_rgba(15,23,42,0.06)] active:translate-y-0.5"
+            : "bg-gradient-to-b from-white via-white to-slate-50/90 text-slate-700 border border-slate-300/80 hover:border-indigo-400 hover:text-slate-900 shadow-[0_2px_4px_rgba(15,23,42,0.05),inset_0_1px_1px_rgba(255,255,255,1),inset_0_-1px_0_rgba(15,23,42,0.06)] active:translate-y-0.5"
         }`}
       >
         {/* Left: Optional icon & selected label */}
         <div className="flex items-center gap-2 min-w-0 flex-1 pr-1">
           {icon && <span className="text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0">{icon}</span>}
-          <span className="truncate text-xs">
+          <span className="truncate text-xs font-medium text-slate-800">
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           {selectedOption?.badge && (
