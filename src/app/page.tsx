@@ -202,6 +202,8 @@ export default function Home() {
 
   // Modals State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalInitialTab, setModalInitialTab] = useState<"manual" | "import">("manual");
+  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ExamItem | null>(null);
   const [detailItem, setDetailItem] = useState<ExamItem | null>(null);
   const [itemToDelete, setItemToDelete] = useState<ExamItem | null>(null);
@@ -593,14 +595,27 @@ export default function Home() {
   }, [generatedExams]);
 
   // CRUD handlers
-  const handleOpenCreate = () => {
+  const handleOpenCreate = (tab?: "manual" | "import" | React.MouseEvent) => {
+    const activeTab = tab === "import" ? "import" : "manual";
     setEditingItem(null);
+    setModalInitialTab(activeTab);
     setIsModalOpen(true);
+    setIsAddMenuOpen(false);
   };
 
   const handleOpenEdit = (item: ExamItem) => {
     setEditingItem(item);
+    setModalInitialTab("manual");
     setIsModalOpen(true);
+  };
+
+  const handleSaveBulkQuestions = (newItems: ExamItem[]) => {
+    if (newItems.length === 0) return;
+    const updated = [...newItems, ...questions];
+    saveQuestions(updated);
+    const newIds = newItems.map((item) => item.id);
+    setActiveQuestionIds((prev) => [...newIds, ...prev]);
+    showToast(`Đã thêm thành công ${newItems.length} câu hỏi vào ngân hàng!`);
   };
 
   const handleSaveQuestion = (savedItem: ExamItem) => {
@@ -743,14 +758,54 @@ export default function Home() {
 
             {/* Quick Actions & User Profile */}
             <div className="flex items-center gap-3 shrink-0">
-              {/* Create Question Button with 3D tactile button feel */}
-              <button
-                onClick={handleOpenCreate}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-gradient-to-b from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 rounded-xl shadow-[0_4px_12px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_-2px_0_rgba(0,0,0,0.2)] active:translate-y-0.5 transition-all cursor-pointer shrink-0"
-              >
-                <Plus className="w-4 h-4 drop-shadow-xs" />
-                <span>Thêm câu hỏi</span>
-              </button>
+              {/* Create Question Button with 3D tactile button feel & Dropdown */}
+              <div className="relative">
+                <div className="inline-flex rounded-xl shadow-[0_4px_12px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_-2px_0_rgba(0,0,0,0.2)] overflow-hidden">
+                  <button
+                    onClick={() => handleOpenCreate("manual")}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-gradient-to-b from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 active:translate-y-0.5 transition-all cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4 drop-shadow-xs" />
+                    <span>Thêm câu hỏi</span>
+                  </button>
+                  <button
+                    onClick={() => setIsAddMenuOpen(!isAddMenuOpen)}
+                    className="px-2 py-2 bg-gradient-to-b from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white border-l border-indigo-400/30 cursor-pointer transition-all"
+                    title="Tùy chọn thêm câu hỏi"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Dropdown Options */}
+                {isAddMenuOpen && (
+                  <div
+                    className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150"
+                    onMouseLeave={() => setIsAddMenuOpen(false)}
+                  >
+                    <button
+                      onClick={() => handleOpenCreate("manual")}
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors text-left cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <div>
+                        <div className="font-bold">Thêm thủ công</div>
+                        <div className="text-[10px] text-slate-400">Nhập từng câu vào ngân hàng</div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => handleOpenCreate("import")}
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors text-left cursor-pointer"
+                    >
+                      <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div>
+                        <div className="font-bold">Nhập từ Excel / Word</div>
+                        <div className="text-[10px] text-slate-400">Tải file mẫu & kiểm tra dữ liệu</div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* 3D Glassmorphic Teacher Profile Dropdown */}
               <UserProfileDropdown
@@ -1917,14 +1972,23 @@ export default function Home() {
                       </span>
                     </button>
 
-                    {/* Add Question Button */}
-                    <button
-                      onClick={handleOpenCreate}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors cursor-pointer shrink-0"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Thêm câu mới</span>
-                    </button>
+                    {/* Add Question Buttons: Thêm thủ công & Nhập từ Excel / Word */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => handleOpenCreate("manual")}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors cursor-pointer shrink-0"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Thêm thủ công</span>
+                      </button>
+                      <button
+                        onClick={() => handleOpenCreate("import")}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-lg transition-colors cursor-pointer shrink-0"
+                      >
+                        <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Nhập từ Excel / Word</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Bulk Action Bar: Cho phep tron de hoac xoa tu cac cau hoi duoc chon */}
@@ -2071,7 +2135,11 @@ export default function Home() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveQuestion}
+        onSaveBulk={handleSaveBulkQuestions}
         editingItem={editingItem}
+        initialTab={modalInitialTab}
+        defaultSubjectId={selectedSubjectId || "TOAN"}
+        defaultGradeId={selectedGradeId !== "ALL" ? Number(selectedGradeId) : 12}
       />
 
       <QuestionDetailModal
