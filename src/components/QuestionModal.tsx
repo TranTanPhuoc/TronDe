@@ -196,14 +196,14 @@ function QuestionModalForm({
   const isWideLayout = activeTab === "import" && stagingCandidates.length > 0;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs flex items-center justify-center p-2.5 sm:p-4 safe-padding-top safe-padding-bottom">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 safe-padding-top safe-padding-bottom">
       <div
         className={`bg-white dark:bg-slate-900 rounded-2xl w-full shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[94dvh] sm:max-h-[88dvh] my-auto transition-all ${
           isWideLayout ? "max-w-4xl lg:max-w-5xl" : "max-w-2xl"
         }`}
       >
         {/* Modal Header */}
-        <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-850 shrink-0">
+        <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/95 shrink-0">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 pr-2">
               <h2 className="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 truncate">
@@ -234,7 +234,7 @@ function QuestionModalForm({
 
           {/* Tab Navigation for New Questions: Thêm thủ công & Nhập từ Excel/Word */}
           {!editingItem && (
-            <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-200/70 dark:border-slate-700/60">
+            <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-200/70 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setActiveTab("manual")}
@@ -260,7 +260,7 @@ function QuestionModalForm({
                 <FileSpreadsheet className="w-3.5 h-3.5" />
                 <span>Nhập từ Excel / Word</span>
                 {stagingCandidates.length > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 text-[10px] bg-white text-indigo-700 rounded-full font-black">
+                  <span className="ml-1 px-1.5 py-0.2 text-[10px] bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 rounded-full font-black">
                     {stagingCandidates.length}
                   </span>
                 )}
@@ -291,7 +291,7 @@ function QuestionModalForm({
               )}
 
               {/* Subject and Grade Pickers */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-3 sm:p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 p-3 sm:p-3.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl">
                 {/* Subject */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
@@ -334,8 +334,8 @@ function QuestionModalForm({
                           onClick={() => setLevelShort(lvl.short_name as LevelShortName)}
                           className={`py-2 px-2 text-xs font-semibold rounded-lg border text-center transition-all cursor-pointer ${
                             isSelected
-                              ? "bg-indigo-50 dark:bg-indigo-950/80 border-indigo-600 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300 shadow-xs ring-1 ring-indigo-600/30 font-bold"
-                              : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                              ? "bg-indigo-50 dark:bg-indigo-950/80 border-indigo-600 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300 shadow-xs ring-1 ring-indigo-600/30 dark:ring-indigo-400/40 font-bold"
+                              : "bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/80 hover:text-slate-900 dark:hover:text-white"
                           }`}
                         >
                           {lvl.name} ({lvl.short_name})
@@ -360,8 +360,8 @@ function QuestionModalForm({
                           onClick={() => setTypeShort(t.short_name as TypeShortName)}
                           className={`py-2 px-2 text-xs font-semibold rounded-lg border text-center transition-all cursor-pointer ${
                             isSelected
-                              ? "bg-indigo-50 dark:bg-indigo-950/80 border-indigo-600 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300 shadow-xs ring-1 ring-indigo-600/30 font-bold"
-                              : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                              ? "bg-indigo-50 dark:bg-indigo-950/80 border-indigo-600 dark:border-indigo-500 text-indigo-700 dark:text-indigo-300 shadow-xs ring-1 ring-indigo-600/30 dark:ring-indigo-400/40 font-bold"
+                              : "bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/80 hover:text-slate-900 dark:hover:text-white"
                           }`}
                         >
                           {t.name} ({t.short_name})
@@ -383,7 +383,7 @@ function QuestionModalForm({
                   value={questionText}
                   onChange={(e) => setQuestionText(e.target.value)}
                   placeholder="Ví dụ: Cho hàm số y = f(x) có bảng biến thiên... Tìm số điểm cực trị?"
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-sans"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-500/30 focus:border-indigo-500 dark:focus:border-indigo-400 font-sans"
                 />
               </div>
 
@@ -393,7 +393,7 @@ function QuestionModalForm({
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                     Nội dung chi tiết & Các phương án lựa chọn (Content)
                   </label>
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500">
                     {typeShort === "TN" ? "Định dạng A. ... B. ... C. ... D. ..." : "Tự do"}
                   </span>
                 </div>
@@ -406,7 +406,7 @@ function QuestionModalForm({
                       ? "A. 1\nB. 2\nC. 3\nD. 4"
                       : "Nhập nội dung đề bài bổ sung, biểu thức toán học hoặc các mệnh đề đúng/sai..."
                   }
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-sans"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-500/30 focus:border-indigo-500 dark:focus:border-indigo-400 font-sans"
                 />
               </div>
 
@@ -420,7 +420,7 @@ function QuestionModalForm({
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
                   placeholder="Ví dụ: A (hoặc Đúng, Sai, 42, ...)"
-                  className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-semibold text-indigo-700 dark:text-indigo-400"
+                  className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-500/30 focus:border-indigo-500 dark:focus:border-indigo-400 font-semibold text-indigo-700 dark:text-indigo-400"
                 />
               </div>
 
@@ -434,13 +434,13 @@ function QuestionModalForm({
                   value={solutionGuide}
                   onChange={(e) => setSolutionGuide(e.target.value)}
                   placeholder="Giải thích các bước giải, công thức áp dụng, lập luận..."
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-sans"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-500/30 focus:border-indigo-500 dark:focus:border-indigo-400 font-sans"
                 />
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2 sm:gap-3 bg-slate-50 dark:bg-slate-850 shrink-0">
+            <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2 sm:gap-3 bg-slate-50 dark:bg-slate-900/95 shrink-0">
               <button
                 type="button"
                 onClick={handleDialogExit}

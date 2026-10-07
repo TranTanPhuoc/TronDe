@@ -100,7 +100,7 @@ export default function CustomSelect<T extends string | number>({
           disabled
             ? "bg-slate-100 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border border-slate-200 dark:border-slate-800 cursor-not-allowed shadow-none"
             : isOpen
-            ? "bg-white dark:bg-slate-800 text-indigo-900 dark:text-indigo-300 border-indigo-500 ring-2 ring-indigo-500/20 shadow-[0_2px_8px_rgba(79,70,229,0.12)]"
+            ? "bg-white dark:bg-slate-800 text-indigo-900 dark:text-indigo-300 border-indigo-500 ring-2 ring-indigo-500/20 dark:ring-indigo-500/30 shadow-[0_2px_8px_rgba(79,70,229,0.12)]"
             : "bg-gradient-to-b from-white dark:from-slate-800 via-white dark:via-slate-800 to-slate-50/90 dark:to-slate-850 text-slate-700 dark:text-slate-200 border border-slate-300/80 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:text-slate-900 dark:hover:text-white shadow-[0_2px_4px_rgba(15,23,42,0.05)] active:translate-y-0.5"
         }`}
       >

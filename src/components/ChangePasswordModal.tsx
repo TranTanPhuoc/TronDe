@@ -74,36 +74,36 @@ export default function ChangePasswordModal({
   const isStrong = isMinLength && hasNumber && hasLetters;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-amber-50/70 via-white to-slate-50 shrink-0">
+        <div className="px-5 sm:px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-amber-50/70 dark:from-slate-850 via-white dark:via-slate-900 to-slate-50 dark:to-slate-850 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-200 flex items-center justify-center text-amber-600 shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 shadow-xs">
               <KeyRound className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
                 Đổi Mật Khẩu
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Nâng cao tính bảo mật cho tài khoản giáo viên
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer shrink-0"
+            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0 text-slate-900 dark:text-slate-100">
           <div className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
             {errorMessage && (
-              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-700 text-xs font-semibold">
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-xl flex items-center gap-2 text-rose-700 dark:text-rose-300 text-xs font-semibold">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMessage}</span>
               </div>
@@ -111,7 +111,7 @@ export default function ChangePasswordModal({
 
             {/* Current Password */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Mật khẩu hiện tại <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -122,12 +122,12 @@ export default function ChangePasswordModal({
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="Nhập mật khẩu đang dùng..."
-                  className="w-full pl-9 pr-10 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+                  className="w-full pl-9 pr-10 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrent(!showCurrent)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 >
                   {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -136,7 +136,7 @@ export default function ChangePasswordModal({
 
             {/* New Password */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Mật khẩu mới <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -147,12 +147,12 @@ export default function ChangePasswordModal({
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Nhập ít nhất 6 ký tự..."
-                  className="w-full pl-9 pr-10 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+                  className="w-full pl-9 pr-10 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNew(!showNew)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 >
                   {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -160,29 +160,29 @@ export default function ChangePasswordModal({
 
               {/* Password strength tips */}
               {newPassword.length > 0 && (
-                <div className="mt-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-[11px] space-y-1">
+                <div className="mt-2 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] space-y-1">
                   <div className="flex items-center gap-1.5">
                     <div
                       className={`w-2 h-2 rounded-full ${
-                        isMinLength ? "bg-emerald-500" : "bg-slate-300"
+                        isMinLength ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
                       }`}
                     />
-                    <span className={isMinLength ? "text-emerald-700 font-semibold" : "text-slate-500"}>
+                    <span className={isMinLength ? "text-emerald-700 dark:text-emerald-300 font-semibold" : "text-slate-500 dark:text-slate-400"}>
                       Tối thiểu 6 ký tự ({newPassword.length}/6)
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <div
                       className={`w-2 h-2 rounded-full ${
-                        hasNumber && hasLetters ? "bg-emerald-500" : "bg-slate-300"
+                        hasNumber && hasLetters ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
                       }`}
                     />
-                    <span className={hasNumber && hasLetters ? "text-emerald-700 font-semibold" : "text-slate-500"}>
+                    <span className={hasNumber && hasLetters ? "text-emerald-700 dark:text-emerald-300 font-semibold" : "text-slate-500 dark:text-slate-400"}>
                       Kết hợp cả chữ cái và số
                     </span>
                   </div>
                   {isStrong && (
-                    <div className="pt-1.5 border-t border-slate-200/80 flex items-center gap-1.5 text-emerald-600 font-bold">
+                    <div className="pt-1.5 border-t border-slate-200/80 dark:border-slate-700 flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                       <ShieldCheck className="w-3.5 h-3.5" />
                       <span>Mật khẩu đạt độ an toàn cao</span>
                     </div>
@@ -193,7 +193,7 @@ export default function ChangePasswordModal({
 
             {/* Confirm New Password */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Xác nhận mật khẩu mới <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -204,12 +204,12 @@ export default function ChangePasswordModal({
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Nhập lại mật khẩu mới..."
-                  className="w-full pl-9 pr-10 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+                  className="w-full pl-9 pr-10 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 >
                   {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -218,17 +218,17 @@ export default function ChangePasswordModal({
           </div>
 
           {/* Footer Buttons */}
-          <div className="px-5 sm:px-6 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2.5 shrink-0">
+          <div className="px-5 sm:px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/95 flex items-center justify-end gap-2.5 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors cursor-pointer"
             >
               Hủy bỏ
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 rounded-xl shadow-md shadow-amber-200 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 rounded-xl shadow-md shadow-amber-200 dark:shadow-none transition-all cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>Cập nhật mật khẩu</span>

@@ -1687,7 +1687,7 @@ export default function Home() {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
                       {(generatedExams[0]?.questions || []).map((_, qIdx) => (
                         <tr key={qIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                          <td className="p-2.5 font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-850 dark:bg-slate-800 sticky left-0 z-10 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                          <td className="p-2.5 font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 sticky left-0 z-10 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                             Câu {qIdx + 1}
                           </td>
                           {generatedExams.map((v) => (
@@ -1832,7 +1832,7 @@ export default function Home() {
 
                 <div className="space-y-4">
                   {currentExam.questions.map((q, idx) => (
-                    <div key={idx} className="p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850 dark:bg-slate-800/40 space-y-3">
+                    <div key={idx} className="p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 space-y-3">
                       <div className="flex items-start justify-between gap-2 flex-wrap">
                         <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug">
                           Câu {idx + 1}: {q.questionText}

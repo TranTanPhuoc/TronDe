@@ -254,7 +254,7 @@ export default function ImportQuestionSection({
         )}
 
         {/* 1. Download Sample Templates Card */}
-        <div className="p-4 sm:p-5 bg-gradient-to-br from-indigo-50/70 via-indigo-50/40 to-slate-50 dark:from-slate-800/80 dark:via-indigo-950/20 dark:to-slate-850 border border-indigo-100 dark:border-slate-800 rounded-2xl">
+        <div className="p-4 sm:p-5 bg-gradient-to-br from-indigo-50/70 via-indigo-50/40 to-slate-50 dark:from-slate-800/80 dark:via-indigo-950/20 dark:to-slate-900 border border-indigo-100 dark:border-slate-800 rounded-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
@@ -433,7 +433,7 @@ export default function ImportQuestionSection({
       </div>
 
       {/* Bulk Selection Bar */}
-      <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-850 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 shrink-0 text-xs">
+      <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 shrink-0 text-xs">
         <button
           type="button"
           onClick={toggleSelectAll}
@@ -701,7 +701,7 @@ export default function ImportQuestionSection({
       </div>
 
       {/* Verification Footer Confirmation Bar */}
-      <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900 shrink-0">
+      <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/95 shrink-0">
         <div className="text-xs text-slate-600 dark:text-slate-400">
           Đang chọn: <span className="font-bold text-indigo-700 dark:text-indigo-400">{selectedTempIds.size}</span> /{" "}
           <span className="font-semibold text-slate-900 dark:text-slate-200">{stagingCandidates.length}</span> câu hỏi
