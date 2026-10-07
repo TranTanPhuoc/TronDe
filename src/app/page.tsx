@@ -52,6 +52,8 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  Phone,
+  MapPin,
 } from "lucide-react";
 
 const STORAGE_KEY = "phan_mem_tron_de_questions_v5";
@@ -2102,12 +2104,104 @@ export default function Home() {
       </main>
 
       {/* Footer (no-print) - Full Width */}
-      <footer className="bg-white border-t border-slate-200 py-3.5 sm:py-4 text-center text-xs text-slate-500 no-print mt-auto w-full safe-padding-bottom">
-        <div className="w-full px-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Phần Mềm Trộn Đề Thi & Quản Lý Ngân Hàng Câu Hỏi © 2026</span>
-          <span className="text-slate-400 text-[11px] sm:text-xs">
-            Hỗ trợ 4 mức độ (NB, TH, VD, VDC) & 4 dạng câu hỏi (TN, DS, TLN, TL)
-          </span>
+      <footer className="bg-white border-t border-slate-200 py-4 sm:py-5 text-xs text-slate-600 no-print mt-auto w-full safe-padding-bottom">
+        <div className="w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Left Column: Software Title & Founder */}
+          <div className="space-y-1 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <span className="font-bold text-slate-900 text-xs sm:text-sm">
+                Phần Mềm Trộn Đề Thi tích hợp Ngân Hàng Câu Hỏi
+              </span>
+              <span className="px-2 py-0.5 text-[10px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full">
+                © 2026
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 text-xs text-slate-600">
+              <span className="font-semibold text-slate-700">
+                Người sáng lập: <strong className="text-indigo-900 font-bold">Trần Tấn Phước</strong>
+              </span>
+              <span className="text-slate-300 hidden sm:inline">•</span>
+              <a
+                href="tel:0379862310"
+                className="inline-flex items-center gap-1 font-semibold text-slate-700 hover:text-indigo-600 transition-colors"
+                title="Gọi điện liên hệ"
+              >
+                <Phone className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Liên hệ: <strong>0379862310</strong></span>
+              </a>
+            </div>
+            {/* Address & Google Maps Coordinates */}
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-1 text-[11px] sm:text-xs text-slate-500">
+              <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+              <span>Địa chỉ: <strong>Long Hiệp - Minh Long - Quảng Ngãi</strong></span>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=14.935,108.685"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-0.5 text-indigo-600 hover:text-indigo-800 font-semibold underline decoration-indigo-300 hover:decoration-indigo-600 transition-colors"
+                title="Xem vị trí trên Google Maps (Tọa độ: 14.9350°N, 108.6850°E)"
+              >
+                <span>(14.9350°N, 108.6850°E)</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Right Column: Contact Social Icon Links (Zalo, Facebook, Telegram) */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <span className="text-xs font-semibold text-slate-500 hidden lg:inline mr-1">
+              Liên hệ:
+            </span>
+
+            {/* Zalo Icon Button */}
+            <a
+              href="https://zalo.me/0379862310"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-8 h-8 rounded-xl bg-gradient-to-b from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white flex items-center justify-center shadow-[0_2px_6px_rgba(37,99,235,0.3),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              title="Zalo: 0379862310"
+              aria-label="Zalo"
+            >
+              <span className="text-[10px] font-black tracking-tight">Zalo</span>
+            </a>
+
+            {/* Facebook Icon Button */}
+            <a
+              href="https://www.facebook.com/kiritokun.1125?locale=vi_VN"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-8 h-8 rounded-xl bg-gradient-to-b from-sky-600 to-indigo-700 hover:from-sky-700 hover:to-indigo-800 text-white flex items-center justify-center shadow-[0_2px_6px_rgba(67,56,202,0.3),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              title="Facebook: Trần Tấn Phước"
+              aria-label="Facebook"
+            >
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+            </a>
+
+            {/* Telegram Icon Button */}
+            <a
+              href="https://t.me/Phuoctran262"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-8 h-8 rounded-xl bg-gradient-to-b from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 text-white flex items-center justify-center shadow-[0_2px_6px_rgba(2,132,199,0.3),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              title="Telegram: @Phuoctran262"
+              aria-label="Telegram"
+            >
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.52 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06-.01.19-.03.35z" />
+              </svg>
+            </a>
+
+            {/* Direct Call Button */}
+            <a
+              href="tel:0379862310"
+              className="w-8 h-8 rounded-xl bg-gradient-to-b from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white flex items-center justify-center shadow-[0_2px_6px_rgba(16,185,129,0.3),inset_0_1px_0_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              title="Gọi điện ngay: 0379862310"
+              aria-label="Gọi điện"
+            >
+              <Phone className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
       </footer>
 
