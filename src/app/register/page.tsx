@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   BookOpenCheck,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -99,6 +100,10 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen w-full bg-slate-950 flex items-center justify-center p-3 sm:p-6 lg:p-8 relative overflow-hidden font-sans safe-padding-top safe-padding-bottom">
+      {/* Theme Toggle Button */}
+      <div className="absolute top-4 right-4 z-30">
+        <ThemeToggle />
+      </div>
       {/* Background Ambient Glows */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-emerald-600/25 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
       <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl pointer-events-none animate-pulse delay-1000"></div>

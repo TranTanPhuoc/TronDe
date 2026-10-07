@@ -5,96 +5,112 @@ import Link from "next/link";
 import { APP_ROUTES } from "@/route";
 import {
   User,
+  Building2,
   Mail,
   Phone,
-  Building2,
-  BookOpen,
   Shield,
-  ArrowLeft,
-  AlertCircle,
   Save,
-  CheckCircle2,
-  Lock,
+  ArrowLeft,
   Camera,
   Trash2,
   Upload,
+  BookOpen,
+  Lock,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
-import { ProfileUserData } from "@/components/ProfileModal";
+import ThemeToggle from "@/components/ThemeToggle";
 
-const DEFAULT_TEACHER: ProfileUserData = {
-  id: "demo-teacher-01",
-  name: "Thầy Trần Tấn Phước",
-  email: "phuoc.tran@edu.vn",
-  school: "TRƯỜNG THPT CHUYÊN",
-  department: "TỔ TOÁN HỌC",
-  role: "Tổ trưởng Chuyên môn",
-  avatar: "TP",
-  phone: "0912 345 678",
-};
+interface TeacherProfile {
+  id: string;
+  name: string;
+  email: string;
+  school: string;
+  department: string;
+  role: string;
+  avatar: string;
+  avatarImage?: string | null;
+  phone?: string;
+}
 
 const AVATAR_PALETTES = [
-  { name: "Indigo Sapphire", gradient: "from-indigo-600 to-violet-700" },
-  { name: "Emerald Mint", gradient: "from-emerald-600 to-teal-700" },
-  { name: "Sunset Amber", gradient: "from-amber-500 to-rose-600" },
-  { name: "Ocean Cyan", gradient: "from-cyan-600 to-blue-700" },
-  { name: "Rose Ruby", gradient: "from-rose-600 to-pink-700" },
+  { name: "Indigo", gradient: "from-indigo-600 via-indigo-700 to-emerald-700" },
+  { name: "Ocean", gradient: "from-sky-500 via-blue-600 to-indigo-800" },
+  { name: "Emerald", gradient: "from-emerald-500 via-teal-600 to-cyan-800" },
+  { name: "Violet", gradient: "from-purple-600 via-fuchsia-600 to-indigo-800" },
+  { name: "Sunset", gradient: "from-rose-500 via-amber-500 to-red-600" },
 ];
 
 export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [initialUser] = useState<ProfileUserData>(() => {
+  // Load existing profile from localStorage or defaults
+  const [profile, setProfile] = useState<TeacherProfile>(() => {
     if (typeof window !== "undefined") {
       try {
-        const stored = localStorage.getItem("tron_de_auth_user");
+        const stored = localStorage.getItem("tron_de_teacher_profile");
         if (stored) return JSON.parse(stored);
+        const authUser = localStorage.getItem("tron_de_auth_user");
+        if (authUser) {
+          const u = JSON.parse(authUser);
+          return {
+            id: u.id || "demo-teacher-01",
+            name: u.name || "Thầy Trần Tấn Phước",
+            email: u.email || "phuoc.tran@edu.vn",
+            school: u.school || "TRƯỜNG THPT CHUYÊN",
+            department: "TỔ TOÁN HỌC",
+            role: u.role || "Tổ trưởng Chuyên môn",
+            avatar: u.avatar || "TP",
+            phone: "0912 345 678",
+          };
+        }
       } catch {
         // Storage error
       }
     }
-    return DEFAULT_TEACHER;
+    return {
+      id: "demo-teacher-01",
+      name: "Thầy Trần Tấn Phước",
+      email: "phuoc.tran@edu.vn",
+      school: "TRƯỜNG THPT CHUYÊN",
+      department: "TỔ TOÁN HỌC",
+      role: "Tổ trưởng Chuyên môn",
+      avatar: "TP",
+      phone: "0912 345 678",
+    };
   });
 
-  const [name, setName] = useState(initialUser.name || "");
-  const [email, setEmail] = useState(initialUser.email || "");
-  const [phone, setPhone] = useState(initialUser.phone || "0912 345 678");
-  const [school, setSchool] = useState(initialUser.school || DEFAULT_TEACHER.school);
-  // Tổ bộ môn chuyên môn: Hiển thị theo tài khoản, KHÔNG cho phép chỉnh sửa
-  const [department] = useState(
-    initialUser.department || "TỔ TOÁN HỌC"
-  );
-  const [role, setRole] = useState(initialUser.role || DEFAULT_TEACHER.role);
-
-  // Avatar text & custom uploaded image
-  const [avatarText, setAvatarText] = useState(initialUser.avatar || "TP");
-  const [avatarImage, setAvatarImage] = useState<string | null>(
-    initialUser.avatarImage || null
-  );
+  const [name, setName] = useState(profile.name);
+  const [school, setSchool] = useState(profile.school);
+  // Department is fixed as TỔ TOÁN HỌC
+  const department = "TỔ TOÁN HỌC";
+  const [email, setEmail] = useState(profile.email);
+  const [phone, setPhone] = useState(profile.phone || "");
+  const [role, setRole] = useState(profile.role);
+  const [avatarText, setAvatarText] = useState(profile.avatar);
+  const [avatarImage, setAvatarImage] = useState<string | null>(profile.avatarImage || null);
   const [selectedPalette, setSelectedPalette] = useState(0);
 
-  const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Handle image upload & crop to square 256x256
   const handleImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setErrorMessage("Vui lòng chọn file định dạng hình ảnh hợp lệ (PNG, JPG, WEBP)!");
+      setErrorMessage("Vui lòng chọn file hình ảnh hợp lệ (PNG, JPG, WEBP)!");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage("Dung lượng file ảnh tối đa là 5MB!");
+      setErrorMessage("Kích thước ảnh tối đa là 5MB!");
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
       const result = event.target?.result as string;
-      if (!result) return;
-
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
@@ -119,7 +135,6 @@ export default function ProfilePage() {
     };
     reader.readAsDataURL(file);
 
-    // Reset input value so same file can be selected again
     e.target.value = "";
   };
 
@@ -139,35 +154,51 @@ export default function ProfilePage() {
     }
 
     if (!school.trim()) {
-      setErrorMessage("Vui lòng nhập tên trường hoặc đơn vị tổ chức!");
+      setErrorMessage("Vui lòng nhập tên trường hoặc đơn vị!");
       return;
     }
 
-    const updatedUser: ProfileUserData = {
-      id: initialUser.id || "demo-teacher-01",
+    const updated: TeacherProfile = {
+      ...profile,
       name: name.trim(),
+      school: school.trim(),
+      department: "TỔ TOÁN HỌC",
       email: email.trim(),
       phone: phone.trim(),
-      school: school.trim(),
-      department: department.trim(), // Giữ nguyên tổ bộ môn cố định
       role: role.trim(),
-      avatar: avatarText.trim().toUpperCase() || "GV",
-      avatarImage: avatarImage || undefined,
+      avatar: (avatarText.trim() || name.slice(0, 2)).toUpperCase(),
+      avatarImage: avatarImage,
     };
 
     try {
-      localStorage.setItem("tron_de_auth_user", JSON.stringify(updatedUser));
-      setSuccessMessage("Cập nhật thông tin cá nhân và ảnh đại diện giáo viên thành công!");
-      setTimeout(() => {
-        setSuccessMessage("");
-      }, 4000);
+      localStorage.setItem("tron_de_teacher_profile", JSON.stringify(updated));
+
+      const existingAuth = localStorage.getItem("tron_de_auth_user");
+      if (existingAuth) {
+        const parsed = JSON.parse(existingAuth);
+        localStorage.setItem(
+          "tron_de_auth_user",
+          JSON.stringify({
+            ...parsed,
+            name: updated.name,
+            school: updated.school,
+            department: "TỔ TOÁN HỌC",
+            role: updated.role,
+            avatar: updated.avatar,
+            avatarImage: updated.avatarImage,
+          })
+        );
+      }
+
+      setProfile(updated);
+      setSuccessMessage("Đã lưu thông tin hồ sơ giáo viên thành công!");
     } catch {
       setErrorMessage("Không thể lưu thông tin vào bộ nhớ trình duyệt!");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-indigo-50/20 to-slate-100 flex flex-col font-sans py-6 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-indigo-50/20 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex flex-col font-sans py-6 px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100 transition-colors">
       {/* Hidden file input for uploading avatar image */}
       <input
         ref={fileInputRef}
@@ -181,14 +212,15 @@ export default function ProfilePage() {
       <div className="max-w-4xl w-full mx-auto mb-6 flex items-center justify-between">
         <Link
           href={APP_ROUTES.HOME}
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:text-indigo-600 bg-white hover:bg-indigo-50/60 border border-slate-200/90 rounded-2xl shadow-xs transition-all cursor-pointer group"
+          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white dark:bg-slate-800 hover:bg-indigo-50/60 dark:hover:bg-slate-700/60 border border-slate-200/90 dark:border-slate-700 rounded-2xl shadow-xs transition-all cursor-pointer group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
           <span>Quay lại trang trộn đề</span>
         </Link>
 
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+          <ThemeToggle />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
             <User className="w-3.5 h-3.5" />
             <span>Hồ Sơ Giáo Viên</span>
           </span>
@@ -196,7 +228,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Main Container Card */}
-      <div className="max-w-4xl w-full mx-auto bg-white rounded-3xl shadow-xl border border-slate-200/90 overflow-hidden">
+      <div className="max-w-4xl w-full mx-auto bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden">
         {/* Banner Header */}
         <div className="p-6 sm:p-8 bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-800 text-white relative overflow-hidden">
           <div className="absolute -right-10 -bottom-10 w-60 h-60 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -213,21 +245,21 @@ export default function ProfilePage() {
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
           {errorMessage && (
-            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-2.5 text-rose-700 text-xs sm:text-sm font-semibold animate-in fade-in">
+            <div className="p-3.5 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-2xl flex items-center gap-2.5 text-rose-700 dark:text-rose-300 text-xs sm:text-sm font-semibold animate-in fade-in">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {successMessage && (
-            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-2.5 text-emerald-800 text-xs sm:text-sm font-semibold animate-in fade-in">
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+            <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center gap-2.5 text-emerald-800 dark:text-emerald-300 text-xs sm:text-sm font-semibold animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
               <span>{successMessage}</span>
             </div>
           )}
 
           {/* 3D Avatar Profile Spotlight Box with Image Upload */}
-          <div className="p-5 sm:p-6 bg-gradient-to-b from-slate-50 via-indigo-50/30 to-white rounded-2xl border border-slate-200 flex flex-col md:flex-row items-center gap-6 shadow-2xs">
+          <div className="p-5 sm:p-6 bg-gradient-to-b from-slate-50 dark:from-slate-800/80 via-indigo-50/30 dark:via-slate-800/50 to-white dark:to-slate-850 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center gap-6 shadow-2xs">
             {/* 3D Avatar Orb / Photo Display */}
             <div className="relative group shrink-0">
               <div
@@ -257,7 +289,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 title="Tải ảnh đại diện từ máy tính"
-                className="absolute -bottom-1 -right-1 p-2 bg-gradient-to-tr from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-full border-2 border-white shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                className="absolute -bottom-1 -right-1 p-2 bg-gradient-to-tr from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-full border-2 border-white dark:border-slate-800 shadow-lg hover:scale-110 active:scale-95 transition-all cursor-pointer"
               >
                 <Camera className="w-4 h-4" />
               </button>
@@ -279,7 +311,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={handleRemoveImage}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200 dark:border-rose-800 rounded-xl transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Xóa ảnh (dùng chữ 3D)</span>
@@ -287,15 +319,15 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 Hỗ trợ định dạng PNG, JPG, WEBP. Ảnh sẽ được tự động căn chỉnh khung vuông chuẩn 3D.
               </p>
 
               {/* Initials & Color Palette (Available when not using custom image) */}
               {!avatarImage && (
-                <div className="pt-2 border-t border-slate-200/80 space-y-2">
+                <div className="pt-2 border-t border-slate-200/80 dark:border-slate-700 space-y-2">
                   <div className="flex flex-col sm:flex-row items-center gap-2">
-                    <label className="text-xs font-bold text-slate-700">
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                       Chữ ký viết tắt trên Avatar (2–3 ký tự):
                     </label>
                     <input
@@ -303,12 +335,12 @@ export default function ProfilePage() {
                       maxLength={3}
                       value={avatarText}
                       onChange={(e) => setAvatarText(e.target.value.toUpperCase())}
-                      className="w-20 px-2.5 py-1 text-center font-extrabold text-xs uppercase bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                      className="w-20 px-2.5 py-1 text-center font-extrabold text-xs uppercase bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
                     />
                   </div>
 
                   <div className="flex items-center justify-center md:justify-start gap-2 pt-0.5">
-                    <span className="text-[11px] text-slate-500 font-semibold mr-1">Tông màu 3D:</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mr-1">Tông màu 3D:</span>
                     {AVATAR_PALETTES.map((pal, idx) => (
                       <button
                         key={idx}
@@ -332,7 +364,7 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Full Name */}
             <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Họ và tên giáo viên <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -343,14 +375,14 @@ export default function ProfilePage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="VD: Thầy Trần Tấn Phước"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
                 />
               </div>
             </div>
 
             {/* School */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Trường / Đơn vị tổ chức <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
@@ -361,7 +393,7 @@ export default function ProfilePage() {
                   value={school}
                   onChange={(e) => setSchool(e.target.value)}
                   placeholder="VD: TRƯỜNG THPT CHUYÊN"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
                 />
               </div>
             </div>
@@ -369,11 +401,11 @@ export default function ProfilePage() {
             {/* Department / Tổ chuyên môn - CỐ ĐỊNH, KHÔNG CHO THAY ĐỔI */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   Tổ bộ môn chuyên môn
                 </label>
-                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                  <Lock className="w-3 h-3 text-amber-600" />
+                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                  <Lock className="w-3 3 text-amber-600 dark:text-amber-400" />
                   <span>Cố định (Không thể sửa)</span>
                 </span>
               </div>
@@ -384,18 +416,18 @@ export default function ProfilePage() {
                   readOnly
                   disabled
                   value={department}
-                  className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-100/90 border border-slate-300 rounded-xl text-slate-800 font-black cursor-not-allowed select-none shadow-inner"
+                  className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-black cursor-not-allowed select-none shadow-inner"
                 />
                 <Lock className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
               </div>
-              <p className="mt-1 text-[11px] text-slate-500 font-medium">
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                 Tổ chuyên môn được liên kết tự động theo tài khoản của Thầy/Cô và không thể tự chỉnh sửa.
               </p>
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Địa chỉ Email
               </label>
               <div className="relative">
@@ -405,14 +437,14 @@ export default function ProfilePage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="VD: phuoc.tran@edu.vn"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
                 />
               </div>
             </div>
 
             {/* Phone */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Số điện thoại liên hệ
               </label>
               <div className="relative">
@@ -422,14 +454,14 @@ export default function ProfilePage() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="VD: 0912 345 678"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
                 />
               </div>
             </div>
 
             {/* Role */}
             <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                 Chức vụ / Vai trò chuyên môn
               </label>
               <div className="relative">
@@ -439,17 +471,17 @@ export default function ProfilePage() {
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   placeholder="VD: Tổ trưởng Chuyên môn / Giáo viên bộ môn"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
                 />
               </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 border-t border-slate-200 flex items-center justify-end">
+          <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end">
             <button
               type="submit"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 rounded-xl shadow-lg shadow-indigo-200 active:scale-95 transition-all cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none active:scale-95 transition-all cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>Lưu thông tin hồ sơ</span>

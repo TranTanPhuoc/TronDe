@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
+}
+
+.dark {
+  --background: #0b0f19;
+  --foreground: #f8fafc;
 }
 
 @theme inline {
@@ -45,6 +52,14 @@ body {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
 }
 
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
 /* Smooth customized thin scrollbar for Windows, Linux, and macOS */
 ::-webkit-scrollbar {
   width: 6px;
@@ -62,6 +77,14 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 /* Utility to hide scrollbar while keeping horizontal touch scroll */

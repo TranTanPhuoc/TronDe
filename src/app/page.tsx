@@ -22,9 +22,10 @@ import QuestionModal from "@/components/QuestionModal";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import CustomSelect from "@/components/CustomSelect";
-import ModernFooter from "@/components/ModernFooter";
+import Footer from "@/components/Footer";
 import { ProfileUserData } from "@/components/ProfileModal";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   downloadExamDocx,
   downloadAllExamsZip,
@@ -704,7 +705,7 @@ export default function Home() {
   const currentExam = generatedExams[selectedVariantIndex];
 
   return (
-    <div className="min-h-screen w-full bg-slate-100 flex flex-col font-sans overflow-x-hidden">
+    <div className="min-h-screen w-full bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans overflow-x-hidden transition-colors">
       {/* Toast Notification */}
       {toast && (
         <div
@@ -728,7 +729,7 @@ export default function Home() {
       )}
 
       {/* Main Top Header - Full Screen Width */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs no-print backdrop-blur-md bg-white/95 w-full safe-padding-top">
+      <header className="bg-white/95 dark:bg-slate-900/95 border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-30 shadow-xs no-print backdrop-blur-md w-full safe-padding-top transition-colors">
         <div className="w-full px-3 sm:px-6 lg:px-8">
           {/* Top Bar for Desktop & Tablet */}
           <div className="hidden sm:flex items-center justify-between gap-3 py-2.5 min-h-[58px]">
@@ -745,21 +746,21 @@ export default function Home() {
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-base lg:text-lg font-black text-slate-900 tracking-tight whitespace-nowrap bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-800 bg-clip-text">
+                  <h1 className="text-base lg:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight whitespace-nowrap bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-800 dark:from-white dark:via-indigo-200 dark:to-slate-200 bg-clip-text">
                     Hệ Thống Trộn Đề Thi
                   </h1>
-                  <span className="hidden md:inline-flex px-2 py-0.5 text-[10px] font-extrabold bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200/80 rounded-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.04)]">
+                  <span className="hidden md:inline-flex px-2 py-0.5 text-[10px] font-extrabold bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/70 dark:to-teal-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800 rounded-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.04)]">
                     Chính Thức
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 hidden xl:block truncate">
+                <p className="text-xs text-slate-500 dark:text-slate-400 hidden xl:block truncate">
                   Tạo mã đề ngẫu nhiên, hoán vị đáp án & xuất bảng ma trận
                 </p>
               </div>
             </div>
 
             {/* Quick Actions & User Profile */}
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
               {/* Create Question Button with 3D tactile button feel & Dropdown */}
               <div className="relative">
                 <div className="inline-flex rounded-xl shadow-[0_4px_12px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_-2px_0_rgba(0,0,0,0.2)] overflow-hidden">
@@ -782,32 +783,35 @@ export default function Home() {
                 {/* Dropdown Options */}
                 {isAddMenuOpen && (
                   <div
-                    className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150"
+                    className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-40 animate-in fade-in zoom-in-95 duration-150"
                     onMouseLeave={() => setIsAddMenuOpen(false)}
                   >
                     <button
                       onClick={() => handleOpenCreate("manual")}
-                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors text-left cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors text-left cursor-pointer"
                     >
-                      <Plus className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <Plus className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
                       <div>
                         <div className="font-bold">Thêm thủ công</div>
-                        <div className="text-[10px] text-slate-400">Nhập từng câu vào ngân hàng</div>
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500">Nhập từng câu vào ngân hàng</div>
                       </div>
                     </button>
                     <button
                       onClick={() => handleOpenCreate("import")}
-                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors text-left cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-left cursor-pointer"
                     >
-                      <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <div>
                         <div className="font-bold">Nhập từ Excel / Word</div>
-                        <div className="text-[10px] text-slate-400">Tải file mẫu & kiểm tra dữ liệu</div>
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500">Tải file mẫu & kiểm tra dữ liệu</div>
                       </div>
                     </button>
                   </div>
                 )}
               </div>
+
+              {/* Theme Toggle (Light / Dark Mode) */}
+              <ThemeToggle />
 
               {/* 3D Glassmorphic Teacher Profile Dropdown */}
               <UserProfileDropdown
@@ -828,10 +832,10 @@ export default function Home() {
                   <Shuffle className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-xs font-black text-slate-900 truncate">
+                  <h1 className="text-xs font-black text-slate-900 dark:text-slate-100 truncate">
                     Trộn Đề Thi
                   </h1>
-                  <p className="text-[10px] text-indigo-600 font-bold truncate">
+                  <p className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold truncate">
                     {departmentName}
                   </p>
                 </div>
@@ -846,6 +850,9 @@ export default function Home() {
                   <span>Thêm</span>
                 </button>
 
+                {/* Theme Toggle for Mobile */}
+                <ThemeToggle />
+
                 {/* 3D Mobile User Avatar Dropdown */}
                 <UserProfileDropdown
                   currentUser={currentUser}
@@ -859,13 +866,13 @@ export default function Home() {
           </div>
 
           {/* Navigation Bar / Tabs - Full Width Scrollable */}
-          <div className="flex items-center gap-1.5 overflow-x-auto border-t border-slate-100 py-1.5 scrollbar-none w-full">
+          <div className="flex items-center gap-1.5 overflow-x-auto border-t border-slate-100 dark:border-slate-800 py-1.5 scrollbar-none w-full">
             <button
               onClick={() => setActiveTab("exam")}
               className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "exam"
                   ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -877,7 +884,7 @@ export default function Home() {
               className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "matrix"
                   ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <TableProperties className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -889,7 +896,7 @@ export default function Home() {
               className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "solution"
                   ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -901,7 +908,7 @@ export default function Home() {
               className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                 activeTab === "bank"
                   ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -916,16 +923,16 @@ export default function Home() {
         {/* On Mobile: Collapsible Exam Configuration Accordion Button */}
         {activeTab !== "bank" && (
           <div className="lg:hidden mb-4 no-print">
-            <div className="bg-white rounded-xl border border-slate-200 p-3 shadow-xs flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 shadow-xs flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
-                <Settings2 className="w-4 h-4 text-indigo-600 shrink-0" />
-                <span className="text-xs font-bold text-slate-800 truncate">
+                <Settings2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
                   Cấu hình đề ({numVariants} mã đề, {activeQuestionsInSubject} câu)
                 </span>
               </div>
               <button
                 onClick={() => setShowMobileConfig(!showMobileConfig)}
-                className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-200 transition-colors shrink-0 cursor-pointer"
+                className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-3 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 transition-colors shrink-0 cursor-pointer"
               >
                 <span>{showMobileConfig ? "Thu gọn" : "Tùy chỉnh"}</span>
                 {showMobileConfig ? (
@@ -947,13 +954,13 @@ export default function Home() {
               }`}
             >
               {/* Configuration Box */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-2">
-                    <Settings2 className="w-4 h-4 text-indigo-600" />
-                    <h2 className="text-sm font-bold text-slate-800">Cấu Hình Trộn Đề</h2>
+                    <Settings2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    <h2 className="text-sm font-bold text-slate-800 dark:text-slate-100">Cấu Hình Trộn Đề</h2>
                   </div>
-                  <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                  <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-full border border-indigo-200/50 dark:border-indigo-800">
                     {numVariants} mã đề
                   </span>
                 </div>
@@ -961,7 +968,7 @@ export default function Home() {
                 {/* Input Fields */}
                 <div className="space-y-3 text-xs">
                   <div>
-                    <label className="block font-bold text-slate-600 mb-1">
+                    <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
                       Trường / Đơn vị tổ chức
                     </label>
                     <input
@@ -969,12 +976,12 @@ export default function Home() {
                       value={schoolName}
                       onChange={(e) => setSchoolName(e.target.value)}
                       placeholder="VD: TRƯỜNG THPT CHUYÊN..."
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-600 mb-1">
+                    <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
                       Tổ bộ môn chuyên môn
                     </label>
                     <input
@@ -982,25 +989,25 @@ export default function Home() {
                       value={departmentName}
                       onChange={(e) => setDepartmentName(e.target.value)}
                       placeholder="VD: TỔ TOÁN - TIN, TỔ TỰ NHIÊN..."
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-600 mb-1">
+                    <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
                       Tiêu đề kỳ thi
                     </label>
                     <input
                       type="text"
                       value={examTitle}
                       onChange={(e) => setExamTitle(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block font-bold text-slate-600 mb-1">
+                      <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
                         Môn học
                       </label>
                       <CustomSelect
@@ -1026,7 +1033,7 @@ export default function Home() {
                     </div>
 
                     <div>
-                      <label className="block font-bold text-slate-600 mb-1">
+                      <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
                         Khối lớp
                       </label>
                       <CustomSelect
@@ -1051,31 +1058,31 @@ export default function Home() {
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block font-bold text-slate-600 mb-1">
+                      <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
                         Tiêu đề trên đề thi
                       </label>
                       <input
                         type="text"
                         value={subjectName}
                         onChange={(e) => setSubjectName(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                       />
                     </div>
                     <div>
-                      <label className="block font-bold text-slate-600 mb-1">
+                      <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
                         Thời gian (phút)
                       </label>
                       <input
                         type="text"
                         value={duration}
                         onChange={(e) => setDuration(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-600 mb-1">
+                    <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
                       Số lượng mã đề cần tạo
                     </label>
                     <CustomSelect
@@ -1095,8 +1102,8 @@ export default function Home() {
                     />
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100 space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-700">
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-700 dark:text-slate-300">
                       <input
                         type="checkbox"
                         checked={shuffleChoices}
@@ -1111,7 +1118,7 @@ export default function Home() {
                 {/* Big Action Button */}
                 <button
                   onClick={handleShuffleExams}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl shadow-md shadow-emerald-200 transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl shadow-md shadow-emerald-200 dark:shadow-emerald-950/50 transition-all cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>
@@ -1123,15 +1130,15 @@ export default function Home() {
               </div>
 
               {/* Questions to Include Selector */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-xs space-y-3">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-xs space-y-3">
                 {/* Header & Quick Action */}
-                <div className="flex items-center justify-between pb-2 border-b border-slate-100 flex-wrap gap-1">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 flex-wrap gap-1">
                   <div>
-                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider block">
                       Câu hỏi {currentSubjectObj.name} {selectedGradeId !== "ALL" ? `(${currentGradeObj.name})` : ""}
                     </span>
-                    <span className="text-[11px] text-slate-500 font-medium">
-                      Đã chọn: <strong className="text-indigo-600 font-bold">{activeQuestionsInSubject}</strong> / {subjectQuestionsTotal} câu
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                      Đã chọn: <strong className="text-indigo-600 dark:text-indigo-400 font-bold">{activeQuestionsInSubject}</strong> / {subjectQuestionsTotal} câu
                     </span>
                   </div>
 
@@ -1155,7 +1162,7 @@ export default function Home() {
                           );
                         }
                       }}
-                      className="text-xs text-indigo-600 hover:text-indigo-800 font-bold cursor-pointer"
+                      className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold cursor-pointer"
                       title="Chọn hoặc bỏ chọn tất cả các câu hỏi đang hiển thị trong bộ lọc"
                     >
                       {sidebarFilteredQuestions.length > 0 &&
@@ -1163,7 +1170,7 @@ export default function Home() {
                         ? "Bỏ chọn lọc"
                         : "Chọn tất cả lọc"}
                     </button>
-                    <span className="text-slate-300">|</span>
+                    <span className="text-slate-300 dark:text-slate-700">|</span>
                     <button
                       onClick={() => {
                         const subjectGradeIds = questions
@@ -1188,7 +1195,7 @@ export default function Home() {
                           );
                         }
                       }}
-                      className="text-xs text-slate-600 hover:text-slate-800 font-bold cursor-pointer"
+                      className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-bold cursor-pointer"
                       title="Chọn hoặc bỏ chọn toàn bộ câu hỏi của môn và khối này"
                     >
                       {activeQuestionsInSubject === subjectQuestionsTotal && subjectQuestionsTotal > 0
@@ -1202,13 +1209,13 @@ export default function Home() {
                 <div className="space-y-2 pt-1">
                   {/* Search input */}
                   <div className="relative">
-                    <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                     <input
                       type="text"
                       value={sidebarSearch}
                       onChange={(e) => setSidebarSearch(e.target.value)}
                       placeholder={`Tìm câu hỏi ${currentSubjectObj.name}...`}
-                      className="w-full pl-8 pr-2.5 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      className="w-full pl-8 pr-2.5 py-1.5 text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
                   </div>
 
@@ -1246,7 +1253,7 @@ export default function Home() {
                   {/* Grade Filter & Reset button */}
                   <div className="flex items-center justify-between text-[11px] gap-2 pt-0.5">
                     <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                      <span className="text-slate-500 font-semibold shrink-0">Khối:</span>
+                      <span className="text-slate-500 dark:text-slate-400 font-semibold shrink-0">Khối:</span>
                       <CustomSelect
                         value={selectedGradeId}
                         onChange={(val) => {
@@ -1278,7 +1285,7 @@ export default function Home() {
                           setGeneratedExams([]);
                           setSelectedVariantIndex(0);
                         }}
-                        className="text-rose-600 hover:text-rose-800 font-bold shrink-0 underline cursor-pointer"
+                        className="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 font-bold shrink-0 underline cursor-pointer"
                       >
                         Xóa lọc
                       </button>
@@ -1289,8 +1296,8 @@ export default function Home() {
                 {/* Question List (Filtered strictly by selected subject & search/level/type) */}
                 <div className="max-h-72 overflow-y-auto space-y-2 pr-1 pt-1">
                   {sidebarFilteredQuestions.length === 0 ? (
-                    <div className="p-4 text-center text-xs text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200 space-y-1.5">
-                      <p className="font-semibold text-slate-700">
+                    <div className="p-4 text-center text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 space-y-1.5">
+                      <p className="font-semibold text-slate-700 dark:text-slate-300">
                         {subjectQuestionsTotal === 0
                           ? `Chưa có câu hỏi nào thuộc môn ${currentSubjectObj.name} ${selectedGradeId !== "ALL" ? `(${currentGradeObj.name})` : ""} trong ngân hàng!`
                           : `Không có câu hỏi ${currentSubjectObj.name} nào khớp bộ lọc.`}
@@ -1298,7 +1305,7 @@ export default function Home() {
                       {subjectQuestionsTotal === 0 ? (
                         <button
                           onClick={handleOpenCreate}
-                          className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer"
+                          className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                         >
                           + Thêm câu hỏi môn {currentSubjectObj.name}
                         </button>
@@ -1313,7 +1320,7 @@ export default function Home() {
                             setGeneratedExams([]);
                             setSelectedVariantIndex(0);
                           }}
-                          className="text-xs font-bold text-indigo-600 hover:underline cursor-pointer"
+                          className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
                         >
                           Đặt lại bộ lọc để xem {questions.filter((q) => q.question.subject?.id === selectedSubjectId).length} câu hỏi môn {currentSubjectObj.name}
                         </button>
@@ -1329,8 +1336,8 @@ export default function Home() {
                           key={q.id}
                           className={`flex items-start gap-2.5 p-2 rounded-lg border text-xs cursor-pointer transition-colors ${
                             isChecked
-                              ? "bg-indigo-50/50 border-indigo-200 text-slate-800"
-                              : "bg-slate-50 border-slate-200 text-slate-500 opacity-60"
+                              ? "bg-indigo-50/50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/80 text-slate-800 dark:text-slate-100"
+                              : "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 opacity-60"
                           }`}
                         >
                           <input
@@ -1347,18 +1354,18 @@ export default function Home() {
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                              <span className="font-bold text-indigo-700">Câu {idx + 1}</span>
+                              <span className="font-bold text-indigo-700 dark:text-indigo-400">Câu {idx + 1}</span>
                               <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${grdBadge.bg}`}>
                                 {q.question.grade?.name || "Khối 12"}
                               </span>
                               <span className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${lvl.bg}`}>
                                 {q.question.level.short_name}
                               </span>
-                              <span className="text-[10px] text-slate-500 font-medium">
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
                                 [{q.question.type.short_name}]
                               </span>
                             </div>
-                            <p className="truncate text-slate-800 font-medium">
+                            <p className="truncate text-slate-800 dark:text-slate-200 font-medium">
                               {q.question.question}
                             </p>
                           </div>
@@ -1369,9 +1376,9 @@ export default function Home() {
                 </div>
 
                 {/* Bottom Action Bar: Tron de ngay sau khi chon cau hoi */}
-                <div className="pt-2 border-t border-slate-100 space-y-2">
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
                   {currentExam && currentExam.questions.length !== activeQuestionsInSubject && (
-                    <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800 flex items-start gap-1.5 leading-tight">
+                    <div className="p-2 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-1.5 leading-tight">
                       <span className="font-bold shrink-0">⚠️ Lưu ý:</span>
                       <span>
                         Đề hiện tại ({currentExam.questions.length} câu) khác số câu bạn đang chọn ({activeQuestionsInSubject} câu). Bấm nút dưới để tạo lại đề thi!
@@ -1381,7 +1388,7 @@ export default function Home() {
 
                   <button
                     onClick={handleShuffleExams}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-3 text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-indigo-200 rounded-xl transition-all shadow-sm cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-3 text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-indigo-200 dark:shadow-indigo-950/50 rounded-xl transition-all shadow-sm cursor-pointer"
                   >
                     <Sparkles className="w-4 h-4" />
                     <span>
@@ -1407,14 +1414,14 @@ export default function Home() {
             {activeTab === "exam" && currentExam && (
               <div className="space-y-4 w-full">
                 {/* Control bar above exam paper (no-print) */}
-                <div className="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 shadow-xs space-y-3 no-print">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 shadow-xs space-y-3 no-print">
                   {/* Row 1: Active Exam Info & Actions */}
                   <div className="flex items-center justify-between flex-wrap gap-2.5">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-slate-500 uppercase whitespace-nowrap">
+                      <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
                         Mã Đề:
                       </span>
-                      <span className="px-2.5 py-1 text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg">
+                      <span className="px-2.5 py-1 text-xs font-extrabold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg">
                         Mã #{currentExam.code} ({selectedVariantIndex + 1}/{generatedExams.length})
                       </span>
                     </div>
@@ -1424,7 +1431,7 @@ export default function Home() {
                       {/* Export directly to Word (.docx) with A4 format */}
                       <button
                         onClick={handleExportWord}
-                        className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-blue-200"
+                        className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-blue-200 dark:shadow-blue-950/50"
                         title="Tự động xuất đề thi sang file Word (.docx) chuẩn khổ giấy A4"
                       >
                         <FileDown className="w-4 h-4" />
@@ -1434,7 +1441,7 @@ export default function Home() {
                       {/* Export ALL exams into a single .zip archive */}
                       <button
                         onClick={handleExportAllZip}
-                        className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-emerald-200"
+                        className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg transition-all cursor-pointer shadow-sm shadow-emerald-200 dark:shadow-emerald-950/50"
                         title={`Tự động xuất tất cả ${generatedExams.length} mã đề thi (.docx) vào 1 file ZIP`}
                       >
                         <FolderArchive className="w-4 h-4" />
@@ -1445,7 +1452,7 @@ export default function Home() {
                 </div>
 
                 {/* Row 2: All Variant Switcher Buttons (Wrap automatically on width limit) */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-slate-100 w-full">
+                <div className="flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-slate-100 dark:border-slate-800 w-full">
                   {generatedExams.map((v, idx) => (
                     <button
                       key={v.code}
@@ -1453,7 +1460,7 @@ export default function Home() {
                       className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                         selectedVariantIndex === idx
                           ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                          : "bg-white text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-600"
+                          : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-300"
                       }`}
                     >
                       Mã {v.code}
@@ -1567,15 +1574,15 @@ export default function Home() {
 
             {/* TAB 1: EMPTY STATE KHI CHUA CO DE THI */}
             {activeTab === "exam" && !currentExam && (
-              <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-8 sm:p-14 text-center space-y-4 shadow-xs w-full">
-                <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 p-8 sm:p-14 text-center space-y-4 shadow-xs w-full">
+                <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
                   <FileText className="w-8 h-8" />
                 </div>
                 <div className="space-y-1.5 max-w-md mx-auto">
-                  <h3 className="text-base font-bold text-slate-800">
+                  <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
                     Chưa có đề thi nào được tạo
                   </h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                     Vui lòng tích chọn các câu hỏi Môn học ở danh sách bên trái, sau đó bấm nút <strong>&quot;Tiến hành trộn đề&quot;</strong> để hệ thống tạo các mã đề thi hoán vị.
                   </p>
                 </div>
@@ -1584,17 +1591,17 @@ export default function Home() {
 
             {/* TAB 2: ANSWER MATRIX */}
             {activeTab === "matrix" && (
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-4 w-full">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-xs space-y-4 w-full">
                 {generatedExams.length === 0 ? (
                   <div className="py-12 text-center space-y-3">
-                    <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+                    <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
                       <TableProperties className="w-7 h-7" />
                     </div>
                     <div className="space-y-1.5 max-w-md mx-auto">
-                      <h3 className="text-base font-bold text-slate-800">
+                      <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
                         Chưa có ma trận đáp án
                       </h3>
-                      <p className="text-xs text-slate-500 leading-relaxed">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                         Vui lòng chọn câu hỏi Môn học ở danh sách bên trái và bấm <strong>&quot;Tiến hành trộn đề&quot;</strong> để xem bảng đối chiếu đáp án các mã đề thi.
                       </p>
                     </div>
@@ -1602,12 +1609,12 @@ export default function Home() {
                 ) : (
                   <>
                     {/* Matrix Header & Actions Bar (no-print) */}
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2.5 no-print">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 flex-wrap gap-2.5 no-print">
                       <div>
-                        <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
                           Bảng Ma Trận Đáp Án Đối Chiếu Các Mã Đề
                         </h3>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                           Tổng hợp đáp án đối chiếu của {generatedExams.length} mã đề thi ({subjectName})
                         </p>
                       </div>
@@ -1617,7 +1624,7 @@ export default function Home() {
                     {/* Export Word A4 (.docx) with Auto Page Break */}
                     <button
                       onClick={handleExportMatrixWord}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg shadow-sm shadow-blue-200 transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-lg shadow-sm shadow-blue-200 dark:shadow-blue-950/50 transition-all cursor-pointer"
                       title="Xuất bảng ma trận đáp án ra file Word chuẩn khổ A4, tự động ngắt trang khi có nhiều mã đề để không bị tràn"
                     >
                       <FileDown className="w-3.5 h-3.5" />
@@ -1627,7 +1634,7 @@ export default function Home() {
                     {/* Export Excel (.xlsx) Spreadsheet */}
                     <button
                       onClick={handleExportMatrixExcel}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm shadow-emerald-200 transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm shadow-emerald-200 dark:shadow-emerald-950/50 transition-all cursor-pointer"
                       title="Xuất toàn bộ ma trận đáp án ra file bảng tính Excel (.xlsx) chuẩn đối chiếu chấm thi"
                     >
                       <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -1637,10 +1644,10 @@ export default function Home() {
                     {/* Export All Exam Variants Zip */}
                     <button
                       onClick={handleExportAllZip}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 rounded-lg transition-colors cursor-pointer"
                       title={`Tải về tất cả ${generatedExams.length} mã đề thi (.docx) trong 1 file ZIP`}
                     >
-                      <FolderArchive className="w-3.5 h-3.5 text-indigo-600" />
+                      <FolderArchive className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                       <span className="hidden xl:inline">Xuất tất cả đề (.zip)</span>
                       <span className="xl:hidden">Đề (.zip)</span>
                     </button>
@@ -1649,13 +1656,13 @@ export default function Home() {
 
                 {/* Helpful Notification Banner for Large Number of Exam Codes */}
                 {generatedExams.length > 10 && (
-                  <div className="flex items-start gap-2.5 p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl text-xs text-indigo-950 no-print">
-                    <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5 p-3 bg-indigo-50/70 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 rounded-xl text-xs text-indigo-950 dark:text-indigo-200 no-print">
+                    <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
                     <div className="space-y-0.5">
                       <p className="font-bold">
                         Đang có {generatedExams.length} mã đề thi: Hệ thống đã bật tính năng tự động ngắt trang A4 chống tràn!
                       </p>
-                      <p className="text-slate-600">
+                      <p className="text-slate-600 dark:text-slate-300">
                         Khi chọn <strong>Xuất Word</strong>, ma trận sẽ tự động chia đều thành <strong>{matrixChunks.length} trang A4</strong> chuẩn (mỗi trang chứa 10 mã đề) kèm tiêu đề riêng biệt. Bạn cũng có thể chọn <strong>Xuất Excel (.xlsx)</strong> để xem toàn bộ {generatedExams.length} mã đề trên cùng một trang tính.
                       </p>
                     </div>
@@ -1663,28 +1670,28 @@ export default function Home() {
                 )}
 
                 {/* ON-SCREEN VIEW: Table with Sticky First Column & Full Horizontal Scroll (no-print) */}
-                <div className="border border-slate-200 rounded-xl overflow-x-auto shadow-2xs w-full print:hidden">
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto shadow-2xs w-full print:hidden">
                   <table className="min-w-[480px] w-full text-center text-xs">
-                    <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                    <thead className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-700">
                       <tr>
-                        <th className="p-3 w-20 sticky left-0 z-10 bg-slate-100 border-r border-slate-200 whitespace-nowrap">
+                        <th className="p-3 w-20 sticky left-0 z-10 bg-slate-100 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                           Câu
                         </th>
                         {generatedExams.map((v) => (
-                          <th key={v.code} className="p-3 bg-indigo-50/60 text-indigo-900 font-extrabold border-l border-slate-200 whitespace-nowrap">
+                          <th key={v.code} className="p-3 bg-indigo-50/60 dark:bg-indigo-950/50 text-indigo-900 dark:text-indigo-300 font-extrabold border-l border-slate-200 dark:border-slate-700 whitespace-nowrap">
                             Mã đề #{v.code}
                           </th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 font-medium">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
                       {(generatedExams[0]?.questions || []).map((_, qIdx) => (
-                        <tr key={qIdx} className="hover:bg-slate-50 transition-colors">
-                          <td className="p-2.5 font-bold text-slate-700 bg-slate-50 sticky left-0 z-10 border-r border-slate-200 whitespace-nowrap">
+                        <tr key={qIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                          <td className="p-2.5 font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-850 dark:bg-slate-800 sticky left-0 z-10 border-r border-slate-200 dark:border-slate-700 whitespace-nowrap">
                             Câu {qIdx + 1}
                           </td>
                           {generatedExams.map((v) => (
-                            <td key={v.code} className="p-2.5 font-bold text-emerald-700 border-l border-slate-100">
+                            <td key={v.code} className="p-2.5 font-bold text-emerald-700 dark:text-emerald-400 border-l border-slate-100 dark:border-slate-800">
                               {v.questions[qIdx]?.answer || "-"}
                             </td>
                           ))}
@@ -1769,15 +1776,15 @@ export default function Home() {
 
           {/* TAB 3: EMPTY STATE KHI CHUA CO DE THI */}
           {activeTab === "solution" && !currentExam && (
-            <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-8 sm:p-14 text-center space-y-4 shadow-xs w-full">
-              <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 p-8 sm:p-14 text-center space-y-4 shadow-xs w-full">
+              <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
                 <BookOpen className="w-8 h-8" />
               </div>
               <div className="space-y-1.5 max-w-md mx-auto">
-                <h3 className="text-base font-bold text-slate-800">
+                <h3 className="text-base font-bold text-slate-800 dark:text-slate-100">
                   Chưa có lời giải chi tiết
                 </h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                   Vui lòng chọn câu hỏi Môn học ở danh sách bên trái và bấm <strong>&quot;Tiến hành trộn đề&quot;</strong> để xem hướng dẫn giải chi tiết cho từng mã đề.
                 </p>
               </div>
@@ -1786,25 +1793,25 @@ export default function Home() {
 
           {/* TAB 3: STEP-BY-STEP SOLUTIONS */}
           {activeTab === "solution" && currentExam && (
-              <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs space-y-5 w-full">
-                <div className="pb-3 border-b border-slate-100 space-y-3">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-xs space-y-5 w-full">
+                <div className="pb-3 border-b border-slate-100 dark:border-slate-800 space-y-3">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div>
-                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
                         Lời Giải Chi Tiết Cho Mã Đề #{currentExam.code}
                       </h3>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Các bước lập luận và phương pháp giải của từng câu hỏi
                       </p>
                     </div>
-                    <span className="px-2.5 py-1 text-xs font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg">
+                    <span className="px-2.5 py-1 text-xs font-extrabold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg">
                       Mã #{currentExam.code} ({selectedVariantIndex + 1}/{generatedExams.length})
                     </span>
                   </div>
 
                   {/* All Variant Switcher Buttons (Wrap automatically on width limit) */}
-                  <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100 w-full">
-                    <span className="text-xs font-bold text-slate-500 uppercase mr-1 whitespace-nowrap">
+                  <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-800 w-full">
+                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mr-1 whitespace-nowrap">
                       Mã Đề:
                     </span>
                     {generatedExams.map((v, idx) => (
@@ -1814,7 +1821,7 @@ export default function Home() {
                         className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                           selectedVariantIndex === idx
                             ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                            : "bg-white text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-600"
+                            : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-300"
                         }`}
                       >
                         #{v.code}
@@ -1825,27 +1832,27 @@ export default function Home() {
 
                 <div className="space-y-4">
                   {currentExam.questions.map((q, idx) => (
-                    <div key={idx} className="p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                    <div key={idx} className="p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-850 dark:bg-slate-800/40 space-y-3">
                       <div className="flex items-start justify-between gap-2 flex-wrap">
-                        <p className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                        <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug">
                           Câu {idx + 1}: {q.questionText}
                         </p>
-                        <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 shrink-0">
+                        <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 shrink-0">
                           Đáp án: {q.answer}
                         </span>
                       </div>
 
                       {q.contentText && (
-                        <pre className="font-sans text-xs text-slate-600 whitespace-pre-wrap pl-3 border-l-2 border-slate-300 break-words">
+                        <pre className="font-sans text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap pl-3 border-l-2 border-slate-300 dark:border-slate-600 break-words">
                           {q.contentText}
                         </pre>
                       )}
 
-                      <div className="pt-2 border-t border-slate-200">
-                        <span className="text-xs font-bold text-slate-700 block mb-1">
+                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
                           Hướng dẫn giải chi tiết:
                         </span>
-                        <pre className="font-sans text-xs text-slate-700 whitespace-pre-wrap leading-relaxed bg-white p-3 rounded-lg border border-slate-200 break-words">
+                        <pre className="font-sans text-xs text-slate-700 dark:text-slate-200 whitespace-pre-wrap leading-relaxed bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800 break-words">
                           {q.solutionGuide || "Chưa có lời giải chi tiết cho câu hỏi này."}
                         </pre>
                       </div>
@@ -1859,17 +1866,17 @@ export default function Home() {
             {activeTab === "bank" && (
               <div className="space-y-4 w-full">
                 {/* Bank Header Bar */}
-                <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3 w-full">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs space-y-3 w-full">
                   <div className="flex items-center justify-between flex-wrap gap-2.5">
                     {/* Search */}
                     <div className="relative flex-1 min-w-[220px]">
-                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                       <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Tìm kiếm câu hỏi, nội dung, đáp án..."
-                        className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                       />
                     </div>
 
@@ -1943,7 +1950,7 @@ export default function Home() {
                           );
                         }
                       }}
-                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg transition-colors cursor-pointer shrink-0"
+                      className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-lg transition-colors cursor-pointer shrink-0"
                     >
                       <Check className="w-3.5 h-3.5" />
                       <span>
@@ -1965,9 +1972,9 @@ export default function Home() {
                       </button>
                       <button
                         onClick={() => handleOpenCreate("import")}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-lg transition-colors cursor-pointer shrink-0"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-300 dark:border-emerald-800 rounded-lg transition-colors cursor-pointer shrink-0"
                       >
-                        <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+                        <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>Nhập từ Excel / Word</span>
                       </button>
                     </div>
@@ -1975,17 +1982,17 @@ export default function Home() {
 
                   {/* Bulk Action Bar: Cho phep tron de hoac xoa tu cac cau hoi duoc chon */}
                   {selectedBankIds.length > 0 && (
-                    <div className="flex items-center justify-between p-2.5 bg-indigo-50/80 border border-indigo-200 rounded-xl flex-wrap gap-2">
+                    <div className="flex items-center justify-between p-2.5 bg-indigo-50/80 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 rounded-xl flex-wrap gap-2">
                       <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />
-                        <span className="text-xs font-medium text-indigo-950">
-                          Đang chọn <strong className="font-bold text-indigo-700">{selectedBankIds.length}</strong> câu hỏi
+                        <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                        <span className="text-xs font-medium text-indigo-950 dark:text-indigo-200">
+                          Đang chọn <strong className="font-bold text-indigo-700 dark:text-indigo-400">{selectedBankIds.length}</strong> câu hỏi
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={handleShuffleFromBankSelection}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm shadow-emerald-200 transition-all cursor-pointer shrink-0"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-lg shadow-sm shadow-emerald-200 dark:shadow-emerald-950/50 transition-all cursor-pointer shrink-0"
                           title="Tạo đề thi và chuyển sang xem trước với đúng các câu hỏi đang chọn này"
                         >
                           <Sparkles className="w-3.5 h-3.5" />
@@ -1993,9 +2000,9 @@ export default function Home() {
                         </button>
                         <button
                           onClick={() => setIsBulkDeleteOpen(true)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors cursor-pointer shrink-0"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-rose-700 dark:text-rose-300 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-lg transition-colors cursor-pointer shrink-0"
                         >
-                          <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                          <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                           <span>Xóa</span>
                         </button>
                       </div>
@@ -2015,11 +2022,11 @@ export default function Home() {
                     return (
                       <div
                         key={item.id}
-                        className={`bg-white rounded-xl border p-3.5 sm:p-4 shadow-xs transition-all w-full ${
-                          isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-50/20" : "border-slate-200"
+                        className={`bg-white dark:bg-slate-900 rounded-xl border p-3.5 sm:p-4 shadow-xs transition-all w-full ${
+                          isSelected ? "border-indigo-500 dark:border-indigo-600 ring-2 ring-indigo-500/20 dark:ring-indigo-500/30 bg-indigo-50/20 dark:bg-indigo-950/20" : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
                         }`}
                       >
-                        <div className="flex items-start justify-between gap-2 pb-2 border-b border-slate-100 flex-wrap sm:flex-nowrap">
+                        <div className="flex items-start justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800 flex-wrap sm:flex-nowrap">
                           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
                             <input
                               type="checkbox"
@@ -2033,7 +2040,7 @@ export default function Home() {
                               }}
                               className="w-4 h-4 rounded text-indigo-600 shrink-0"
                             />
-                            <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded shrink-0">
+                            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
                               Câu {index + 1}
                             </span>
                             <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${subjectStyle.bg}`}>
@@ -2054,21 +2061,21 @@ export default function Home() {
                           <div className="flex items-center gap-1 shrink-0 ml-auto sm:ml-0">
                             <button
                               onClick={() => setDetailItem(item)}
-                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                               title="Xem chi tiết"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleOpenEdit(item)}
-                              className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                               title="Chỉnh sửa"
                             >
                               <Pencil className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => setItemToDelete(item)}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                               title="Xóa câu hỏi"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -2077,16 +2084,16 @@ export default function Home() {
                         </div>
 
                         <div className="pt-2.5 space-y-1.5">
-                          <p className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug break-words">
+                          <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug break-words">
                             {item.question.question}
                           </p>
                           {item.question.content && (
-                            <pre className="font-sans text-xs text-slate-600 whitespace-pre-wrap pl-3 border-l-2 border-slate-200 break-words">
+                            <pre className="font-sans text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap pl-3 border-l-2 border-slate-200 dark:border-slate-700 break-words">
                               {item.question.content}
                             </pre>
                           )}
-                          <div className="flex items-center justify-between text-[11px] pt-1 text-slate-500 flex-wrap gap-1">
-                            <span className="font-bold text-emerald-700">
+                          <div className="flex items-center justify-between text-[11px] pt-1 text-slate-500 dark:text-slate-400 flex-wrap gap-1">
+                            <span className="font-bold text-emerald-700 dark:text-emerald-400">
                               Đáp án: {item.question.answer || "Chưa có"}
                             </span>
                             <span>{item.author.name} • {item.author.update_at}</span>
@@ -2103,7 +2110,7 @@ export default function Home() {
       </main>
 
       {/* Footer (no-print) */}
-      <ModernFooter />
+      <Footer />
 
       {/* CRUD MODALS */}
       <QuestionModal

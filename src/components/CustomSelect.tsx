@@ -98,20 +98,20 @@ export default function CustomSelect<T extends string | number>({
           isSmall ? "px-2 py-1 text-[11px]" : "px-3 py-1.5 text-xs"
         } ${
           disabled
-            ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none"
+            ? "bg-slate-100 dark:bg-slate-800/50 text-slate-400 dark:text-slate-600 border border-slate-200 dark:border-slate-800 cursor-not-allowed shadow-none"
             : isOpen
-            ? "bg-white text-indigo-900 border-indigo-500 ring-2 ring-indigo-500/20 shadow-[0_2px_8px_rgba(79,70,229,0.12),inset_0_1px_1px_rgba(255,255,255,1)]"
-            : "bg-gradient-to-b from-white via-white to-slate-50/90 text-slate-700 border border-slate-300/80 hover:border-indigo-400 hover:text-slate-900 shadow-[0_2px_4px_rgba(15,23,42,0.05),inset_0_1px_1px_rgba(255,255,255,1),inset_0_-1px_0_rgba(15,23,42,0.06)] active:translate-y-0.5"
+            ? "bg-white dark:bg-slate-800 text-indigo-900 dark:text-indigo-300 border-indigo-500 ring-2 ring-indigo-500/20 shadow-[0_2px_8px_rgba(79,70,229,0.12)]"
+            : "bg-gradient-to-b from-white dark:from-slate-800 via-white dark:via-slate-800 to-slate-50/90 dark:to-slate-850 text-slate-700 dark:text-slate-200 border border-slate-300/80 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 hover:text-slate-900 dark:hover:text-white shadow-[0_2px_4px_rgba(15,23,42,0.05)] active:translate-y-0.5"
         }`}
       >
         {/* Left: Optional icon & selected label */}
         <div className="flex items-center gap-2 min-w-0 flex-1 pr-1">
-          {icon && <span className="text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0">{icon}</span>}
-          <span className="truncate text-xs font-medium text-slate-800">
+          {icon && <span className="text-slate-400 dark:text-slate-500 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors shrink-0">{icon}</span>}
+          <span className="truncate text-xs font-medium text-slate-800 dark:text-slate-100">
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           {selectedOption?.badge && (
-            <span className="ml-1.5 px-1.5 py-0.2 text-[10px] bg-indigo-50 text-indigo-700 rounded font-black border border-indigo-100 shrink-0">
+            <span className="ml-1.5 px-1.5 py-0.2 text-[10px] bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 rounded font-black border border-indigo-100 dark:border-indigo-800 shrink-0">
               {selectedOption.badge}
             </span>
           )}
@@ -123,8 +123,8 @@ export default function CustomSelect<T extends string | number>({
             isSmall ? "w-4 h-4 ml-1" : "w-5 h-5 ml-2"
           } ${
             isOpen
-              ? "bg-indigo-50 text-indigo-600"
-              : "bg-slate-100/90 text-slate-400 group-hover:text-indigo-600 group-hover:bg-indigo-50/60"
+              ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400"
+              : "bg-slate-100/90 dark:bg-slate-700/80 text-slate-400 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:bg-indigo-50/60 dark:group-hover:bg-slate-700"
           }`}
         >
           <ChevronDown
@@ -138,7 +138,7 @@ export default function CustomSelect<T extends string | number>({
       {/* 3D Floating Popover Menu */}
       {isOpen && (
         <div
-          className={`absolute left-0 right-0 z-50 min-w-[160px] p-1.5 bg-white/98 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-[0_12px_32px_rgba(15,23,42,0.15),0_4px_12px_rgba(15,23,42,0.08),inset_0_1px_0_rgba(255,255,255,1)] animate-in fade-in zoom-in-95 duration-150 ${
+          className={`absolute left-0 right-0 z-50 min-w-[160px] p-1.5 bg-white/98 dark:bg-slate-900/98 backdrop-blur-md rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-[0_12px_32px_rgba(15,23,42,0.15)] dark:shadow-black/60 animate-in fade-in zoom-in-95 duration-150 ${
             openUpward ? "bottom-full mb-1.5" : "top-full mt-1.5"
           }`}
         >
@@ -153,14 +153,14 @@ export default function CustomSelect<T extends string | number>({
                   onClick={() => handleSelect(option.value)}
                   className={`w-full flex items-center justify-between px-2.5 py-2 text-left rounded-xl transition-all select-none cursor-pointer text-xs ${
                     isSelected
-                      ? "bg-gradient-to-r from-indigo-50 via-indigo-50/80 to-white text-indigo-700 font-bold border border-indigo-100 shadow-[0_1px_2px_rgba(79,70,229,0.08)]"
-                      : "text-slate-700 hover:bg-slate-100/80 hover:text-slate-900 font-semibold"
+                      ? "bg-gradient-to-r from-indigo-50 dark:from-indigo-950/80 via-indigo-50/80 dark:via-indigo-900/60 to-white dark:to-slate-900 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-100 dark:border-indigo-800/80 shadow-[0_1px_2px_rgba(79,70,229,0.08)]"
+                      : "text-slate-700 dark:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-semibold"
                   }`}
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1 pr-2">
                     <span className="truncate">{option.label}</span>
                     {option.subLabel && (
-                      <span className="text-[10px] text-slate-400 font-normal truncate">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal truncate">
                         {option.subLabel}
                       </span>
                     )}

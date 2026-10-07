@@ -1,20 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { APP_ROUTES } from "@/route";
 import {
-  KeyRound,
+  Lock,
   Eye,
   EyeOff,
-  ArrowLeft,
   Check,
-  AlertCircle,
+  ArrowLeft,
+  KeyRound,
   ShieldCheck,
-  Lock,
+  AlertCircle,
   CheckCircle2,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
@@ -31,7 +32,6 @@ export default function ChangePasswordPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Strength rules
   const isMinLength = newPassword.length >= 6;
   const hasNumber = /\d/.test(newPassword);
   const hasLetters = /[a-zA-Z]/.test(newPassword);
@@ -42,7 +42,7 @@ export default function ChangePasswordPage() {
     setErrorMessage("");
     setSuccessMessage("");
 
-    if (!currentPassword) {
+    if (!currentPassword.trim()) {
       setErrorMessage("Vui lòng nhập mật khẩu hiện tại!");
       return;
     }
@@ -53,12 +53,12 @@ export default function ChangePasswordPage() {
     }
 
     if (newPassword !== confirmPassword) {
-      setErrorMessage("Xác nhận mật khẩu mới không trùng khớp!");
+      setErrorMessage("Mật khẩu xác nhận không khớp!");
       return;
     }
 
-    if (currentPassword === newPassword) {
-      setErrorMessage("Mật khẩu mới phải khác với mật khẩu hiện tại!");
+    if (newPassword === currentPassword) {
+      setErrorMessage("Mật khẩu mới không được trùng với mật khẩu hiện tại!");
       return;
     }
 
@@ -77,25 +77,28 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-amber-50/20 to-slate-100 flex flex-col font-sans py-6 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-amber-50/20 to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex flex-col font-sans py-6 px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-slate-100 transition-colors">
       {/* Top Navbar */}
       <div className="max-w-xl w-full mx-auto mb-6 flex items-center justify-between">
         <Link
           href={APP_ROUTES.HOME}
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:text-amber-700 bg-white hover:bg-amber-50/60 border border-slate-200/90 rounded-2xl shadow-xs transition-all cursor-pointer group"
+          className="inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 hover:text-amber-700 dark:hover:text-amber-400 bg-white dark:bg-slate-800 hover:bg-amber-50/60 dark:hover:bg-slate-700/60 border border-slate-200/90 dark:border-slate-700 rounded-2xl shadow-xs transition-all cursor-pointer group"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
           <span>Quay lại trang trộn đề</span>
         </Link>
 
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-          <KeyRound className="w-3.5 h-3.5" />
-          <span>Bảo Mật Tài Khoản</span>
-        </span>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+            <KeyRound className="w-3.5 h-3.5" />
+            <span>Bảo Mật Tài Khoản</span>
+          </span>
+        </div>
       </div>
 
       {/* Main Container Card */}
-      <div className="max-w-xl w-full mx-auto bg-white rounded-3xl shadow-xl border border-slate-200/90 overflow-hidden">
+      <div className="max-w-xl w-full mx-auto bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden">
         {/* Banner Header */}
         <div className="p-6 sm:p-8 bg-gradient-to-r from-amber-500 via-amber-600 to-rose-600 text-white relative overflow-hidden">
           <div className="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
@@ -112,22 +115,22 @@ export default function ChangePasswordPage() {
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5">
           {errorMessage && (
-            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-2.5 text-rose-700 text-xs sm:text-sm font-semibold animate-in fade-in">
+            <div className="p-3.5 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-2xl flex items-center gap-2.5 text-rose-700 dark:text-rose-300 text-xs sm:text-sm font-semibold animate-in fade-in">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {successMessage && (
-            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-2.5 text-emerald-800 text-xs sm:text-sm font-semibold animate-in fade-in">
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+            <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center gap-2.5 text-emerald-800 dark:text-emerald-300 text-xs sm:text-sm font-semibold animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
               <span>{successMessage}</span>
             </div>
           )}
 
           {/* Current Password */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Mật khẩu hiện tại <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -138,12 +141,12 @@ export default function ChangePasswordPage() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Nhập mật khẩu đang sử dụng..."
-                className="w-full pl-10 pr-11 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+                className="w-full pl-10 pr-11 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
               />
               <button
                 type="button"
                 onClick={() => setShowCurrent(!showCurrent)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
               >
                 {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -152,7 +155,7 @@ export default function ChangePasswordPage() {
 
           {/* New Password */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Mật khẩu mới <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -163,12 +166,12 @@ export default function ChangePasswordPage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Tối thiểu 6 ký tự..."
-                className="w-full pl-10 pr-11 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+                className="w-full pl-10 pr-11 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
               />
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
               >
                 {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -176,29 +179,29 @@ export default function ChangePasswordPage() {
 
             {/* Password strength tips */}
             {newPassword.length > 0 && (
-              <div className="mt-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
+              <div className="mt-2.5 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-xs space-y-1.5">
                 <div className="flex items-center gap-2">
                   <div
                     className={`w-2 h-2 rounded-full ${
-                      isMinLength ? "bg-emerald-500" : "bg-slate-300"
+                      isMinLength ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
                     }`}
                   />
-                  <span className={isMinLength ? "text-emerald-700 font-semibold" : "text-slate-500"}>
+                  <span className={isMinLength ? "text-emerald-700 dark:text-emerald-400 font-semibold" : "text-slate-500 dark:text-slate-400"}>
                     Tối thiểu 6 ký tự ({newPassword.length}/6)
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div
                     className={`w-2 h-2 rounded-full ${
-                      hasNumber && hasLetters ? "bg-emerald-500" : "bg-slate-300"
+                      hasNumber && hasLetters ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-600"
                     }`}
                   />
-                  <span className={hasNumber && hasLetters ? "text-emerald-700 font-semibold" : "text-slate-500"}>
+                  <span className={hasNumber && hasLetters ? "text-emerald-700 dark:text-emerald-400 font-semibold" : "text-slate-500 dark:text-slate-400"}>
                     Kết hợp cả chữ cái và số
                   </span>
                 </div>
                 {isStrong && (
-                  <div className="pt-1.5 border-t border-slate-200/80 flex items-center gap-1.5 text-emerald-600 font-bold">
+                  <div className="pt-1.5 border-t border-slate-200/80 dark:border-slate-700 flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
                     <ShieldCheck className="w-4 h-4" />
                     <span>Mật khẩu đạt độ an toàn cao</span>
                   </div>
@@ -209,7 +212,7 @@ export default function ChangePasswordPage() {
 
           {/* Confirm New Password */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
               Xác nhận mật khẩu mới <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -220,29 +223,29 @@ export default function ChangePasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Nhập lại mật khẩu mới..."
-                className="w-full pl-10 pr-11 py-2.5 text-xs sm:text-sm bg-white border border-slate-300 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
+                className="w-full pl-10 pr-11 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-2xs"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
               >
                 {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
             {confirmPassword.length > 0 && newPassword !== confirmPassword && (
-              <p className="mt-1.5 text-xs text-rose-500 font-semibold">
+              <p className="mt-1.5 text-xs text-rose-500 dark:text-rose-400 font-semibold">
                 Mật khẩu xác nhận chưa khớp với mật khẩu mới
               </p>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 border-t border-slate-200 flex items-center justify-end">
+          <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 rounded-xl shadow-lg shadow-amber-200 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 rounded-xl shadow-lg shadow-amber-200 dark:shadow-none active:scale-95 transition-all cursor-pointer disabled:opacity-50"
             >
               <Check className="w-4 h-4" />
               <span>{isLoading ? "Đang xử lý..." : "Cập nhật mật khẩu"}</span>

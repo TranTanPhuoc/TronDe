@@ -242,11 +242,11 @@ export default function ImportQuestionSection({
   // ==========================================
   if (stagingCandidates.length === 0) {
     return (
-      <div className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1">
+      <div className="p-4 sm:p-6 space-y-6 overflow-y-auto flex-1 bg-white dark:bg-slate-900 transition-colors">
         {/* Error Notification */}
         {errorMessage && (
-          <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-rose-700 text-xs sm:text-sm font-medium animate-in fade-in duration-200">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-rose-600" />
+          <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl flex items-start gap-2.5 text-rose-700 dark:text-rose-300 text-xs sm:text-sm font-medium animate-in fade-in duration-200">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
             <div className="flex-1">
               <span className="font-bold">Lỗi xử lý file:</span> {errorMessage}
             </div>
@@ -254,14 +254,14 @@ export default function ImportQuestionSection({
         )}
 
         {/* 1. Download Sample Templates Card */}
-        <div className="p-4 sm:p-5 bg-gradient-to-br from-indigo-50/70 via-indigo-50/40 to-slate-50 border border-indigo-100 rounded-2xl">
+        <div className="p-4 sm:p-5 bg-gradient-to-br from-indigo-50/70 via-indigo-50/40 to-slate-50 dark:from-slate-800/80 dark:via-indigo-950/20 dark:to-slate-850 border border-indigo-100 dark:border-slate-800 rounded-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Download className="w-4 h-4 text-indigo-600" />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <Download className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 Tải file mẫu để nhập câu hỏi chính xác
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Vui lòng tải file mẫu bên dưới để xem đúng cấu trúc và cú pháp trước khi nhập liệu:
               </p>
             </div>
@@ -272,16 +272,16 @@ export default function ImportQuestionSection({
             <button
               type="button"
               onClick={downloadSampleExcelTemplate}
-              className="flex items-center gap-3 p-3 bg-white hover:bg-emerald-50/70 border border-slate-200 hover:border-emerald-300 rounded-xl shadow-2xs transition-all text-left cursor-pointer group"
+              className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800/90 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/30 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-700 rounded-xl shadow-2xs transition-all text-left cursor-pointer group"
             >
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <FileSpreadsheet className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-bold text-slate-800 group-hover:text-emerald-800 truncate">
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-800 dark:group-hover:text-emerald-300 truncate">
                   File mẫu Excel (.xlsx)
                 </p>
-                <p className="text-[11px] text-slate-500 truncate">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                   Định dạng bảng cột STT, câu hỏi, đáp án
                 </p>
               </div>
@@ -291,16 +291,16 @@ export default function ImportQuestionSection({
             <button
               type="button"
               onClick={downloadSampleWordTemplate}
-              className="flex items-center gap-3 p-3 bg-white hover:bg-blue-50/70 border border-slate-200 hover:border-blue-300 rounded-xl shadow-2xs transition-all text-left cursor-pointer group"
+              className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800/90 hover:bg-blue-50/70 dark:hover:bg-blue-950/30 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 rounded-xl shadow-2xs transition-all text-left cursor-pointer group"
             >
-              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <FileText className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-bold text-slate-800 group-hover:text-blue-800 truncate">
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-800 dark:group-hover:text-blue-300 truncate">
                   File mẫu Word (.docx)
                 </p>
-                <p className="text-[11px] text-slate-500 truncate">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                   Mẫu đề thi chuẩn Câu 1:, A. B. C. D.
                 </p>
               </div>
@@ -309,19 +309,19 @@ export default function ImportQuestionSection({
         </div>
 
         {/* 2. Default Subject & Grade Settings */}
-        <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+        <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl space-y-3">
           <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-slate-400" />
-            <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+            <Info className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               Môn học & Khối lớp mặc định khi nhập
             </h4>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Nếu câu hỏi trong file không ghi rõ môn hoặc khối, hệ thống sẽ tự động gán theo thông tin dưới đây:
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div>
-              <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+              <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
                 Môn học mặc định
               </label>
               <CustomSelect
@@ -331,7 +331,7 @@ export default function ImportQuestionSection({
               />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+              <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
                 Khối lớp mặc định
               </label>
               <CustomSelect
@@ -361,23 +361,23 @@ export default function ImportQuestionSection({
               const droppedFile = e.dataTransfer.files?.[0];
               if (droppedFile) await processFile(droppedFile);
             }}
-            className="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/20 hover:bg-indigo-50/40 rounded-2xl p-8 sm:p-10 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 group"
+            className="border-2 border-dashed border-indigo-200 dark:border-indigo-900/60 hover:border-indigo-400 dark:hover:border-indigo-500 bg-indigo-50/20 dark:bg-indigo-950/20 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/40 rounded-2xl p-8 sm:p-10 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 group"
           >
-            <div className="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+            <div className="w-16 h-16 rounded-2xl bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
               {isProcessing ? (
-                <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-3 border-indigo-600 dark:border-indigo-400 border-t-transparent rounded-full animate-spin" />
               ) : (
                 <UploadCloud className="w-8 h-8" />
               )}
             </div>
 
             <div>
-              <p className="text-sm sm:text-base font-bold text-slate-800">
+              <p className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200">
                 {isProcessing
                   ? "Đang phân tích dữ liệu câu hỏi trong file..."
                   : "Kéo thả file vào đây hoặc bấm để chọn file"}
               </p>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Hỗ trợ định dạng Microsoft Excel (<strong>.xlsx, .xls</strong>) và Microsoft Word (<strong>.docx</strong>)
               </p>
             </div>
@@ -385,7 +385,7 @@ export default function ImportQuestionSection({
             <button
               type="button"
               disabled={isProcessing}
-              className="inline-flex items-center gap-1.5 px-4 py-2 mt-2 text-xs font-bold text-indigo-700 bg-white border border-indigo-200 rounded-xl shadow-2xs group-hover:bg-indigo-600 group-hover:text-white transition-all pointer-events-none"
+              className="inline-flex items-center gap-1.5 px-4 py-2 mt-2 text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800 rounded-xl shadow-2xs group-hover:bg-indigo-600 dark:group-hover:bg-indigo-500 group-hover:text-white transition-all pointer-events-none"
             >
               <FileUp className="w-4 h-4" />
               <span>Duyệt file từ máy tính</span>
@@ -403,18 +403,18 @@ export default function ImportQuestionSection({
   const allSelected = selectedTempIds.size === stagingCandidates.length;
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden min-h-0">
+    <div className="flex flex-col flex-1 overflow-hidden min-h-0 bg-white dark:bg-slate-900 transition-colors">
       {/* Verification Header Notification Bar */}
-      <div className="p-3.5 sm:p-4 bg-indigo-50/80 border-b border-indigo-100 shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-3.5 sm:p-4 bg-indigo-50/80 dark:bg-indigo-950/40 border-b border-indigo-100 dark:border-slate-800 shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
             <CheckSquare className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm font-bold text-indigo-950 flex items-center gap-2">
+            <h3 className="text-xs sm:text-sm font-bold text-indigo-950 dark:text-indigo-100 flex items-center gap-2">
               Kiểm tra dữ liệu câu hỏi ({stagingCandidates.length} câu đã tìm thấy)
             </h3>
-            <p className="text-[11px] text-indigo-700 mt-0.5">
+            <p className="text-[11px] text-indigo-700 dark:text-indigo-300 mt-0.5">
               Từ file: <span className="font-semibold">{loadedFileName}</span>. Tích chọn các câu hỏi chính xác để thêm vào Ngân hàng.
             </p>
           </div>
@@ -424,7 +424,7 @@ export default function ImportQuestionSection({
           <button
             type="button"
             onClick={handleResetStaging}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg border border-slate-200 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Chọn file khác</span>
@@ -433,27 +433,27 @@ export default function ImportQuestionSection({
       </div>
 
       {/* Bulk Selection Bar */}
-      <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-2 shrink-0 text-xs">
+      <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-850 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 shrink-0 text-xs">
         <button
           type="button"
           onClick={toggleSelectAll}
-          className="inline-flex items-center gap-2 font-bold text-slate-700 hover:text-indigo-600 transition-colors cursor-pointer select-none"
+          className="inline-flex items-center gap-2 font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer select-none"
         >
           {allSelected ? (
-            <CheckSquare className="w-4 h-4 text-indigo-600" />
+            <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           ) : (
-            <Square className="w-4 h-4 text-slate-400" />
+            <Square className="w-4 h-4 text-slate-400 dark:text-slate-500" />
           )}
           <span>{allSelected ? "Bỏ chọn tất cả" : `Chọn tất cả (${stagingCandidates.length} câu)`}</span>
         </button>
 
-        <span className="text-xs font-semibold text-indigo-700 bg-indigo-100/60 px-2.5 py-1 rounded-full">
+        <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-100/60 dark:bg-indigo-950/80 px-2.5 py-1 rounded-full border border-indigo-200/50 dark:border-indigo-800">
           Đã chọn: {selectedTempIds.size} / {stagingCandidates.length} câu
         </span>
       </div>
 
       {/* Staging Question Items Scrollable List */}
-      <div className="p-3 sm:p-4 space-y-3 overflow-y-auto flex-1 bg-slate-50/50">
+      <div className="p-3 sm:p-4 space-y-3 overflow-y-auto flex-1 bg-slate-50/50 dark:bg-slate-950/50">
         {stagingCandidates.map((cand, idx) => {
           const isSelected = selectedTempIds.has(cand.tempId);
           const isEditing = editingTempId === cand.tempId;
@@ -467,8 +467,8 @@ export default function ImportQuestionSection({
               key={cand.tempId}
               className={`rounded-xl border transition-all overflow-hidden ${
                 isSelected
-                  ? "bg-white border-indigo-300 shadow-sm ring-1 ring-indigo-500/20"
-                  : "bg-white/70 border-slate-200 hover:border-slate-300"
+                  ? "bg-white dark:bg-slate-900 border-indigo-300 dark:border-indigo-700 shadow-sm ring-1 ring-indigo-500/20 dark:ring-indigo-500/30"
+                  : "bg-white/70 dark:bg-slate-900/70 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
               }`}
             >
               {/* Question Header & Checkbox */}
@@ -477,20 +477,20 @@ export default function ImportQuestionSection({
                 <button
                   type="button"
                   onClick={() => toggleSelect(cand.tempId)}
-                  className="mt-0.5 p-0.5 text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer shrink-0"
+                  className="mt-0.5 p-0.5 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors cursor-pointer shrink-0"
                   title={isSelected ? "Bỏ chọn câu này" : "Chọn câu này để nhập"}
                 >
                   {isSelected ? (
-                    <CheckSquare className="w-5 h-5 text-indigo-600 fill-indigo-50" />
+                    <CheckSquare className="w-5 h-5 text-indigo-600 dark:text-indigo-400 fill-indigo-50 dark:fill-indigo-950" />
                   ) : (
-                    <Square className="w-5 h-5 text-slate-400 hover:text-slate-600" />
+                    <Square className="w-5 h-5 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" />
                   )}
                 </button>
 
                 {/* Question Info & Badges */}
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-                    <span className="px-2 py-0.5 bg-slate-800 text-white text-[11px] font-black rounded-md">
+                    <span className="px-2 py-0.5 bg-slate-800 dark:bg-slate-700 text-white text-[11px] font-black rounded-md">
                       #{idx + 1}
                     </span>
 
@@ -498,24 +498,24 @@ export default function ImportQuestionSection({
                     <span
                       className={`px-2 py-0.5 text-[10px] font-bold rounded-md ${
                         cand.levelShort === "NB"
-                          ? "bg-emerald-100 text-emerald-800"
+                          ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300"
                           : cand.levelShort === "TH"
-                          ? "bg-blue-100 text-blue-800"
+                          ? "bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300"
                           : cand.levelShort === "VD"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-purple-100 text-purple-800"
+                          ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300"
+                          : "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300"
                       }`}
                     >
                       {cand.levelShort}
                     </span>
 
                     {/* Type Badge */}
-                    <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-100 text-slate-700 rounded-md">
+                    <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md">
                       {cand.typeShort}
                     </span>
 
                     {/* Subject & Grade */}
-                    <span className="px-2 py-0.5 text-[10px] font-semibold bg-indigo-50 text-indigo-700 rounded-md">
+                    <span className="px-2 py-0.5 text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 rounded-md">
                       {subjectObj?.name || cand.subjectId} - {gradeObj?.name || `K${cand.gradeId}`}
                     </span>
 
@@ -523,7 +523,7 @@ export default function ImportQuestionSection({
                     {cand.warnings.map((w, wIdx) => (
                       <span
                         key={wIdx}
-                        className="px-2 py-0.5 text-[10px] font-semibold bg-rose-50 text-rose-700 rounded-md border border-rose-200"
+                        className="px-2 py-0.5 text-[10px] font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 rounded-md border border-rose-200 dark:border-rose-800"
                       >
                         ⚠️ {w}
                       </span>
@@ -532,9 +532,9 @@ export default function ImportQuestionSection({
 
                   {/* Inline Edit Mode */}
                   {isEditing ? (
-                    <div className="space-y-2.5 mt-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <div className="space-y-2.5 mt-2 bg-slate-50 dark:bg-slate-800/80 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
                           Lệnh hỏi / Tiêu đề:
                         </label>
                         <textarea
@@ -543,12 +543,12 @@ export default function ImportQuestionSection({
                           onChange={(e) =>
                             setEditForm((prev) => ({ ...prev, question: e.target.value }))
                           }
-                          className="w-full p-2 text-xs bg-white border border-slate-300 rounded-md"
+                          className="w-full p-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-slate-100"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
                           Các phương án (A. ... B. ...):
                         </label>
                         <textarea
@@ -557,13 +557,13 @@ export default function ImportQuestionSection({
                           onChange={(e) =>
                             setEditForm((prev) => ({ ...prev, content: e.target.value }))
                           }
-                          className="w-full p-2 text-xs bg-white border border-slate-300 rounded-md"
+                          className="w-full p-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-slate-100"
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                          <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
                             Đáp án:
                           </label>
                           <input
@@ -572,11 +572,11 @@ export default function ImportQuestionSection({
                             onChange={(e) =>
                               setEditForm((prev) => ({ ...prev, answer: e.target.value }))
                             }
-                            className="w-full p-1.5 text-xs bg-white border border-slate-300 rounded-md font-bold text-indigo-700"
+                            className="w-full p-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md font-bold text-indigo-700 dark:text-indigo-400"
                           />
                         </div>
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                          <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
                             Mức độ:
                           </label>
                           <CustomSelect
@@ -602,7 +602,7 @@ export default function ImportQuestionSection({
                         <button
                           type="button"
                           onClick={() => setEditingTempId(null)}
-                          className="px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-200 rounded cursor-pointer"
+                          className="px-2.5 py-1 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 rounded cursor-pointer"
                         >
                           Hủy
                         </button>
@@ -618,13 +618,13 @@ export default function ImportQuestionSection({
                   ) : (
                     /* Display Mode */
                     <div className="space-y-1.5 mt-1">
-                      <p className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                      <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug">
                         {cand.question}
                       </p>
 
                       {/* Options / Content */}
                       {cand.content && (
-                        <div className="text-xs text-slate-700 bg-slate-50/80 p-2.5 rounded-lg border border-slate-100 whitespace-pre-line font-mono text-[11px] sm:text-xs">
+                        <div className="text-xs text-slate-700 dark:text-slate-300 bg-slate-50/80 dark:bg-slate-800/80 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700 whitespace-pre-line font-mono text-[11px] sm:text-xs">
                           {cand.content}
                         </div>
                       )}
@@ -632,12 +632,12 @@ export default function ImportQuestionSection({
                       {/* Answer & Solution Bar */}
                       <div className="flex flex-wrap items-center gap-2 pt-1">
                         {cand.answer ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-md">
-                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-md">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                             Đáp án: {cand.answer}
                           </span>
                         ) : (
-                          <span className="text-xs font-semibold text-rose-600">
+                          <span className="text-xs font-semibold text-rose-600 dark:text-rose-400">
                             Chưa có đáp án
                           </span>
                         )}
@@ -646,7 +646,7 @@ export default function ImportQuestionSection({
                           <button
                             type="button"
                             onClick={() => toggleSolution(cand.tempId)}
-                            className="inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-indigo-600 font-medium cursor-pointer"
+                            className="inline-flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium cursor-pointer"
                           >
                             <span>Lời giải</span>
                             {isExpandedSol ? (
@@ -660,11 +660,11 @@ export default function ImportQuestionSection({
 
                       {/* Expanded Solution Guide */}
                       {isExpandedSol && cand.solution_guide && (
-                        <div className="mt-1.5 p-2.5 bg-amber-50/60 border border-amber-200/60 rounded-lg text-xs text-slate-700">
-                          <p className="font-bold text-[11px] text-amber-900 uppercase mb-0.5">
+                        <div className="mt-1.5 p-2.5 bg-amber-50/60 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-800/60 rounded-lg text-xs text-slate-700 dark:text-slate-300">
+                          <p className="font-bold text-[11px] text-amber-900 dark:text-amber-300 uppercase mb-0.5">
                             Hướng dẫn giải:
                           </p>
-                          <p className="whitespace-pre-line text-[11px] text-slate-800">
+                          <p className="whitespace-pre-line text-[11px] text-slate-800 dark:text-slate-200">
                             {cand.solution_guide}
                           </p>
                         </div>
@@ -679,7 +679,7 @@ export default function ImportQuestionSection({
                     <button
                       type="button"
                       onClick={() => handleStartEdit(cand)}
-                      className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                      className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                       title="Chỉnh sửa câu hỏi này"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
@@ -687,7 +687,7 @@ export default function ImportQuestionSection({
                     <button
                       type="button"
                       onClick={() => handleDeleteStagingItem(cand.tempId)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                       title="Xóa khỏi danh sách kiểm tra"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -701,17 +701,17 @@ export default function ImportQuestionSection({
       </div>
 
       {/* Verification Footer Confirmation Bar */}
-      <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-200 flex items-center justify-between gap-3 bg-slate-50 shrink-0">
-        <div className="text-xs text-slate-600">
-          Đang chọn: <span className="font-bold text-indigo-700">{selectedTempIds.size}</span> /{" "}
-          <span className="font-semibold">{stagingCandidates.length}</span> câu hỏi
+      <div className="px-4 sm:px-6 py-3 sm:py-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900 shrink-0">
+        <div className="text-xs text-slate-600 dark:text-slate-400">
+          Đang chọn: <span className="font-bold text-indigo-700 dark:text-indigo-400">{selectedTempIds.size}</span> /{" "}
+          <span className="font-semibold text-slate-900 dark:text-slate-200">{stagingCandidates.length}</span> câu hỏi
         </div>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onCloseModal}
-            className="px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+            className="px-3.5 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           >
             Hủy bỏ
           </button>
@@ -721,8 +721,8 @@ export default function ImportQuestionSection({
             onClick={handleConfirmSelected}
             className={`inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white rounded-lg transition-all cursor-pointer shadow-sm ${
               selectedTempIds.size > 0
-                ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200 active:scale-98"
-                : "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none"
+                ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200 dark:shadow-indigo-950 active:scale-98"
+                : "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-600 cursor-not-allowed shadow-none"
             }`}
           >
             <CheckCircle2 className="w-4 h-4" />

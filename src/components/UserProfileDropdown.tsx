@@ -11,8 +11,11 @@ import {
   ChevronDown,
   UserCheck,
   Building2,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { ProfileUserData } from "./ProfileModal";
+import { useTheme } from "@/context/ThemeContext";
 
 interface UserProfileDropdownProps {
   currentUser?: ProfileUserData | null;
@@ -37,6 +40,8 @@ export default function UserProfileDropdown({
 }: UserProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme, toggleTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const user: ProfileUserData = currentUser || {
     id: "demo-teacher-01",
@@ -111,9 +116,9 @@ export default function UserProfileDropdown({
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 top-full mt-2 w-72 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-[0_12px_36px_rgba(15,23,42,0.15),0_4px_12px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+          <div className="absolute right-0 top-full mt-2 w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
             {/* Header info */}
-            <div className="p-3 bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 rounded-xl border border-indigo-100/80 mb-1.5 text-left">
+            <div className="p-3 bg-gradient-to-br from-indigo-50/80 dark:from-slate-800 via-white dark:via-slate-850 to-slate-50 dark:to-slate-800 rounded-xl border border-indigo-100/80 dark:border-slate-700 mb-1.5 text-left">
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs shrink-0 overflow-hidden">
                   {user.avatarImage ? (
@@ -128,19 +133,19 @@ export default function UserProfileDropdown({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-black text-slate-900 truncate">
+                  <p className="text-xs font-black text-slate-900 dark:text-white truncate">
                     {user.name}
                   </p>
-                  <p className="text-[10px] text-slate-500 truncate">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
                     {user.email}
                   </p>
                 </div>
               </div>
-              <div className="text-[10px] text-slate-600 font-medium border-t border-slate-100 pt-1.5 flex items-center gap-1 truncate">
+              <div className="text-[10px] text-slate-600 dark:text-slate-400 font-medium border-t border-slate-100 dark:border-slate-700/60 pt-1.5 flex items-center gap-1 truncate">
                 <Building2 className="w-3 h-3 text-slate-400 shrink-0" />
                 <span className="truncate">{user.school || schoolName}</span>
-                <span className="text-slate-300">•</span>
-                <span className="text-indigo-600 font-bold truncate">
+                <span className="text-slate-300 dark:text-slate-600">•</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-bold truncate">
                   {departmentName}
                 </span>
               </div>
@@ -154,9 +159,9 @@ export default function UserProfileDropdown({
                   setIsOpen(false);
                   if (onOpenProfile) onOpenProfile();
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/80 rounded-xl transition-colors cursor-pointer text-left"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/80 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer text-left"
               >
-                <div className="w-7 h-7 rounded-lg bg-indigo-100/70 text-indigo-600 flex items-center justify-center shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-indigo-100/70 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
                   <User className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -171,9 +176,9 @@ export default function UserProfileDropdown({
                   setIsOpen(false);
                   if (onOpenChangePassword) onOpenChangePassword();
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-amber-600 hover:bg-amber-50/80 rounded-xl transition-colors cursor-pointer text-left"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50/80 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer text-left"
               >
-                <div className="w-7 h-7 rounded-lg bg-amber-100/70 text-amber-600 flex items-center justify-center shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-amber-100/70 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                   <KeyRound className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -188,9 +193,9 @@ export default function UserProfileDropdown({
                   setIsOpen(false);
                   if (onOpenFeedback) onOpenFeedback();
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-rose-600 hover:bg-rose-50/80 rounded-xl transition-colors cursor-pointer text-left"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/80 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer text-left"
               >
-                <div className="w-7 h-7 rounded-lg bg-rose-100/70 text-rose-600 flex items-center justify-center shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-rose-100/70 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
                   <MessageSquareHeart className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -198,18 +203,33 @@ export default function UserProfileDropdown({
                   <p className="text-[10px] text-slate-400">Góp ý & đánh giá phần mềm</p>
                 </div>
               </Link>
+
+              {/* Theme Toggle Quick Option */}
+              <button
+                type="button"
+                onClick={() => toggleTheme()}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer text-left"
+              >
+                <div className="w-7 h-7 rounded-lg bg-amber-100/70 dark:bg-slate-800 text-amber-500 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold">Chế độ {isDark ? "Tối" : "Sáng"}</p>
+                  <p className="text-[10px] text-slate-400">Bấm để đổi sang {isDark ? "Giao diện Sáng" : "Giao diện Tối"}</p>
+                </div>
+              </button>
             </div>
 
-            <div className="border-t border-slate-100 mt-1 pt-1">
+            <div className="border-t border-slate-100 dark:border-slate-800 mt-1 pt-1">
               <button
                 type="button"
                 onClick={() => {
                   setIsOpen(false);
                   onLogout();
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50/80 rounded-xl transition-colors cursor-pointer text-left"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50/80 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer text-left"
               >
-                <div className="w-7 h-7 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-500 flex items-center justify-center shrink-0">
                   <LogOut className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -229,7 +249,7 @@ export default function UserProfileDropdown({
       {/* 3D Glassmorphic Teacher Profile Card Trigger */}
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2.5 p-1.5 pr-2.5 bg-gradient-to-b from-white via-slate-50/90 to-indigo-50/30 border border-slate-200/90 rounded-2xl shadow-[0_4px_14px_rgba(15,23,42,0.05),0_1px_2px_rgba(0,0,0,0.03),inset_0_1px_1px_rgba(255,255,255,1)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.12),inset_0_1px_1px_rgba(255,255,255,1)] hover:border-indigo-300 transition-all duration-200 cursor-pointer select-none shrink-0 group active:scale-[0.99]"
+        className="flex items-center gap-2.5 p-1.5 pr-2.5 bg-gradient-to-b from-white dark:from-slate-900 via-slate-50/90 dark:via-slate-900/90 to-indigo-50/30 dark:to-indigo-950/30 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-[0_4px_14px_rgba(15,23,42,0.05),0_1px_2px_rgba(0,0,0,0.03),inset_0_1px_1px_rgba(255,255,255,1)] dark:shadow-none hover:shadow-[0_6px_20px_rgba(79,70,229,0.12)] hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-200 cursor-pointer select-none shrink-0 group active:scale-[0.99]"
       >
         {/* 3D Avatar Sphere */}
         <div className="relative shrink-0">
@@ -253,14 +273,14 @@ export default function UserProfileDropdown({
             )}
           </div>
           {/* 3D Online Active Indicator */}
-          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-full border-2 border-white shadow-[0_2px_4px_rgba(16,185,129,0.4)] ring-1 ring-emerald-500/30"></div>
+          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-full border-2 border-white dark:border-slate-900 shadow-[0_2px_4px_rgba(16,185,129,0.4)] ring-1 ring-emerald-500/30"></div>
         </div>
 
         {/* Name & School - Department Info */}
         <div className="text-left min-w-0 space-y-0.5">
           <div className="flex items-center gap-1.5">
             <span
-              className="text-xs sm:text-[13px] font-black text-slate-800 tracking-tight truncate max-w-[150px] sm:max-w-[200px]"
+              className="text-xs sm:text-[13px] font-black text-slate-800 dark:text-slate-100 tracking-tight truncate max-w-[150px] sm:max-w-[200px]"
               title={user.name}
             >
               {user.name}
@@ -272,16 +292,16 @@ export default function UserProfileDropdown({
           </div>
 
           {/* School & Department (Tổ chuyên môn) */}
-          <div className="text-[10px] sm:text-[11px] text-slate-500 flex items-center gap-1.5 font-medium leading-none">
+          <div className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium leading-none">
             <span
-              className="font-semibold text-slate-600 truncate max-w-[130px]"
+              className="font-semibold text-slate-600 dark:text-slate-300 truncate max-w-[130px]"
               title={user.school || schoolName}
             >
               {user.school || schoolName}
             </span>
-            <span className="text-slate-300">•</span>
+            <span className="text-slate-300 dark:text-slate-600">•</span>
             <span
-              className="font-bold text-indigo-700 bg-indigo-50/90 px-1.5 py-0.5 rounded-md border border-indigo-200/80 truncate max-w-[140px] shadow-2xs"
+              className="font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/90 dark:bg-indigo-950/60 px-1.5 py-0.5 rounded-md border border-indigo-200/80 dark:border-indigo-800 truncate max-w-[140px] shadow-2xs"
               title={departmentName}
             >
               {departmentName}
@@ -290,7 +310,7 @@ export default function UserProfileDropdown({
         </div>
 
         {/* Dropdown Chevron Indicator */}
-        <div className="ml-1 pl-1 border-l border-slate-200/80 flex items-center text-slate-400 group-hover:text-indigo-600 transition-colors">
+        <div className="ml-1 pl-1 border-l border-slate-200/80 dark:border-slate-800 flex items-center text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
           <ChevronDown
             className={`w-4 h-4 transition-transform duration-200 ${
               isOpen ? "rotate-180" : ""
@@ -301,9 +321,9 @@ export default function UserProfileDropdown({
 
       {/* Floating Menu Popover */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-[0_16px_40px_rgba(15,23,42,0.16),0_4px_12px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] p-2.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-2xl p-2.5 z-50 animate-in fade-in zoom-in-95 duration-150">
           {/* Header Card inside Dropdown */}
-          <div className="p-3 bg-gradient-to-br from-indigo-50/70 via-white to-slate-50 rounded-xl border border-indigo-100/80 mb-2">
+          <div className="p-3 bg-gradient-to-br from-indigo-50/70 dark:from-slate-800 via-white dark:via-slate-850 to-slate-50 dark:to-slate-800 rounded-xl border border-indigo-100/80 dark:border-slate-700 mb-2">
             <div className="flex items-center gap-2.5 mb-2">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-700 to-teal-400 p-[1.5px] shadow-xs shrink-0 overflow-hidden">
                 {user.avatarImage ? (
@@ -321,24 +341,24 @@ export default function UserProfileDropdown({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-1">
-                  <h4 className="text-xs font-black text-slate-900 truncate">
+                  <h4 className="text-xs font-black text-slate-900 dark:text-white truncate">
                     {user.name}
                   </h4>
-                  <span className="px-1.5 py-0.2 text-[9px] font-bold bg-indigo-50 text-indigo-700 rounded border border-indigo-200/60 shrink-0">
+                  <span className="px-1.5 py-0.2 text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 rounded border border-indigo-200/60 dark:border-indigo-800 shrink-0">
                     {user.role || "Giáo viên"}
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-500 truncate">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
                   {user.email}
                 </p>
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-600 font-medium">
-              <span className="truncate text-slate-500 font-semibold max-w-[130px]">
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[10px] text-slate-600 dark:text-slate-400 font-medium">
+              <span className="truncate text-slate-500 dark:text-slate-300 font-semibold max-w-[130px]">
                 {user.school || schoolName}
               </span>
-              <span className="font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 shrink-0 truncate max-w-[110px]">
+              <span className="font-bold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950 px-1.5 py-0.5 rounded border border-indigo-100 dark:border-indigo-800 shrink-0 truncate max-w-[110px]">
                 {departmentName}
               </span>
             </div>
@@ -353,16 +373,16 @@ export default function UserProfileDropdown({
                 setIsOpen(false);
                 if (onOpenProfile) onOpenProfile();
               }}
-              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/70 rounded-xl transition-all cursor-pointer group text-left"
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer group text-left"
             >
-              <div className="w-8 h-8 rounded-lg bg-indigo-100/70 text-indigo-600 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
+              <div className="w-8 h-8 rounded-lg bg-indigo-100/70 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
                 <User className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="font-bold text-slate-800 group-hover:text-indigo-600">
+                <div className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                   Thông tin cá nhân
                 </div>
-                <div className="text-[10px] text-slate-400 group-hover:text-slate-500">
+                <div className="text-[10px] text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300">
                   Mở màn hình hồ sơ & tổ chuyên môn riêng
                 </div>
               </div>
@@ -375,16 +395,16 @@ export default function UserProfileDropdown({
                 setIsOpen(false);
                 if (onOpenChangePassword) onOpenChangePassword();
               }}
-              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-amber-600 hover:bg-amber-50/70 rounded-xl transition-all cursor-pointer group text-left"
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50/70 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer group text-left"
             >
-              <div className="w-8 h-8 rounded-lg bg-amber-100/70 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-amber-500 group-hover:text-white transition-all shadow-2xs">
+              <div className="w-8 h-8 rounded-lg bg-amber-100/70 dark:bg-amber-950/70 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-amber-500 group-hover:text-white transition-all shadow-2xs">
                 <KeyRound className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="font-bold text-slate-800 group-hover:text-amber-600">
+                <div className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400">
                   Đổi mật khẩu
                 </div>
-                <div className="text-[10px] text-slate-400 group-hover:text-slate-500">
+                <div className="text-[10px] text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300">
                   Mở màn hình đổi mật khẩu riêng
                 </div>
               </div>
@@ -397,33 +417,52 @@ export default function UserProfileDropdown({
                 setIsOpen(false);
                 if (onOpenFeedback) onOpenFeedback();
               }}
-              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-rose-600 hover:bg-rose-50/70 rounded-xl transition-all cursor-pointer group text-left"
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/70 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer group text-left"
             >
-              <div className="w-8 h-8 rounded-lg bg-rose-100/70 text-rose-600 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-2xs">
+              <div className="w-8 h-8 rounded-lg bg-rose-100/70 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-2xs">
                 <MessageSquareHeart className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="font-bold text-slate-800 group-hover:text-rose-600">
+                <div className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-rose-600 dark:group-hover:text-rose-400">
                   Đóng góp ý kiến
                 </div>
-                <div className="text-[10px] text-slate-400 group-hover:text-slate-500">
+                <div className="text-[10px] text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300">
                   Mở màn hình gửi đánh giá & góp ý riêng
                 </div>
               </div>
             </Link>
+
+            {/* Option 4: Quick Dark / Light Mode Switch */}
+            <button
+              type="button"
+              onClick={() => toggleTheme()}
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/70 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer group text-left"
+            >
+              <div className="w-8 h-8 rounded-lg bg-amber-100/70 dark:bg-slate-800 text-amber-500 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-all shadow-2xs">
+                {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                  Chế độ {isDark ? "Tối" : "Sáng"}
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  Bấm để chuyển sang {isDark ? "Giao diện Sáng" : "Giao diện Tối"}
+                </div>
+              </div>
+            </button>
           </div>
 
-          {/* Divider & Option 4: Logout */}
-          <div className="border-t border-slate-100 mt-1.5 pt-1.5">
+          {/* Divider & Option 5: Logout */}
+          <div className="border-t border-slate-100 dark:border-slate-800 mt-1.5 pt-1.5">
             <button
               type="button"
               onClick={() => {
                 setIsOpen(false);
                 onLogout();
               }}
-              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50/80 rounded-xl transition-all cursor-pointer group text-left"
+              className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50/80 dark:hover:bg-rose-950/40 rounded-xl transition-all cursor-pointer group text-left"
             >
-              <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 group-hover:bg-rose-600 group-hover:text-white transition-all">
+              <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-500 flex items-center justify-center shrink-0 group-hover:bg-rose-600 group-hover:text-white transition-all">
                 <LogOut className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
