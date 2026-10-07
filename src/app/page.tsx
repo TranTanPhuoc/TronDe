@@ -22,7 +22,7 @@ import QuestionModal from "@/components/QuestionModal";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import CustomSelect from "@/components/CustomSelect";
-import Footer from "@/components/Footer";
+import ModernFooter from "@/components/ModernFooter";
 import { ProfileUserData } from "@/components/ProfileModal";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 import {
@@ -2103,7 +2103,7 @@ export default function Home() {
       </main>
 
       {/* Footer (no-print) */}
-      <Footer />
+      <ModernFooter />
 
       {/* CRUD MODALS */}
       <QuestionModal
