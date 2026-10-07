@@ -94,8 +94,8 @@ export default function CustomSelect<T extends string | number>({
         type="button"
         disabled={disabled}
         onClick={handleToggle}
-        className={`w-full group relative flex items-center justify-between text-left transition-all select-none cursor-pointer rounded-xl font-bold ${
-          isSmall ? "px-2.5 py-1.5 text-xs" : "px-3 py-2 text-xs sm:text-sm"
+        className={`w-full group relative flex items-center justify-between text-left transition-all select-none cursor-pointer rounded-xl font-semibold text-xs ${
+          isSmall ? "px-2.5 py-1.5" : "px-3 py-2"
         } ${
           disabled
             ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none"
@@ -107,7 +107,7 @@ export default function CustomSelect<T extends string | number>({
         {/* Left: Optional icon & selected label */}
         <div className="flex items-center gap-2 min-w-0 flex-1 pr-1">
           {icon && <span className="text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0">{icon}</span>}
-          <span className="truncate">
+          <span className="truncate text-xs">
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           {selectedOption?.badge && (
