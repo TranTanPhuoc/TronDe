@@ -10,7 +10,7 @@ import {
   LevelShortName,
   TypeShortName,
 } from "@/types/question";
-import { X, Check, AlertCircle, PenLine, FileSpreadsheet } from "lucide-react";
+import { X, Check, AlertCircle, PenLine, FileSpreadsheet, BookOpen } from "lucide-react";
 import ImportQuestionSection from "./ImportQuestionSection";
 import CustomSelect from "./CustomSelect";
 import { ParsedQuestionCandidate } from "@/utils/questionImportExport";
@@ -65,6 +65,7 @@ function QuestionModalForm({
     (editingItem?.question.type.short_name as TypeShortName) || "TN"
   );
 
+  const [lesson, setLesson] = useState(editingItem?.question.lesson || "");
   const [questionText, setQuestionText] = useState(
     editingItem?.question.question || ""
   );
@@ -129,6 +130,7 @@ function QuestionModalForm({
         },
         question: {
           ...editingItem.question,
+          lesson: lesson.trim() || undefined,
           question: questionText.trim(),
           content: content.trim(),
           answer: answer.trim(),
@@ -170,6 +172,7 @@ function QuestionModalForm({
           update_at: formattedDate,
         },
         question: {
+          lesson: lesson.trim() || undefined,
           question: questionText.trim(),
           content: content.trim(),
           answer: answer.trim(),
@@ -315,6 +318,24 @@ function QuestionModalForm({
                     options={GRADES.map((gr) => ({ value: gr.id, label: gr.name }))}
                   />
                 </div>
+              </div>
+
+              {/* Lesson (Bài học trong SGK) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
+                    Bài học trong SGK (Lesson)
+                  </span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal lowercase">(không bắt buộc)</span>
+                </label>
+                <input
+                  type="text"
+                  value={lesson}
+                  onChange={(e) => setLesson(e.target.value)}
+                  placeholder="Ví dụ: Bài 1. Ứng dụng đạo hàm để khảo sát và vẽ đồ thị của hàm số"
+                  className="w-full px-3.5 py-2 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-500/30 focus:border-indigo-500 dark:focus:border-indigo-400 font-sans"
+                />
               </div>
 
               {/* Level and Type Pickers */}

@@ -18,6 +18,7 @@ import {
   FileUp,
   ArrowLeft,
   Info,
+  BookOpen,
 } from "lucide-react";
 import {
   SUBJECTS,
@@ -216,6 +217,7 @@ export default function ImportQuestionSection({
           return {
             ...c,
             ...editForm,
+            lesson: (editForm.lesson !== undefined ? editForm.lesson : c.lesson)?.trim() || undefined,
             question: (editForm.question || c.question).trim(),
             content: (editForm.content || c.content).trim(),
             answer: (editForm.answer || c.answer).trim(),
@@ -519,6 +521,14 @@ export default function ImportQuestionSection({
                       {subjectObj?.name || cand.subjectId} - {gradeObj?.name || `K${cand.gradeId}`}
                     </span>
 
+                    {/* Lesson (if any) */}
+                    {cand.lesson && (
+                      <span className="px-2 py-0.5 text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 rounded-md border border-indigo-200 dark:border-indigo-800 flex items-center gap-1">
+                        <BookOpen className="w-3 h-3" />
+                        {cand.lesson}
+                      </span>
+                    )}
+
                     {/* Warnings (if any) */}
                     {cand.warnings.map((w, wIdx) => (
                       <span
@@ -533,6 +543,21 @@ export default function ImportQuestionSection({
                   {/* Inline Edit Mode */}
                   {isEditing ? (
                     <div className="space-y-2.5 mt-2 bg-slate-50 dark:bg-slate-800/80 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
+                          Bài học SGK (Lesson):
+                        </label>
+                        <input
+                          type="text"
+                          value={editForm.lesson ?? cand.lesson ?? ""}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({ ...prev, lesson: e.target.value }))
+                          }
+                          placeholder="Ví dụ: Bài 1. Sự đồng biến, nghịch biến của hàm số"
+                          className="w-full p-2 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
+                        />
+                      </div>
+
                       <div>
                         <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
                           Lệnh hỏi / Tiêu đề:

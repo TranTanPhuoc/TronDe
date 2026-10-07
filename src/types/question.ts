@@ -34,6 +34,7 @@ export interface GradeItem {
 }
 
 export interface QuestionDetail {
+  lesson?: string; // Tên bài học trong SGK (ví dụ: "Bài 1: Sự đồng biến, nghịch biến của hàm số")
   content: string;
   question: string;
   solution_guide: string;

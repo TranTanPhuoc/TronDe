@@ -11,6 +11,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "26-06-2026 11:41:26",
     },
     question: {
+      lesson: "Bài 1: Ứng dụng đạo hàm để khảo sát và vẽ đồ thị của hàm số",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 12, name: "Khối 12" },
       content:
@@ -33,6 +34,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "26-06-2026 11:41:26",
     },
     question: {
+      lesson: "Bài 2: Tính đơn điệu và cực trị của hàm số",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 12, name: "Khối 12" },
       content:
@@ -55,6 +57,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "27-06-2026 08:30:00",
     },
     question: {
+      lesson: "Bài 3: Cấp số nhân",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 11, name: "Khối 11" },
       content:
@@ -77,6 +80,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "27-06-2026 09:00:00",
     },
     question: {
+      lesson: "Bài 2: Hàm số bậc hai và đồ thị",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 10, name: "Khối 10" },
       content:
@@ -101,6 +105,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "28-06-2026 14:10:00",
     },
     question: {
+      lesson: "Bài 1: Dao động điều hòa",
       subject: { id: "LY", name: "Vật lý" },
       grade: { id: 12, name: "Khối 12" },
       content:
@@ -123,6 +128,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "28-06-2026 14:30:00",
     },
     question: {
+      lesson: "Bài 2: Con lắc lò xo và con lắc đơn",
       subject: { id: "LY", name: "Vật lý" },
       grade: { id: 12, name: "Khối 12" },
       content:
@@ -145,6 +151,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "28-06-2026 15:00:00",
     },
     question: {
+      lesson: "Bài 10: Định luật II Newton",
       subject: { id: "LY", name: "Vật lý" },
       grade: { id: 10, name: "Khối 10" },
       content:
@@ -169,6 +176,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "29-06-2026 10:15:00",
     },
     question: {
+      lesson: "Bài 1: Este - Lipit",
       subject: { id: "HOA", name: "Hóa học" },
       grade: { id: 12, name: "Khối 12" },
       content:
@@ -191,6 +199,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "29-06-2026 10:45:00",
     },
     question: {
+      lesson: "Bài 2: Sự điện li và pH",
       subject: { id: "HOA", name: "Hóa học" },
       grade: { id: 11, name: "Khối 11" },
       content:
@@ -215,6 +224,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "30-06-2026 09:20:00",
     },
     question: {
+      lesson: "Bài 1: Quy luật phân li của Menđen",
       subject: { id: "SINH", name: "Sinh học" },
       grade: { id: 12, name: "Khối 12" },
       content:
@@ -237,6 +247,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "30-06-2026 09:40:00",
     },
     question: {
+      lesson: "Bài 9: Tế bào nhân thực - Các bào quan",
       subject: { id: "SINH", name: "Sinh học" },
       grade: { id: 10, name: "Khối 10" },
       content:
@@ -261,6 +272,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "01-07-2026 14:00:00",
     },
     question: {
+      lesson: "Unit 5: Higher Education - Grammar: Conditionals",
       subject: { id: "ANH", name: "Tiếng Anh" },
       grade: { id: 12, name: "Khối 12" },
       content:
@@ -283,6 +295,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "01-07-2026 14:20:00",
     },
     question: {
+      lesson: "Unit 1: Family Life - Grammar: Prepositions of Time",
       subject: { id: "ANH", name: "Tiếng Anh" },
       grade: { id: 10, name: "Khối 10" },
       content:
@@ -307,6 +320,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "02-07-2026 08:15:00",
     },
     question: {
+      lesson: "Bài 2: Tây Tiến (Quang Dũng)",
       subject: { id: "VAN", name: "Ngữ văn" },
       grade: { id: 12, name: "Khối 12" },
       content:
@@ -329,6 +343,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "02-07-2026 08:45:00",
     },
     question: {
+      lesson: "Bài 6: Chí Phèo (Nam Cao)",
       subject: { id: "VAN", name: "Ngữ văn" },
       grade: { id: 11, name: "Khối 11" },
       content:
@@ -353,6 +368,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "03-07-2026 15:30:00",
     },
     question: {
+      lesson: "Bài 23: Kháng chiến chống Mỹ cứu nước (1954-1975)",
       subject: { id: "SU", name: "Lịch sử" },
       grade: { id: 12, name: "Khối 12" },
       content:
@@ -377,6 +393,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "04-07-2026 10:00:00",
     },
     question: {
+      lesson: "Bài 2: Vị trí địa lí, phạm vi lãnh thổ",
       subject: { id: "DIA", name: "Địa lý" },
       grade: { id: 12, name: "Khối 12" },
       content:
@@ -401,6 +418,7 @@ export const initialQuestions: ExamItem[] = [
       update_at: "04-07-2026 11:20:00",
     },
     question: {
+      lesson: "Bài 14: Thuật toán tìm kiếm và sắp xếp",
       subject: { id: "TIN", name: "Tin học" },
       grade: { id: 11, name: "Khối 11" },
       content:
@@ -421,6 +439,7 @@ export const initialQuestions: ExamItem[] = [
     id: "toan-12-vd-1",
     author: { id: 1, name: "Tran Tan Phuoc", created_at: "06-07-2026 09:00:00", update_at: "06-07-2026 09:00:00" },
     question: {
+      lesson: "Bài 2: Cực trị của hàm số",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 12, name: "Khối 12" },
       content: "A. m ∈ (1; 3)\nB. m ∈ [-1; 2]\nC. m ∈ (2; +∞)\nD. m ∈ (-∞; 0]",
@@ -435,6 +454,7 @@ export const initialQuestions: ExamItem[] = [
     id: "toan-12-vdc-1",
     author: { id: 1, name: "Tran Tan Phuoc", created_at: "06-07-2026 09:15:00", update_at: "06-07-2026 09:15:00" },
     question: {
+      lesson: "Bài 3: Đường thẳng và mặt phẳng vuông góc",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 12, name: "Khối 12" },
       content: "Cho hình lăng trụ đứng ABC.A'B'C' có đáy ABC là tam giác vuông cân tại B, AB = BC = a. Biết khoảng cách từ A đến mặt phẳng (A'BC) bằng (a√2)/2.",
@@ -449,6 +469,7 @@ export const initialQuestions: ExamItem[] = [
     id: "toan-10-tl-1",
     author: { id: 1, name: "Tran Tan Phuoc", created_at: "06-07-2026 09:30:00", update_at: "06-07-2026 09:30:00" },
     question: {
+      lesson: "Bài 4: Bất phương trình bậc hai một ẩn",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 10, name: "Khối 10" },
       content: "Giải bất phương trình: √(x² - 3x - 10) ≤ x - 2.",
@@ -465,6 +486,7 @@ export const initialQuestions: ExamItem[] = [
     id: "ly-12-ds-1",
     author: { id: 2, name: "Nguyen Thi Lan", created_at: "06-07-2026 10:00:00", update_at: "06-07-2026 10:00:00" },
     question: {
+      lesson: "Bài 7: Sóng cơ và sự truyền sóng cơ",
       subject: { id: "LY", name: "Vật lý" },
       grade: { id: 12, name: "Khối 12" },
       content: "a) Trong sóng cơ, bước sóng λ là quãng đường sóng truyền đi trong 1 chu kì T.\nb) Các phân tử vật chất của môi trường chuyển động thẳng đều theo chiều truyền sóng.\nc) Sóng ngang truyền được trong chất rắn và bề mặt chất lỏng.\nd) Vận tốc truyền sóng phụ thuộc vào tần số sóng và không phụ thuộc bản chất môi trường.",
@@ -479,6 +501,7 @@ export const initialQuestions: ExamItem[] = [
     id: "ly-11-vd-1",
     author: { id: 2, name: "Nguyen Thi Lan", created_at: "06-07-2026 10:15:00", update_at: "06-07-2026 10:15:00" },
     question: {
+      lesson: "Bài 9: Định luật Ôm đối với toàn mạch",
       subject: { id: "LY", name: "Vật lý" },
       grade: { id: 11, name: "Khối 11" },
       content: "A. 1.5 A\nB. 2.0 A\nC. 0.8 A\nD. 3.0 A",
@@ -493,6 +516,7 @@ export const initialQuestions: ExamItem[] = [
     id: "ly-10-tl-1",
     author: { id: 2, name: "Nguyen Thi Lan", created_at: "06-07-2026 10:30:00", update_at: "06-07-2026 10:30:00" },
     question: {
+      lesson: "Bài 12: Chuyển động của vật trên mặt phẳng nghiêng",
       subject: { id: "LY", name: "Vật lý" },
       grade: { id: 10, name: "Khối 10" },
       content: "Một vật có khối lượng m = 2 kg trượt từ đỉnh mặt phẳng nghiêng dài s = 10 m, góc nghiêng α = 30° so với phương ngang. Hệ số ma sát µ = 0.1, lấy g = 9.8 m/s².",
@@ -509,6 +533,7 @@ export const initialQuestions: ExamItem[] = [
     id: "hoa-12-ds-1",
     author: { id: 3, name: "Le Hoang Nam", created_at: "06-07-2026 11:00:00", update_at: "06-07-2026 11:00:00" },
     question: {
+      lesson: "Bài 5: Glucozơ và Cacbohiđrat",
       subject: { id: "HOA", name: "Hóa học" },
       grade: { id: 12, name: "Khối 12" },
       content: "a) Glucozơ và fructozơ đều tham gia phản ứng tráng bạc sinh ra Ag.\nb) Xenlulozơ và tinh bột là đồng phân của nhau.\nc) Saccarozơ bị thủy phân trong môi trường axit cho ra glucozơ và fructozơ.\nd) Dung dịch glucozơ hòa tan Cu(OH)₂ ở nhiệt độ thường tạo phức màu xanh lam.",
@@ -523,6 +548,7 @@ export const initialQuestions: ExamItem[] = [
     id: "hoa-11-vd-1",
     author: { id: 3, name: "Le Hoang Nam", created_at: "06-07-2026 11:15:00", update_at: "06-07-2026 11:15:00" },
     question: {
+      lesson: "Bài 3: Axit, bazơ và muối - Thang pH",
       subject: { id: "HOA", name: "Hóa học" },
       grade: { id: 11, name: "Khối 11" },
       content: "A. pH = 12\nB. pH = 2\nC. pH = 13\nD. pH = 1",
@@ -539,6 +565,7 @@ export const initialQuestions: ExamItem[] = [
     id: "anh-12-vd-1",
     author: { id: 5, name: "Pham Thu Ha", created_at: "06-07-2026 14:00:00", update_at: "06-07-2026 14:00:00" },
     question: {
+      lesson: "Unit 8: Life in the Future - Inversion",
       subject: { id: "ANH", name: "Tiếng Anh" },
       grade: { id: 12, name: "Khối 12" },
       content: "A. had they arrived / when\nB. did they arrive / than\nC. had they arrived / that\nD. they had arrived / then",
@@ -553,6 +580,7 @@ export const initialQuestions: ExamItem[] = [
     id: "anh-11-ds-1",
     author: { id: 5, name: "Pham Thu Ha", created_at: "06-07-2026 14:20:00", update_at: "06-07-2026 14:20:00" },
     question: {
+      lesson: "Unit 7: Further Education - Language Focus",
       subject: { id: "ANH", name: "Tiếng Anh" },
       grade: { id: 11, name: "Khối 11" },
       content: "a) 'Look forward to' is followed by a gerund (V-ing).\nb) In passive voice of Present Perfect: S + have/has + been + V3/ed.\nc) 'Unless' has the same meaning as 'If'.\nd) Conditional Sentence Type 2 expresses an imaginary situation in the present or future.",
@@ -569,6 +597,7 @@ export const initialQuestions: ExamItem[] = [
     id: "van-12-vdc-1",
     author: { id: 6, name: "Nguyen Van Tam", created_at: "06-07-2026 15:00:00", update_at: "06-07-2026 15:00:00" },
     question: {
+      lesson: "Bài 7: Người lái đò Sông Đà (Nguyễn Tuân)",
       subject: { id: "VAN", name: "Ngữ văn" },
       grade: { id: 12, name: "Khối 12" },
       content: "Cảm nhận về vẻ đẹp trữ tình và dòng chảy thiên nhiên thơ mộng của sông Đà trong đoạn văn: 'Con Sông Đà tuôn dài tuôn dài như một áng tóc trữ tình, đầu tóc chân tóc ẩn hiện trong mây trời Tây Bắc...'",
@@ -585,6 +614,7 @@ export const initialQuestions: ExamItem[] = [
     id: "toan-11-tn-2",
     author: { id: 1, name: "Tran Tan Phuoc", created_at: "06-07-2026 15:30:00", update_at: "06-07-2026 15:30:00" },
     question: {
+      lesson: "Bài 1: Giới hạn của dãy số",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 11, name: "Khối 11" },
       content: "A. lim (2n + 1)/(n - 3) = 2\nB. lim (2n + 1)/(n - 3) = 1/2\nC. lim (2n + 1)/(n - 3) = 0\nD. lim (2n + 1)/(n - 3) = +∞",
@@ -599,6 +629,7 @@ export const initialQuestions: ExamItem[] = [
     id: "toan-11-tln-1",
     author: { id: 1, name: "Tran Tan Phuoc", created_at: "06-07-2026 15:40:00", update_at: "06-07-2026 15:40:00" },
     question: {
+      lesson: "Bài 2: Cấp số cộng",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 11, name: "Khối 11" },
       content: "Điền số nguyên hoặc số thập phân vào ô trống.",
@@ -613,6 +644,7 @@ export const initialQuestions: ExamItem[] = [
     id: "toan-10-nb-2",
     author: { id: 1, name: "Tran Tan Phuoc", created_at: "06-07-2026 15:50:00", update_at: "06-07-2026 15:50:00" },
     question: {
+      lesson: "Bài 1: Mệnh đề và tập hợp",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 10, name: "Khối 10" },
       content: "A. [1; 3]\nB. (1; 3)\nC. [1; 5)\nD. (2; 3]",
@@ -627,6 +659,7 @@ export const initialQuestions: ExamItem[] = [
     id: "toan-10-ds-1",
     author: { id: 1, name: "Tran Tan Phuoc", created_at: "06-07-2026 16:00:00", update_at: "06-07-2026 16:00:00" },
     question: {
+      lesson: "Bài 1: Các định nghĩa về vectơ",
       subject: { id: "TOAN", name: "Toán học" },
       grade: { id: 10, name: "Khối 10" },
       content: "a) Vectơ cùng hướng với mọi vectơ là vectơ-không 0.\nb) Hai vectơ cùng phương thì giá của chúng song song hoặc trùng nhau.\nc) Độ dài của vectơ AB là khoảng cách giữa 2 điểm A và B.\nd) Nếu |a| = |b| thì a = b.",
@@ -641,6 +674,7 @@ export const initialQuestions: ExamItem[] = [
     id: "ly-11-tn-2",
     author: { id: 2, name: "Nguyen Thi Lan", created_at: "06-07-2026 16:10:00", update_at: "06-07-2026 16:10:00" },
     question: {
+      lesson: "Bài 2: Thuyết electron - Định luật bảo toàn điện tích",
       subject: { id: "LY", name: "Vật lý" },
       grade: { id: 11, name: "Khối 11" },
       content: "A. F = qE\nB. F = q/E\nC. F = E/q\nD. F = qE²",
@@ -655,6 +689,7 @@ export const initialQuestions: ExamItem[] = [
     id: "hoa-10-nb-1",
     author: { id: 3, name: "Tran Van Minh", created_at: "06-07-2026 16:20:00", update_at: "06-07-2026 16:20:00" },
     question: {
+      lesson: "Bài 2: Hạt nhân nguyên tử - Nguyên tố hóa học",
       subject: { id: "HOA", name: "Hóa học" },
       grade: { id: 10, name: "Khối 10" },
       content: "A. Số proton\nB. Số neutron\nC. Số electron\nD. Khối lượng nguyên tử",

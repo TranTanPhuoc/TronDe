@@ -12,6 +12,7 @@ import {
 
 export interface ParsedQuestionCandidate {
   tempId: string;
+  lesson?: string; // Tên bài học SGK
   question: string;
   content: string;
   answer: string;
@@ -105,6 +106,7 @@ export function downloadSampleExcelTemplate(): void {
   const sampleData = [
     [
       "STT",
+      "Bài học (SGK)",
       "Câu hỏi / Lệnh hỏi",
       "Phương án lựa chọn",
       "Đáp án đúng",
@@ -116,6 +118,7 @@ export function downloadSampleExcelTemplate(): void {
     ],
     [
       1,
+      "Bài 1: Khảo sát hàm số",
       "Cho hàm số y = f(x) có bảng biến thiên như hình vẽ. Hàm số đồng biến trên khoảng nào dưới đây?",
       "A. (0; 2)\nB. (-∞; 0)\nC. (2; +∞)\nD. (-1; 1)",
       "A",
@@ -127,6 +130,7 @@ export function downloadSampleExcelTemplate(): void {
     ],
     [
       2,
+      "Bài 3: Mạch dao động RLC",
       "Đặt điện áp xoay chiều u = U0*cos(ωt) vào hai đầu đoạn mạch R, L, C mắc nối tiếp. Hiện tượng cộng hưởng xảy ra khi:",
       "A. ωL = 1 / (ωC)\nB. ωL = ωC\nC. ω = 1 / (LC)\nD. L = C",
       "A",
@@ -138,6 +142,7 @@ export function downloadSampleExcelTemplate(): void {
     ],
     [
       3,
+      "Bài 5: Kim loại kiềm và kiềm thổ",
       "Kim loại nào sau đây có tính dẫn điện tốt nhất?",
       "A. Ag (Bạc)\nB. Cu (Đồng)\nC. Al (Nhôm)\nD. Au (Vàng)",
       "A",
@@ -149,6 +154,7 @@ export function downloadSampleExcelTemplate(): void {
     ],
     [
       4,
+      "Bài 1: Dao động điều hòa",
       "Một chất điểm dao động điều hòa theo phương trình x = 6cos(2πt - π/4) (cm). Pha ban đầu của dao động là bao nhiêu radian?",
       "A. π/4 rad\nB. -π/4 rad\nC. 2π rad\nD. 6 rad",
       "B",
@@ -160,6 +166,7 @@ export function downloadSampleExcelTemplate(): void {
     ],
     [
       5,
+      "Bài 2: Cực trị của hàm số",
       "Tìm giá trị của m để hàm số y = x^3 - 3mx^2 + 3(m^2 - 1)x đạt cực tiểu tại x = 2.",
       "",
       "1",
@@ -176,6 +183,7 @@ export function downloadSampleExcelTemplate(): void {
   // Set column widths
   wsQuestions["!cols"] = [
     { wch: 6 },  // STT
+    { wch: 25 }, // Bài học (SGK)
     { wch: 45 }, // Câu hỏi
     { wch: 30 }, // Phương án
     { wch: 14 }, // Đáp án
@@ -192,14 +200,15 @@ export function downloadSampleExcelTemplate(): void {
   const guideData = [
     ["HƯỚNG DẪN ĐỊNH DẠNG FILE EXCEL NHẬP CÂU HỎI"],
     [""],
-    ["1. Cột 'Câu hỏi / Lệnh hỏi' (Bắt buộc): Nhập nội dung câu hỏi hoặc đề bài."],
-    ["2. Cột 'Phương án lựa chọn': Nhập các phương án trắc nghiệm A., B., C., D. xuống dòng, hoặc có thể để trống với câu Tự luận/Trả lời ngắn."],
-    ["3. Cột 'Đáp án đúng': Nhập chữ cái phương án đúng (A, B, C, D) hoặc giá trị đáp án đối với dạng Trả lời ngắn."],
-    ["4. Cột 'Lời giải chi tiết': Nhập giải thích hoặc hướng dẫn giải từng bước (không bắt buộc)."],
-    ["5. Cột 'Môn học': Toán học, Ngữ văn, Tiếng Anh, Vật lý, Hóa học, Sinh học, Lịch sử, Địa lý, Tin học, GDCD / KT-PL, Công nghệ."],
-    ["6. Cột 'Khối lớp': Khối 12, Khối 11, Khối 10, Khối 9, Khối 8, Khối 7, Khối 6."],
-    ["7. Cột 'Mức độ': Nhận Biết (NB), Thông Hiểu (TH), Vận Dụng (VD), Vận Dụng Cao (VDC)."],
-    ["8. Cột 'Dạng câu hỏi': Trắc Nghiệm (TN), Đúng Sai (DS), Trả Lời Ngắn (TLN), Tự Luận (TL)."],
+    ["1. Cột 'Bài học (SGK)': Nhập tên bài học trong SGK (ví dụ: 'Bài 1: Khảo sát hàm số') - không bắt buộc."],
+    ["2. Cột 'Câu hỏi / Lệnh hỏi' (Bắt buộc): Nhập nội dung câu hỏi hoặc đề bài."],
+    ["3. Cột 'Phương án lựa chọn': Nhập các phương án trắc nghiệm A., B., C., D. xuống dòng, hoặc có thể để trống với câu Tự luận/Trả lời ngắn."],
+    ["4. Cột 'Đáp án đúng': Nhập chữ cái phương án đúng (A, B, C, D) hoặc giá trị đáp án đối với dạng Trả lời ngắn."],
+    ["5. Cột 'Lời giải chi tiết': Nhập giải thích hoặc hướng dẫn giải từng bước (không bắt buộc)."],
+    ["6. Cột 'Môn học': Toán học, Ngữ văn, Tiếng Anh, Vật lý, Hóa học, Sinh học, Lịch sử, Địa lý, Tin học, GDCD / KT-PL, Công nghệ."],
+    ["7. Cột 'Khối lớp': Khối 12, Khối 11, Khối 10, Khối 9, Khối 8, Khối 7, Khối 6."],
+    ["8. Cột 'Mức độ': Nhận Biết (NB), Thông Hiểu (TH), Vận Dụng (VD), Vận Dụng Cao (VDC)."],
+    ["9. Cột 'Dạng câu hỏi': Trắc Nghiệm (TN), Đúng Sai (DS), Trả Lời Ngắn (TLN), Tự Luận (TL)."],
     ["* Lưu ý: Nếu cột Môn học hoặc Khối lớp để trống, hệ thống sẽ tự động áp dụng Môn học và Khối lớp mặc định bạn đã chọn."],
   ];
   const wsGuide = XLSX.utils.aoa_to_sheet(guideData);
@@ -403,6 +412,7 @@ export async function parseExcelFile(
 
   // Detect header row index
   let headerRowIndex = -1;
+  let colLesson = -1;
   let colQuestion = -1;
   let colContent = -1;
   let colAnswer = -1;
@@ -422,7 +432,9 @@ export async function parseExcelFile(
     if (hasQuestion) {
       headerRowIndex = r;
       row.forEach((c, idx) => {
-        if (c.includes("câu hỏi") || c.includes("lệnh hỏi") || c.includes("question") || c.includes("đề bài")) {
+        if (c.includes("bài học") || c.includes("lesson") || c.includes("tên bài") || c.includes("sgk")) {
+          colLesson = idx;
+        } else if (c.includes("câu hỏi") || c.includes("lệnh hỏi") || c.includes("question") || c.includes("đề bài")) {
           colQuestion = idx;
         } else if (c.includes("phương án") || c.includes("lựa chọn") || c.includes("nội dung")) {
           colContent = idx;
@@ -474,6 +486,8 @@ export async function parseExcelFile(
     const qText = String(row[colQuestion] ?? "").trim();
     if (!qText) continue;
 
+    const lesson = colLesson !== -1 ? String(row[colLesson] ?? "").trim() : "";
+
     let content = String(row[colContent] ?? "").trim();
     // If separate option columns exist
     if (!content && colOptA !== -1 && colOptB !== -1) {
@@ -498,6 +512,7 @@ export async function parseExcelFile(
 
     candidates.push({
       tempId: `cand-excel-${Date.now()}-${r}-${Math.random().toString(36).slice(2, 6)}`,
+      lesson: lesson || undefined,
       question: qText,
       content,
       answer,
@@ -591,6 +606,7 @@ function parseSingleQuestionBlock(
   let typeStr = "";
   let subjectStr = "";
   let gradeStr = "";
+  let lessonStr = "";
 
   const optionLines: string[] = [];
   const questionLines: string[] = [];
@@ -599,9 +615,16 @@ function parseSingleQuestionBlock(
   const optRegex = /^([A-D])[\.:\)]\s*(.*)$/i;
   const ansRegex = /^(?:Đáp án|Đ\/A|Chọn|Answer|Key)\s*[:\.]?\s*(.*)$/i;
   const solRegex = /^(?:Lời giải|Hướng dẫn giải|Giải chi tiết|HDG|Solution)\s*[:\.]?\s*(.*)$/i;
-  const metaRegex = /^(?:Mức độ|Dạng|Môn|Khối|Level|Type)\s*[:\.]?\s*(.*)$/i;
+  const lessonRegex = /^(?:Bài học|Tên bài|Lesson)\s*[:\.]?\s*(.*)$/i;
+  const metaRegex = /^(?:Mức độ|Dạng|Môn|Khối|Level|Type|Bài học|Lesson)\s*[:\.]?\s*(.*)$/i;
 
   for (const line of lines) {
+    if (lessonRegex.test(line)) {
+      const m = line.match(lessonRegex);
+      if (m && m[1]) lessonStr = m[1].trim();
+      continue;
+    }
+
     if (solRegex.test(line)) {
       inSolution = true;
       const m = line.match(solRegex);
@@ -611,13 +634,16 @@ function parseSingleQuestionBlock(
 
     if (inSolution) {
       // Check if line contains meta tags before appending to solution
-      if (line.toLowerCase().includes("mức độ:") || line.toLowerCase().includes("dạng:")) {
+      if (line.toLowerCase().includes("mức độ:") || line.toLowerCase().includes("dạng:") || line.toLowerCase().includes("bài học:")) {
         inSolution = false;
         // Parse metadata on this line
         const parts = line.split(/[|;]/);
         for (const p of parts) {
           if (p.toLowerCase().includes("mức độ")) levelStr = p.replace(/mức độ\s*[:\.]?/i, "").trim();
           if (p.toLowerCase().includes("dạng")) typeStr = p.replace(/dạng\s*[:\.]?/i, "").trim();
+          if (p.toLowerCase().includes("bài học") || p.toLowerCase().includes("lesson")) {
+            lessonStr = p.replace(/^(?:bài học|lesson)\s*[:\.]?/i, "").trim();
+          }
         }
       } else {
         solution += line + "\n";
@@ -639,6 +665,9 @@ function parseSingleQuestionBlock(
         if (low.includes("dạng") || low.includes("type")) typeStr = p.replace(/^(?:dạng|type)\s*[:\.]?/i, "").trim();
         if (low.includes("môn")) subjectStr = p.replace(/^môn\s*[:\.]?/i, "").trim();
         if (low.includes("khối") || low.includes("lớp")) gradeStr = p.replace(/^(?:khối|lớp)\s*[:\.]?/i, "").trim();
+        if (low.includes("bài học") || low.includes("lesson") || low.includes("tên bài")) {
+          lessonStr = p.replace(/^(?:bài học|lesson|tên bài)\s*[:\.]?/i, "").trim();
+        }
       }
       continue;
     }
@@ -670,6 +699,7 @@ function parseSingleQuestionBlock(
 
   return {
     tempId: `cand-word-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+    lesson: lessonStr || undefined,
     question: qText || `Câu hỏi ${index}`,
     content,
     answer,
@@ -721,6 +751,7 @@ export function convertCandidateToExamItem(
       update_at: formattedDate,
     },
     question: {
+      lesson: cand.lesson?.trim() || undefined,
       question: cand.question.trim(),
       content: cand.content.trim(),
       answer: cand.answer.trim(),

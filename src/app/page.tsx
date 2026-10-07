@@ -69,6 +69,7 @@ interface ShuffledQuestion {
   solutionGuide: string;
   subject?: string;
   grade?: string;
+  lesson?: string;
 }
 
 interface ExamVariant {
@@ -180,6 +181,7 @@ export default function Home() {
 
   // Search & Filter in Sidebar Question Selector
   const [sidebarSearch, setSidebarSearch] = useState("");
+  const [sidebarLesson, setSidebarLesson] = useState("ALL");
   const [sidebarLevel, setSidebarLevel] = useState("ALL");
   const [sidebarType, setSidebarType] = useState("ALL");
 
@@ -199,6 +201,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("ALL");
   const [gradeFilter, setGradeFilter] = useState("ALL");
+  const [lessonFilter, setLessonFilter] = useState("ALL");
   const [levelFilter, setLevelFilter] = useState("ALL");
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [selectedBankIds, setSelectedBankIds] = useState<string[]>([]);
@@ -343,7 +346,19 @@ export default function Home() {
     }).length;
   }, [questions, selectedSubjectId, selectedGradeId, activeQuestionIds]);
 
-  // Filtered questions for the Sidebar Question Selector (Strictly within selectedSubjectId & selectedGradeId)
+  // Danh sách các bài học duy nhất đang có trong ngân hàng câu hỏi của Môn và Khối đang chọn ở Sidebar
+  const availableSidebarLessons = useMemo(() => {
+    const set = new Set<string>();
+    questions.forEach((q) => {
+      if (q.question.subject?.id !== selectedSubjectId) return;
+      if (selectedGradeId !== "ALL" && Number(q.question.grade?.id) !== Number(selectedGradeId)) return;
+      const l = q.question.lesson?.trim();
+      if (l) set.add(l);
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "vi", { numeric: true }));
+  }, [questions, selectedSubjectId, selectedGradeId]);
+
+  // Filtered questions for the Sidebar Question Selector (Strictly within selectedSubjectId & selectedGradeId & sidebarLesson)
   const sidebarFilteredQuestions = useMemo(() => {
     return questions.filter((q) => {
       // 1. MUST strictly match currently selected subject
@@ -354,27 +369,32 @@ export default function Home() {
       if (selectedGradeId !== "ALL" && Number(q.question.grade?.id) !== Number(selectedGradeId)) {
         return false;
       }
-      // 3. Filter by Level (4 mức độ: NB, TH, VD, VDC)
+      // 3. Filter by Lesson: nếu chọn 1 bài học thì chỉ hiện câu hỏi bài đó, nếu chọn "ALL" thì hiện tất cả bài học của môn & khối đó
+      if (sidebarLesson !== "ALL" && q.question.lesson?.trim() !== sidebarLesson) {
+        return false;
+      }
+      // 4. Filter by Level (4 mức độ: NB, TH, VD, VDC)
       if (sidebarLevel !== "ALL" && q.question.level.short_name !== sidebarLevel) {
         return false;
       }
-      // 4. Filter by Type (4 định dạng: TN, DS, TLN, TL)
+      // 5. Filter by Type (4 định dạng: TN, DS, TLN, TL)
       if (sidebarType !== "ALL" && q.question.type.short_name !== sidebarType) {
         return false;
       }
-      // 5. Search query
+      // 6. Search query
       if (sidebarSearch.trim() !== "") {
         const query = sidebarSearch.toLowerCase();
         const matchQ = q.question.question.toLowerCase().includes(query);
         const matchC = q.question.content.toLowerCase().includes(query);
         const matchA = q.question.answer.toLowerCase().includes(query);
-        if (!matchQ && !matchC && !matchA) {
+        const matchL = q.question.lesson ? q.question.lesson.toLowerCase().includes(query) : false;
+        if (!matchQ && !matchC && !matchA && !matchL) {
           return false;
         }
       }
       return true;
     });
-  }, [questions, selectedSubjectId, selectedGradeId, sidebarLevel, sidebarType, sidebarSearch]);
+  }, [questions, selectedSubjectId, selectedGradeId, sidebarLesson, sidebarLevel, sidebarType, sidebarSearch]);
 
   // Shuffling logic: Chi tron DUY NHAT cac cau hoi da duoc nguoi dung tich chon cua mon va khoi dang chon
   const handleShuffleExams = () => {
@@ -412,6 +432,7 @@ export default function Home() {
           solutionGuide: q.question.solution_guide,
           subject: q.question.subject?.name,
           grade: q.question.grade?.name,
+          lesson: q.question.lesson,
         };
       });
 
@@ -465,6 +486,7 @@ export default function Home() {
           solutionGuide: q.question.solution_guide,
           subject: q.question.subject?.name,
           grade: q.question.grade?.name,
+          lesson: q.question.lesson,
         };
       });
 
@@ -654,6 +676,18 @@ export default function Home() {
     showToast(`Đã xóa ${selectedBankIds.length} câu hỏi thành công!`);
   };
 
+  // Danh sách các bài học duy nhất đang có trong ngân hàng câu hỏi của Môn và Khối được lọc ở Tab Ngân hàng
+  const availableBankLessons = useMemo(() => {
+    const set = new Set<string>();
+    questions.forEach((q) => {
+      if (subjectFilter !== "ALL" && q.question.subject?.id !== subjectFilter) return;
+      if (gradeFilter !== "ALL" && String(q.question.grade?.id) !== String(gradeFilter)) return;
+      const l = q.question.lesson?.trim();
+      if (l) set.add(l);
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "vi", { numeric: true }));
+  }, [questions, subjectFilter, gradeFilter]);
+
   // Filtered in Bank Tab
   const filteredBankQuestions = useMemo(() => {
     return questions.filter((item) => {
@@ -661,6 +695,9 @@ export default function Home() {
         return false;
       }
       if (gradeFilter !== "ALL" && String(item.question.grade?.id) !== String(gradeFilter)) {
+        return false;
+      }
+      if (lessonFilter !== "ALL" && item.question.lesson?.trim() !== lessonFilter) {
         return false;
       }
       if (levelFilter !== "ALL" && item.question.level.short_name !== levelFilter) {
@@ -677,20 +714,22 @@ export default function Home() {
         const matchesAuthor = item.author.name.toLowerCase().includes(q);
         const matchesSubject = item.question.subject?.name.toLowerCase().includes(q);
         const matchesGrade = item.question.grade?.name.toLowerCase().includes(q);
+        const matchesLesson = item.question.lesson ? item.question.lesson.toLowerCase().includes(q) : false;
         if (
           !matchesQuestion &&
           !matchesContent &&
           !matchesAnswer &&
           !matchesAuthor &&
           !matchesSubject &&
-          !matchesGrade
+          !matchesGrade &&
+          !matchesLesson
         ) {
           return false;
         }
       }
       return true;
     });
-  }, [questions, subjectFilter, gradeFilter, levelFilter, typeFilter, searchQuery]);
+  }, [questions, subjectFilter, gradeFilter, lessonFilter, levelFilter, typeFilter, searchQuery]);
 
   // Loading state when checking authentication
   if (!isLoaded || !currentUser) {
@@ -1024,6 +1063,7 @@ export default function Home() {
                           setGeneratedExams([]);
                           setSelectedVariantIndex(0);
                           setSelectedGradeId("ALL"); // Reset về tất cả khối của môn đó
+                          setSidebarLesson("ALL");
                           setSidebarSearch("");
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
@@ -1044,6 +1084,7 @@ export default function Home() {
                           setActiveQuestionIds([]);
                           setGeneratedExams([]);
                           setSelectedVariantIndex(0);
+                          setSidebarLesson("ALL");
                           setSidebarSearch("");
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
@@ -1055,6 +1096,37 @@ export default function Home() {
                       />
                     </div>
                   </div>
+
+                  {/* Bài học trong SGK (Hiện tiếp sau khi Chọn môn học xong chọn khối lớp) */}
+                  {selectedGradeId !== "ALL" && (
+                    <div className="animate-in fade-in duration-200">
+                      <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1 flex items-center justify-between">
+                        <span className="flex items-center gap-1.5">
+                          <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
+                          Bài học trong SGK
+                        </span>
+                        {availableSidebarLessons.length > 0 && (
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">
+                            {availableSidebarLessons.length} bài trong ngân hàng
+                          </span>
+                        )}
+                      </label>
+                      <CustomSelect
+                        value={sidebarLesson}
+                        onChange={(val) => {
+                          setSidebarLesson(String(val));
+                          setSidebarSearch("");
+                        }}
+                        options={[
+                          {
+                            value: "ALL",
+                            label: `Tất cả bài học${availableSidebarLessons.length > 0 ? ` (${availableSidebarLessons.length} bài)` : ""}`,
+                          },
+                          ...availableSidebarLessons.map((l) => ({ value: l, label: l })),
+                        ]}
+                      />
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
@@ -1250,6 +1322,32 @@ export default function Home() {
                     />
                   </div>
 
+                  {/* Lesson Filter Dropdown (Hiện tiếp khi đã chọn Khối) */}
+                  {selectedGradeId !== "ALL" && (
+                    <div className="flex items-center gap-1.5 text-[11px] pt-0.5 animate-in fade-in duration-200">
+                      <span className="text-slate-500 dark:text-slate-400 font-semibold shrink-0 flex items-center gap-1">
+                        <BookOpen className="w-3 h-3 text-indigo-500" />
+                        Bài:
+                      </span>
+                      <CustomSelect
+                        value={sidebarLesson}
+                        onChange={(val) => {
+                          setSidebarLesson(String(val));
+                          setSidebarSearch("");
+                        }}
+                        options={[
+                          {
+                            value: "ALL",
+                            label: `Tất cả bài học${availableSidebarLessons.length > 0 ? ` (${availableSidebarLessons.length})` : ""}`,
+                          },
+                          ...availableSidebarLessons.map((l) => ({ value: l, label: l })),
+                        ]}
+                        size="sm"
+                        className="flex-1 min-w-0"
+                      />
+                    </div>
+                  )}
+
                   {/* Grade Filter & Reset button */}
                   <div className="flex items-center justify-between text-[11px] gap-2 pt-0.5">
                     <div className="flex items-center gap-1.5 flex-1 min-w-0">
@@ -1261,6 +1359,7 @@ export default function Home() {
                           setActiveQuestionIds([]);
                           setGeneratedExams([]);
                           setSelectedVariantIndex(0);
+                          setSidebarLesson("ALL");
                           setSidebarSearch("");
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
@@ -1274,13 +1373,14 @@ export default function Home() {
                       />
                     </div>
 
-                    {(sidebarSearch || sidebarLevel !== "ALL" || sidebarType !== "ALL" || selectedGradeId !== "ALL") && (
+                    {(sidebarSearch || sidebarLevel !== "ALL" || sidebarType !== "ALL" || selectedGradeId !== "ALL" || sidebarLesson !== "ALL") && (
                       <button
                         onClick={() => {
                           setSidebarSearch("");
                           setSidebarLevel("ALL");
                           setSidebarType("ALL");
                           setSelectedGradeId("ALL");
+                          setSidebarLesson("ALL");
                           setActiveQuestionIds([]);
                           setGeneratedExams([]);
                           setSelectedVariantIndex(0);
@@ -1316,6 +1416,7 @@ export default function Home() {
                             setSidebarLevel("ALL");
                             setSidebarType("ALL");
                             setSelectedGradeId("ALL");
+                            setSidebarLesson("ALL");
                             setActiveQuestionIds([]);
                             setGeneratedExams([]);
                             setSelectedVariantIndex(0);
@@ -1364,6 +1465,11 @@ export default function Home() {
                               <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
                                 [{q.question.type.short_name}]
                               </span>
+                              {q.question.lesson && (
+                                <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium truncate max-w-[140px]" title={q.question.lesson}>
+                                  • {q.question.lesson}
+                                </span>
+                              )}
                             </div>
                             <p className="truncate text-slate-800 dark:text-slate-200 font-medium">
                               {q.question.question}
@@ -1834,9 +1940,17 @@ export default function Home() {
                   {currentExam.questions.map((q, idx) => (
                     <div key={idx} className="p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 space-y-3">
                       <div className="flex items-start justify-between gap-2 flex-wrap">
-                        <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug">
-                          Câu {idx + 1}: {q.questionText}
-                        </p>
+                        <div className="space-y-1 min-w-0">
+                          {q.lesson && (
+                            <div className="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800">
+                              <BookOpen className="w-3 h-3 shrink-0" />
+                              <span>{q.lesson}</span>
+                            </div>
+                          )}
+                          <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                            Câu {idx + 1}: {q.questionText}
+                          </p>
+                        </div>
                         <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 shrink-0">
                           Đáp án: {q.answer}
                         </span>
@@ -1885,7 +1999,10 @@ export default function Home() {
                       {/* Subject */}
                       <CustomSelect
                         value={subjectFilter}
-                        onChange={(val) => setSubjectFilter(String(val))}
+                        onChange={(val) => {
+                          setSubjectFilter(String(val));
+                          setLessonFilter("ALL");
+                        }}
                         options={[
                           { value: "ALL", label: "Tất cả môn học" },
                           ...SUBJECTS.map((s) => ({ value: s.id, label: s.name })),
@@ -1896,13 +2013,32 @@ export default function Home() {
                       {/* Grade */}
                       <CustomSelect
                         value={gradeFilter}
-                        onChange={(val) => setGradeFilter(String(val))}
+                        onChange={(val) => {
+                          setGradeFilter(String(val));
+                          setLessonFilter("ALL");
+                        }}
                         options={[
                           { value: "ALL", label: "Tất cả khối lớp" },
                           ...GRADES.map((g) => ({ value: String(g.id), label: g.name })),
                         ]}
                         size="sm"
                       />
+
+                      {/* Lesson (Hiện tiếp sau khi Chọn môn học xong chọn khối lớp) */}
+                      {subjectFilter !== "ALL" && gradeFilter !== "ALL" && (
+                        <CustomSelect
+                          value={lessonFilter}
+                          onChange={(val) => setLessonFilter(String(val))}
+                          options={[
+                            {
+                              value: "ALL",
+                              label: `Tất cả bài học${availableBankLessons.length > 0 ? ` (${availableBankLessons.length})` : ""}`,
+                            },
+                            ...availableBankLessons.map((l) => ({ value: l, label: l })),
+                          ]}
+                          size="sm"
+                        />
+                      )}
 
                       {/* Level */}
                       <CustomSelect
@@ -1931,6 +2067,24 @@ export default function Home() {
                         ]}
                         size="sm"
                       />
+
+                      {/* Reset filter button if any filter is active */}
+                      {(searchQuery || subjectFilter !== "ALL" || gradeFilter !== "ALL" || lessonFilter !== "ALL" || levelFilter !== "ALL" || typeFilter !== "ALL") && (
+                        <button
+                          onClick={() => {
+                            setSearchQuery("");
+                            setSubjectFilter("ALL");
+                            setGradeFilter("ALL");
+                            setLessonFilter("ALL");
+                            setLevelFilter("ALL");
+                            setTypeFilter("ALL");
+                          }}
+                          className="px-2 py-1.5 text-xs text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 font-bold underline cursor-pointer shrink-0"
+                          title="Đặt lại toàn bộ bộ lọc"
+                        >
+                          Xóa lọc
+                        </button>
+                      )}
                     </div>
 
                     {/* Select All in Bank */}
@@ -2012,96 +2166,130 @@ export default function Home() {
 
                 {/* Bank Questions Cards List */}
                 <div className="space-y-3 w-full">
-                  {filteredBankQuestions.map((item, index) => {
-                    const isSelected = selectedBankIds.includes(item.id);
-                    const levelStyle = getLevelBadge(item.question.level.short_name);
-                    const typeStyle = getTypeBadge(item.question.type.short_name);
-                    const subjectStyle = getSubjectBadge(item.question.subject);
-                    const gradeStyle = getGradeBadge(item.question.grade);
-
-                    return (
-                      <div
-                        key={item.id}
-                        className={`bg-white dark:bg-slate-900 rounded-xl border p-3.5 sm:p-4 shadow-xs transition-all w-full ${
-                          isSelected ? "border-indigo-500 dark:border-indigo-600 ring-2 ring-indigo-500/20 dark:ring-indigo-500/30 bg-indigo-50/20 dark:bg-indigo-950/20" : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
-                        }`}
+                  {filteredBankQuestions.length === 0 ? (
+                    <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 space-y-2">
+                      <BookOpen className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        Không tìm thấy câu hỏi nào phù hợp với bộ lọc hiện tại.
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Thử chọn bài học khác hoặc đặt lại bộ lọc để xem toàn bộ câu hỏi.
+                      </p>
+                      <button
+                        onClick={() => {
+                          setSearchQuery("");
+                          setSubjectFilter("ALL");
+                          setGradeFilter("ALL");
+                          setLessonFilter("ALL");
+                          setLevelFilter("ALL");
+                          setTypeFilter("ALL");
+                        }}
+                        className="mt-2 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 rounded-lg transition-colors cursor-pointer"
                       >
-                        <div className="flex items-start justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800 flex-wrap sm:flex-nowrap">
-                          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => {
-                                setSelectedBankIds((prev) =>
-                                  prev.includes(item.id)
-                                    ? prev.filter((id) => id !== item.id)
-                                    : [...prev, item.id]
-                                );
-                              }}
-                              className="w-4 h-4 rounded text-indigo-600 shrink-0"
-                            />
-                            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
-                              Câu {index + 1}
-                            </span>
-                            <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${subjectStyle.bg}`}>
-                              {item.question.subject?.name || "Toán học"}
-                            </span>
-                            <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${gradeStyle.bg}`}>
-                              {item.question.grade?.name || "Khối 12"}
-                            </span>
-                            <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${levelStyle.bg}`}>
-                              {item.question.level.name} ({item.question.level.short_name})
-                            </span>
-                            <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${typeStyle.bg}`}>
-                              {item.question.type.name}
-                            </span>
+                        Đặt lại bộ lọc
+                      </button>
+                    </div>
+                  ) : (
+                    filteredBankQuestions.map((item, index) => {
+                      const isSelected = selectedBankIds.includes(item.id);
+                      const levelStyle = getLevelBadge(item.question.level.short_name);
+                      const typeStyle = getTypeBadge(item.question.type.short_name);
+                      const subjectStyle = getSubjectBadge(item.question.subject);
+                      const gradeStyle = getGradeBadge(item.question.grade);
+
+                      return (
+                        <div
+                          key={item.id}
+                          className={`bg-white dark:bg-slate-900 rounded-xl border p-3.5 sm:p-4 shadow-xs transition-all w-full ${
+                            isSelected ? "border-indigo-500 dark:border-indigo-600 ring-2 ring-indigo-500/20 dark:ring-indigo-500/30 bg-indigo-50/20 dark:bg-indigo-950/20" : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800 flex-wrap sm:flex-nowrap">
+                            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => {
+                                  setSelectedBankIds((prev) =>
+                                    prev.includes(item.id)
+                                      ? prev.filter((id) => id !== item.id)
+                                      : [...prev, item.id]
+                                  );
+                                }}
+                                className="w-4 h-4 rounded text-indigo-600 shrink-0"
+                              />
+                              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded shrink-0">
+                                Câu {index + 1}
+                              </span>
+                              <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${subjectStyle.bg}`}>
+                                {item.question.subject?.name || "Toán học"}
+                              </span>
+                              <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${gradeStyle.bg}`}>
+                                {item.question.grade?.name || "Khối 12"}
+                              </span>
+                              <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${levelStyle.bg}`}>
+                                {item.question.level.name} ({item.question.level.short_name})
+                              </span>
+                              <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${typeStyle.bg}`}>
+                                {item.question.type.name}
+                              </span>
+                              {item.question.lesson && (
+                                <span
+                                  className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800 shrink-0 max-w-[220px] truncate"
+                                  title={item.question.lesson}
+                                >
+                                  <BookOpen className="w-3 h-3 shrink-0" />
+                                  <span className="truncate">{item.question.lesson}</span>
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center gap-1 shrink-0 ml-auto sm:ml-0">
+                              <button
+                                onClick={() => setDetailItem(item)}
+                                className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                                title="Xem chi tiết"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleOpenEdit(item)}
+                                className="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                                title="Chỉnh sửa"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => setItemToDelete(item)}
+                                className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                                title="Xóa câu hỏi"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
 
-                          {/* Action Buttons */}
-                          <div className="flex items-center gap-1 shrink-0 ml-auto sm:ml-0">
-                            <button
-                              onClick={() => setDetailItem(item)}
-                              className="p-1.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-                              title="Xem chi tiết"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleOpenEdit(item)}
-                              className="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-                              title="Chỉnh sửa"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => setItemToDelete(item)}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-                              title="Xóa câu hỏi"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                          <div className="pt-2.5 space-y-1.5">
+                            <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug break-words">
+                              {item.question.question}
+                            </p>
+                            {item.question.content && (
+                              <pre className="font-sans text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap pl-3 border-l-2 border-slate-200 dark:border-slate-700 break-words">
+                                {item.question.content}
+                              </pre>
+                            )}
+                            <div className="flex items-center justify-between text-[11px] pt-1 text-slate-500 dark:text-slate-400 flex-wrap gap-1">
+                              <span className="font-bold text-emerald-700 dark:text-emerald-400">
+                                Đáp án: {item.question.answer || "Chưa có"}
+                              </span>
+                              <span>{item.author.name} • {item.author.update_at}</span>
+                            </div>
                           </div>
                         </div>
-
-                        <div className="pt-2.5 space-y-1.5">
-                          <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug break-words">
-                            {item.question.question}
-                          </p>
-                          {item.question.content && (
-                            <pre className="font-sans text-xs text-slate-600 dark:text-slate-300 whitespace-pre-wrap pl-3 border-l-2 border-slate-200 dark:border-slate-700 break-words">
-                              {item.question.content}
-                            </pre>
-                          )}
-                          <div className="flex items-center justify-between text-[11px] pt-1 text-slate-500 dark:text-slate-400 flex-wrap gap-1">
-                            <span className="font-bold text-emerald-700 dark:text-emerald-400">
-                              Đáp án: {item.question.answer || "Chưa có"}
-                            </span>
-                            <span>{item.author.name} • {item.author.update_at}</span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </div>
             )}

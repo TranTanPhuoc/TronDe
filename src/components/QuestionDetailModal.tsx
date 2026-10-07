@@ -27,7 +27,8 @@ export default function QuestionDetailModal({
   const gradeStyle = getGradeBadge(question.grade);
 
   const handleCopy = () => {
-    const textToCopy = `[${subjectStyle.label} - ${gradeStyle.label} | ${question.type.name} - ${question.level.name}]\nCâu hỏi: ${question.question}\n\nNội dung/Phương án:\n${question.content}\n\nĐáp án: ${question.answer}\n\nLời giải chi tiết:\n${question.solution_guide}`;
+    const lessonPart = question.lesson ? `\nBài học SGK: ${question.lesson}` : "";
+    const textToCopy = `[${subjectStyle.label} - ${gradeStyle.label} | ${question.type.name} - ${question.level.name}]${lessonPart}\nCâu hỏi: ${question.question}\n\nNội dung/Phương án:\n${question.content}\n\nĐáp án: ${question.answer}\n\nLời giải chi tiết:\n${question.solution_guide}`;
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -45,7 +46,7 @@ export default function QuestionDetailModal({
               {subjectStyle.label}
             </span>
             <span
-              className={`text-xs font-bold px-2 py-0.5 rounded-md border ${gradeStyle.bg}`}
+              className={`text-xs font-bold px-2.5 py-0.5 rounded-md border ${gradeStyle.bg}`}
             >
               {gradeStyle.label}
             </span>
@@ -81,6 +82,14 @@ export default function QuestionDetailModal({
 
         {/* Modal Content */}
         <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 text-slate-900 dark:text-slate-100">
+          {/* Lesson info (Bài học trong SGK) */}
+          {question.lesson && (
+            <div className="flex items-center gap-2 p-2.5 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 rounded-xl text-xs sm:text-sm font-semibold text-indigo-900 dark:text-indigo-200">
+              <BookOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <span>Bài học SGK: {question.lesson}</span>
+            </div>
+          )}
+
           {/* Question text */}
           <div>
             <h3 className="text-sm sm:text-base md:text-lg font-bold leading-snug">
