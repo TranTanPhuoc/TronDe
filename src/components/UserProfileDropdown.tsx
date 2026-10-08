@@ -13,6 +13,8 @@ import {
   Building2,
   Sun,
   Moon,
+  Shield,
+  Shuffle,
 } from "lucide-react";
 import { ProfileUserData } from "./ProfileModal";
 import { useTheme } from "@/context/ThemeContext";
@@ -26,6 +28,8 @@ interface UserProfileDropdownProps {
   onOpenFeedback?: () => void;
   onLogout: () => void;
   isMobile?: boolean;
+  onToggleAdminMode?: () => void;
+  isAdminMode?: boolean;
 }
 
 export default function UserProfileDropdown({
@@ -37,6 +41,8 @@ export default function UserProfileDropdown({
   onOpenFeedback,
   onLogout,
   isMobile = false,
+  onToggleAdminMode,
+  isAdminMode = false,
 }: UserProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -158,6 +164,24 @@ export default function UserProfileDropdown({
 
             {/* Menu Items */}
             <div className="space-y-0.5">
+              {user.role === "admin" && onToggleAdminMode && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOpen(false);
+                    onToggleAdminMode();
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer text-left"
+                >
+                  <div className="w-7 h-7 rounded-lg bg-rose-100/70 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                    {isAdminMode ? <Shuffle className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold">{isAdminMode ? "Vào trộn đề thi" : "Quản trị hệ thống"}</p>
+                    <p className="text-[10px] text-slate-400">Chuyển đổi chế độ Admin</p>
+                  </div>
+                </button>
+              )}
               <Link
                 href={APP_ROUTES.PROFILE}
                 onClick={() => {
@@ -400,6 +424,29 @@ export default function UserProfileDropdown({
 
           {/* Navigation Options List */}
           <div className="space-y-1">
+            {user.role === "admin" && onToggleAdminMode && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  onToggleAdminMode();
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-50/80 dark:hover:bg-rose-950/40 rounded-xl transition-all cursor-pointer group text-left border border-rose-200/50 dark:border-rose-900/40"
+              >
+                <div className="w-8 h-8 rounded-lg bg-rose-100/80 dark:bg-rose-950/80 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-2xs">
+                  {isAdminMode ? <Shuffle className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-rose-900 dark:text-rose-100">
+                    {isAdminMode ? "Chuyển sang Trộn Đề Thi" : "Bảng Quản Trị Hệ Thống"}
+                  </div>
+                  <div className="text-[10px] text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300">
+                    {isAdminMode ? "Không gian tạo mã đề và hoán vị" : "Phê duyệt câu hỏi, Quản lý User & Bản quyền"}
+                  </div>
+                </div>
+              </button>
+            )}
+
             {/* Option 1: Personal Profile */}
             <Link
               href={APP_ROUTES.PROFILE}

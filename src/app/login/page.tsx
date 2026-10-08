@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   BookOpenCheck,
   Zap,
+  Shield,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -53,18 +54,19 @@ export default function LoginPage() {
     setIsLoading(true);
 
     setTimeout(() => {
+      const isAdmin = email.toLowerCase().includes("admin");
       const userData = {
-        id: "u-" + Date.now(),
-        name: email.includes("@") ? email.split("@")[0] : email,
+        id: isAdmin ? "admin-master-01" : "u-" + Date.now(),
+        name: isAdmin ? "Ban Quản Trị Hệ Thống" : (email.includes("@") ? email.split("@")[0] : email),
         email: email,
         password: password,
         phone: "0912 345 678",
-        school: "TRƯỜNG THPT CHUYÊN",
-        department: "TỔ TOÁN HỌC",
+        school: isAdmin ? "SỞ GIÁO DỤC VÀ ĐÀO TẠO" : "TRƯỜNG THPT CHUYÊN",
+        department: isAdmin ? "BAN QUẢN TRỊ TRỘN ĐỀ" : "TỔ TOÁN HỌC",
         subject: { id: "TOAN", name: "Toán học" },
-        role: "teacher" as const,
+        role: (isAdmin ? "admin" : "teacher") as "admin" | "teacher",
         version: "pro" as const,
-        avatar: (email[0] || "U").toUpperCase(),
+        avatar: isAdmin ? "AD" : (email[0] || "U").toUpperCase(),
         accessToken: "jwt_access_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
         refreshToken: "jwt_refresh_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
       };
@@ -78,30 +80,49 @@ export default function LoginPage() {
     }, 700);
   };
 
-  // Quick 1-click Demo Login for testing
-  const handleQuickDemoLogin = () => {
+  // Quick 1-click Demo Login for testing Admin or Teacher
+  const handleQuickDemoLogin = (targetRole: "admin" | "teacher" = "teacher") => {
     setIsLoading(true);
     setErrorMsg("");
 
     setTimeout(() => {
-      const demoUser = {
-        id: "demo-teacher-01",
-        name: "Thầy Trần Tấn Phước",
-        email: "phuoc.tran@edu.vn",
-        password: "••••••••",
-        phone: "0912 345 678",
-        school: "TRƯỜNG THPT CHUYÊN",
-        department: "TỔ TOÁN HỌC",
-        subject: { id: "TOAN", name: "Toán học" },
-        role: "teacher" as const,
-        version: "pro" as const,
-        avatar: "TP",
-        accessToken: "mock_jwt_access_token_demo_01",
-        refreshToken: "mock_jwt_refresh_token_demo_01",
-      };
+      const demoUser =
+        targetRole === "admin"
+          ? {
+              id: "admin-master-01",
+              name: "Ban Quản Trị Hệ Thống",
+              email: "admin@edu.vn",
+              password: "••••••••",
+              phone: "0900 888 999",
+              school: "SỞ GIÁO DỤC VÀ ĐÀO TẠO",
+              department: "BAN QUẢN TRỊ TRỘN ĐỀ",
+              subject: { id: "TOAN", name: "Toán học" },
+              role: "admin" as const,
+              version: "pro" as const,
+              avatar: "AD",
+              accessToken: "mock_jwt_admin_token",
+              refreshToken: "mock_jwt_admin_refresh",
+            }
+          : {
+              id: "demo-teacher-01",
+              name: "Thầy Trần Tấn Phước",
+              email: "phuoc.tran@edu.vn",
+              password: "••••••••",
+              phone: "0912 345 678",
+              school: "TRƯỜNG THPT CHUYÊN",
+              department: "TỔ TOÁN HỌC",
+              subject: { id: "TOAN", name: "Toán học" },
+              role: "teacher" as const,
+              version: "pro" as const,
+              avatar: "TP",
+              accessToken: "mock_jwt_access_token_demo_01",
+              refreshToken: "mock_jwt_refresh_token_demo_01",
+            };
 
       localStorage.setItem("tron_de_auth_user", JSON.stringify(demoUser));
-      setSuccessMsg("Đăng nhập bằng tài khoản Demo thành công!");
+      setSuccessMsg(
+        `Đăng nhập thành công với vai trò ${targetRole === "admin" ? "Quản trị viên (Admin)" : "Giáo viên"}!`
+      );
 
       setTimeout(() => {
         router.push(APP_ROUTES.HOME);
@@ -306,16 +327,31 @@ export default function LoginPage() {
             </form>
 
             {/* Quick Demo Login */}
-            <div className="pt-3 border-t border-white/10 space-y-3">
-              <button
-                type="button"
-                onClick={handleQuickDemoLogin}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 text-xs font-semibold text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all cursor-pointer"
-              >
-                <Zap className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Dùng thử ngay với tài khoản Giáo viên Demo</span>
-              </button>
+            <div className="pt-3 border-t border-white/10 space-y-2">
+              <div className="text-[11px] font-semibold text-slate-400 text-center mb-1">
+                Hoặc trải nghiệm nhanh theo vai trò:
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemoLogin("admin")}
+                  disabled={isLoading}
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-xl transition-all cursor-pointer"
+                >
+                  <Shield className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Demo Admin (Quản trị)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleQuickDemoLogin("teacher")}
+                  disabled={isLoading}
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all cursor-pointer"
+                >
+                  <Zap className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Demo Giáo viên</span>
+                </button>
+              </div>
             </div>
 
             {/* Navigation to Register */}

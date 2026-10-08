@@ -51,6 +51,25 @@ export interface ExamItem {
   id: string; // Khóa định danh duy nhất (UUID/Timestamp) cho React & CRUD
   author: Author;
   question: QuestionDetail;
+  isUserCache?: boolean; // True nếu câu hỏi đang lưu trong cache riêng của giáo viên (chờ duyệt)
+  submittedByUserId?: string; // ID của giáo viên đóng góp
+}
+
+export interface PendingQuestionItem {
+  id: string; // Khóa định danh của yêu cầu duyệt
+  questionId: string;
+  questionItem: ExamItem;
+  submittedBy: {
+    userId: string;
+    userName: string;
+    userEmail: string;
+    school: string;
+    department?: string;
+    subject: SubjectItem;
+  };
+  submittedAt: string;
+  status: "pending" | "approved" | "rejected";
+  adminNote?: string;
 }
 
 export const QUESTION_LEVELS: QuestionLevel[] = [

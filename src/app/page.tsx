@@ -54,9 +54,19 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  Shield,
+  Clock,
 } from "lucide-react";
+import AdminPortal from "@/components/admin/AdminPortal";
+import {
+  STORAGE_KEY_QUESTIONS,
+  getUserCachedQuestions,
+  saveUserCachedQuestion,
+  saveUserCachedBulkQuestions,
+  getUserCacheKey,
+} from "@/utils/approvalService";
 
-const STORAGE_KEY = "phan_mem_tron_de_questions_v5";
+const STORAGE_KEY = STORAGE_KEY_QUESTIONS;
 const emptySubscribe = () => () => {};
 
 interface ShuffledQuestion {
@@ -119,6 +129,12 @@ export default function Home() {
     return DEFAULT_TEACHER;
   });
 
+  // Role & Admin Mode State
+  const isAdmin = currentUser?.role === "admin";
+  const [adminMode, setAdminMode] = useState<"admin" | "mixer">(() => {
+    return isAdmin ? "admin" : "mixer";
+  });
+
   // Xóa tiêu đề trang tạm thời trước khi in để trình duyệt không in tên website lên đầu trang
   useEffect(() => {
     let originalTitle = "";
@@ -144,11 +160,11 @@ export default function Home() {
     };
   }, []);
 
-  // Question Bank State - Luon dam bao tat ca cau hoi tu initialQuestions co mat
-  const [questions, setQuestions] = useState<ExamItem[]>(() => {
+  // Global Question Bank State (chứa tất cả các câu hỏi chính thức của hệ thống)
+  const [globalQuestions, setGlobalQuestions] = useState<ExamItem[]>(() => {
     if (typeof window !== "undefined") {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(STORAGE_KEY_QUESTIONS);
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
@@ -176,6 +192,45 @@ export default function Home() {
     }
     return initialQuestions;
   });
+
+  // User cache questions (câu hỏi cá nhân được lưu tạm trong cache của tài khoản người dùng)
+  const [userCachedQuestions, setUserCachedQuestions] = useState<ExamItem[]>(() => {
+    if (typeof window !== "undefined" && currentUser?.id) {
+      return getUserCachedQuestions(currentUser.id);
+    }
+    return [];
+  });
+
+  // Đồng bộ role và môn học khi currentUser thay đổi
+  useEffect(() => {
+    if (currentUser?.id) {
+      setUserCachedQuestions(getUserCachedQuestions(currentUser.id));
+    }
+    if (currentUser?.role === "admin") {
+      setAdminMode("admin");
+    } else {
+      setAdminMode("mixer");
+      if (currentUser?.subject?.id) {
+        setSelectedSubjectId(currentUser.subject.id);
+        setSubjectName(`MÔN: ${(currentUser.subject.name || "TOÁN HỌC").toUpperCase()}`);
+        setSubjectFilter(currentUser.subject.id);
+      }
+    }
+  }, [currentUser]);
+
+  // Danh sách câu hỏi hiển thị theo vai trò (Admin thấy tất cả môn; Giáo viên chỉ thấy môn của mình + cache câu hỏi vừa tạo)
+  const questions = useMemo<ExamItem[]>(() => {
+    if (isAdmin) return globalQuestions;
+    const teacherSubId = currentUser?.subject?.id || "TOAN";
+    const subjectGlobals = globalQuestions.filter(
+      (q) => !q.question.subject?.id || q.question.subject.id === teacherSubId
+    );
+    const cachedIds = new Set(userCachedQuestions.map((q) => q.id));
+    return [
+      ...userCachedQuestions,
+      ...subjectGlobals.filter((q) => !cachedIds.has(q.id)),
+    ];
+  }, [isAdmin, globalQuestions, userCachedQuestions, currentUser?.subject?.id]);
 
   // Selected question IDs for shuffling (Mac dinh khong chon truoc cau hoi nao, de nguoi dung tu chon)
   const [activeQuestionIds, setActiveQuestionIds] = useState<string[]>([]);
@@ -211,7 +266,9 @@ export default function Home() {
 
   // Search & Filter in Bank Tab
   const [searchQuery, setSearchQuery] = useState("");
-  const [subjectFilter, setSubjectFilter] = useState("ALL");
+  const [subjectFilter, setSubjectFilter] = useState<string>(() =>
+    currentUser.role === "admin" ? "ALL" : (currentUser.subject?.id || "TOAN")
+  );
   const [gradeFilter, setGradeFilter] = useState("ALL");
   const [lessonFilter, setLessonFilter] = useState("ALL");
   const [levelFilter, setLevelFilter] = useState("ALL");
@@ -248,10 +305,10 @@ export default function Home() {
     router.replace(APP_ROUTES.LOGIN);
   };
 
-  const saveQuestions = (newQuestions: ExamItem[]) => {
-    setQuestions(newQuestions);
+  const saveGlobalQuestionsToStorage = (newGlobal: ExamItem[]) => {
+    setGlobalQuestions(newGlobal);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newQuestions));
+      localStorage.setItem(STORAGE_KEY_QUESTIONS, JSON.stringify(newGlobal));
     } catch {
       // Storage error
     }
@@ -648,44 +705,130 @@ export default function Home() {
 
   const handleSaveBulkQuestions = (newItems: ExamItem[]) => {
     if (newItems.length === 0) return;
-    const updated = [...newItems, ...questions];
-    saveQuestions(updated);
-    const newIds = newItems.map((item) => item.id);
-    setActiveQuestionIds((prev) => [...newIds, ...prev]);
-    showToast(`Đã thêm thành công ${newItems.length} câu hỏi vào ngân hàng!`);
+
+    if (!isAdmin) {
+      // Dành cho Giáo viên: Gắn môn học của giáo viên, lưu vào cache riêng và gửi request Admin phê duyệt
+      const teacherItems = newItems.map((item) => ({
+        ...item,
+        question: {
+          ...item.question,
+          subject: currentUser.subject || { id: "TOAN", name: "Toán học" },
+        },
+      }));
+      saveUserCachedBulkQuestions(currentUser.id, teacherItems, currentUser);
+      setUserCachedQuestions(getUserCachedQuestions(currentUser.id));
+      const newIds = teacherItems.map((item) => item.id);
+      setActiveQuestionIds((prev) => [...newIds, ...prev]);
+      showToast(
+        `Đã lưu ${teacherItems.length} câu hỏi vào bộ nhớ riêng & gửi yêu cầu phê duyệt tới Admin!`,
+        "success"
+      );
+    } else {
+      // Dành cho Admin: Lưu trực tiếp vào ngân hàng câu hỏi chung
+      const updated = [...newItems, ...globalQuestions];
+      saveGlobalQuestionsToStorage(updated);
+      const newIds = newItems.map((item) => item.id);
+      setActiveQuestionIds((prev) => [...newIds, ...prev]);
+      showToast(`Đã thêm thành công ${newItems.length} câu hỏi vào ngân hàng chung!`);
+    }
   };
 
   const handleSaveQuestion = (savedItem: ExamItem) => {
-    const exists = questions.some((q) => q.id === savedItem.id);
-    let updated: ExamItem[];
-    if (exists) {
-      updated = questions.map((q) => (q.id === savedItem.id ? savedItem : q));
-      showToast("Đã cập nhật câu hỏi thành công!");
+    if (!isAdmin) {
+      // Dành cho Giáo viên: Gắn môn học của giáo viên, lưu vào cache riêng và gửi request Admin phê duyệt
+      const teacherItem: ExamItem = {
+        ...savedItem,
+        question: {
+          ...savedItem.question,
+          subject: currentUser.subject || { id: "TOAN", name: "Toán học" },
+        },
+      };
+      saveUserCachedQuestion(currentUser.id, teacherItem, currentUser);
+      setUserCachedQuestions(getUserCachedQuestions(currentUser.id));
+      setActiveQuestionIds((prev) => [...prev, teacherItem.id]);
+      showToast(
+        "Đã lưu câu hỏi vào bộ nhớ riêng & gửi yêu cầu phê duyệt tới Admin!",
+        "success"
+      );
     } else {
-      updated = [savedItem, ...questions];
-      setActiveQuestionIds((prev) => [...prev, savedItem.id]);
-      showToast("Đã thêm câu hỏi mới!");
+      // Dành cho Admin: Cập nhật hoặc lưu mới trực tiếp vào ngân hàng chung
+      const exists = globalQuestions.some((q) => q.id === savedItem.id);
+      let updated: ExamItem[];
+      if (exists) {
+        updated = globalQuestions.map((q) => (q.id === savedItem.id ? savedItem : q));
+        showToast("Đã cập nhật câu hỏi thành công!");
+      } else {
+        updated = [savedItem, ...globalQuestions];
+        setActiveQuestionIds((prev) => [...prev, savedItem.id]);
+        showToast("Đã thêm câu hỏi mới vào ngân hàng chung!");
+      }
+      saveGlobalQuestionsToStorage(updated);
     }
-    saveQuestions(updated);
   };
 
   const handleDeleteItem = () => {
     if (!itemToDelete) return;
-    const updated = questions.filter((q) => q.id !== itemToDelete.id);
-    setActiveQuestionIds((prev) => prev.filter((id) => id !== itemToDelete.id));
-    setSelectedBankIds((prev) => prev.filter((id) => id !== itemToDelete.id));
-    saveQuestions(updated);
-    setItemToDelete(null);
-    showToast("Đã xóa câu hỏi khỏi ngân hàng!");
+
+    if (!isAdmin) {
+      // Giáo viên chỉ có quyền xóa câu hỏi trong cache riêng của mình
+      const isCached = userCachedQuestions.some((q) => q.id === itemToDelete.id);
+      if (isCached) {
+        const updatedCache = userCachedQuestions.filter((q) => q.id !== itemToDelete.id);
+        setUserCachedQuestions(updatedCache);
+        try {
+          localStorage.setItem(getUserCacheKey(currentUser.id), JSON.stringify(updatedCache));
+        } catch {}
+        setActiveQuestionIds((prev) => prev.filter((id) => id !== itemToDelete.id));
+        setSelectedBankIds((prev) => prev.filter((id) => id !== itemToDelete.id));
+        setItemToDelete(null);
+        showToast("Đã xóa câu hỏi khỏi bộ nhớ tạm của bạn!");
+      } else {
+        setItemToDelete(null);
+        showToast("Câu hỏi trong ngân hàng chung chỉ Quản trị viên mới có thể xóa!", "info");
+      }
+    } else {
+      // Admin có toàn quyền xóa trong ngân hàng chung
+      const updated = globalQuestions.filter((q) => q.id !== itemToDelete.id);
+      setActiveQuestionIds((prev) => prev.filter((id) => id !== itemToDelete.id));
+      setSelectedBankIds((prev) => prev.filter((id) => id !== itemToDelete.id));
+      saveGlobalQuestionsToStorage(updated);
+      setItemToDelete(null);
+      showToast("Đã xóa câu hỏi khỏi ngân hàng chung!");
+    }
   };
 
   const handleConfirmBulkDelete = () => {
-    const updated = questions.filter((q) => !selectedBankIds.includes(q.id));
-    setActiveQuestionIds((prev) => prev.filter((id) => !selectedBankIds.includes(id)));
-    saveQuestions(updated);
-    setSelectedBankIds([]);
-    setIsBulkDeleteOpen(false);
-    showToast(`Đã xóa ${selectedBankIds.length} câu hỏi thành công!`);
+    if (!isAdmin) {
+      // Giáo viên: Lọc ra các câu hỏi thuộc cache riêng để xóa
+      const cachedIdsToDelete = new Set(
+        selectedBankIds.filter((id) => userCachedQuestions.some((q) => q.id === id))
+      );
+      if (cachedIdsToDelete.size === 0) {
+        showToast(
+          "Chỉ các câu hỏi bạn thêm vào bộ nhớ tạm mới có thể xóa. Câu hỏi chung chỉ Admin mới xóa được!",
+          "info"
+        );
+        setIsBulkDeleteOpen(false);
+        return;
+      }
+      const updatedCache = userCachedQuestions.filter((q) => !cachedIdsToDelete.has(q.id));
+      setUserCachedQuestions(updatedCache);
+      try {
+        localStorage.setItem(getUserCacheKey(currentUser.id), JSON.stringify(updatedCache));
+      } catch {}
+      setActiveQuestionIds((prev) => prev.filter((id) => !cachedIdsToDelete.has(id)));
+      setSelectedBankIds((prev) => prev.filter((id) => !cachedIdsToDelete.has(id)));
+      setIsBulkDeleteOpen(false);
+      showToast(`Đã xóa ${cachedIdsToDelete.size} câu hỏi khỏi bộ nhớ tạm của bạn!`);
+    } else {
+      // Admin: Xóa trong ngân hàng chung
+      const updated = globalQuestions.filter((q) => !selectedBankIds.includes(q.id));
+      setActiveQuestionIds((prev) => prev.filter((id) => !selectedBankIds.includes(id)));
+      saveGlobalQuestionsToStorage(updated);
+      setSelectedBankIds([]);
+      setIsBulkDeleteOpen(false);
+      showToast(`Đã xóa ${selectedBankIds.length} câu hỏi thành công!`);
+    }
   };
 
   // Danh sách các bài học duy nhất đang có trong ngân hàng câu hỏi của Môn và Khối được lọc ở Tab Ngân hàng
@@ -812,6 +955,31 @@ export default function Home() {
 
             {/* Quick Actions & User Profile */}
             <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+              {/* If Admin: Quick Switcher between Admin Portal & Exam Mixer */}
+              {isAdmin && (
+                <button
+                  onClick={() => setAdminMode(adminMode === "admin" ? "mixer" : "admin")}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-black rounded-xl border transition-all cursor-pointer shadow-xs ${
+                    adminMode === "admin"
+                      ? "bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800 hover:bg-indigo-100"
+                      : "bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800 hover:bg-rose-100"
+                  }`}
+                  title={adminMode === "admin" ? "Chuyển sang không gian Trộn đề thi" : "Quay lại Bảng quản trị hệ thống"}
+                >
+                  {adminMode === "admin" ? (
+                    <>
+                      <Shuffle className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>Vào Trộn Đề Thi</span>
+                    </>
+                  ) : (
+                    <>
+                      <Shield className="w-3.5 h-3.5 text-rose-600" />
+                      <span>Quản Trị Hệ Thống</span>
+                    </>
+                  )}
+                </button>
+              )}
+
               {/* Create Question Button with 3D tactile button feel & Dropdown */}
               <div className="relative">
                 <div className="inline-flex rounded-xl shadow-[0_4px_12px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.35),inset_0_-2px_0_rgba(0,0,0,0.2)] overflow-hidden">
@@ -870,6 +1038,8 @@ export default function Home() {
                 schoolName={schoolName}
                 departmentName={departmentName}
                 onLogout={handleLogout}
+                onToggleAdminMode={isAdmin ? () => setAdminMode(adminMode === "admin" ? "mixer" : "admin") : undefined}
+                isAdminMode={adminMode === "admin"}
               />
             </div>
           </div>
@@ -893,6 +1063,16 @@ export default function Home() {
               </div>
 
               <div className="flex items-center gap-1.5 shrink-0">
+                {isAdmin && (
+                  <button
+                    onClick={() => setAdminMode(adminMode === "admin" ? "mixer" : "admin")}
+                    className="p-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 text-xs font-bold"
+                    title={adminMode === "admin" ? "Vào Trộn Đề" : "Quản trị"}
+                  >
+                    {adminMode === "admin" ? <Shuffle className="w-3.5 h-3.5" /> : <Shield className="w-3.5 h-3.5 text-rose-600" />}
+                  </button>
+                )}
+
                 <button
                   onClick={handleOpenCreate}
                   className="inline-flex items-center gap-1 py-1.5 px-2.5 text-xs font-bold text-white bg-gradient-to-b from-indigo-500 to-indigo-700 rounded-xl shadow-[0_2px_6px_rgba(79,70,229,0.3),inset_0_1px_1px_rgba(255,255,255,0.3)] active:scale-95 transition-all cursor-pointer"
@@ -911,67 +1091,121 @@ export default function Home() {
                   departmentName={departmentName}
                   onLogout={handleLogout}
                   isMobile={true}
+                  onToggleAdminMode={isAdmin ? () => setAdminMode(adminMode === "admin" ? "mixer" : "admin") : undefined}
+                  isAdminMode={adminMode === "admin"}
                 />
               </div>
             </div>
           </div>
 
           {/* Navigation Bar / Tabs - Full Width Scrollable */}
-          <div className="flex items-center gap-1.5 overflow-x-auto border-t border-slate-100 dark:border-slate-800 py-1.5 scrollbar-none w-full">
-            <button
-              onClick={() => setActiveTab("exam")}
-              className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
-                activeTab === "exam"
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Đề Thi ({generatedExams.length})</span>
-            </button>
+          <div className="flex items-center justify-between gap-1.5 overflow-x-auto border-t border-slate-100 dark:border-slate-800 py-1.5 scrollbar-none w-full">
+            <div className="flex items-center gap-1.5 shrink-0">
+              {isAdmin && adminMode === "admin" ? (
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-black text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/70 border border-rose-200 dark:border-rose-800 rounded-lg">
+                  <Shield className="w-3.5 h-3.5 text-rose-600" />
+                  <span>BẢNG ĐIỀU KHIỂN QUẢN TRỊ ADMIN (Phê duyệt câu hỏi, Quản lý User, Ngân hàng chung & Bản quyền)</span>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setActiveTab("exam")}
+                    className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
+                      activeTab === "exam"
+                        ? "bg-indigo-600 text-white shadow-xs"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>Đề Thi ({generatedExams.length})</span>
+                  </button>
 
-            <button
-              onClick={() => setActiveTab("matrix")}
-              className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
-                activeTab === "matrix"
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              <TableProperties className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Ma Trận Đáp Án</span>
-            </button>
+                  <button
+                    onClick={() => setActiveTab("matrix")}
+                    className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
+                      activeTab === "matrix"
+                        ? "bg-indigo-600 text-white shadow-xs"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <TableProperties className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>Ma Trận Đáp Án</span>
+                  </button>
 
-            <button
-              onClick={() => setActiveTab("solution")}
-              className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
-                activeTab === "solution"
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Lời Giải Chi Tiết</span>
-            </button>
+                  <button
+                    onClick={() => setActiveTab("solution")}
+                    className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
+                      activeTab === "solution"
+                        ? "bg-indigo-600 text-white shadow-xs"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>Lời Giải Chi Tiết</span>
+                  </button>
 
-            <button
-              onClick={() => setActiveTab("bank")}
-              className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
-                activeTab === "bank"
-                  ? "bg-indigo-600 text-white shadow-xs"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Ngân Hàng Câu Hỏi ({questions.length})</span>
-            </button>
+                  <button
+                    onClick={() => setActiveTab("bank")}
+                    className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
+                      activeTab === "bank"
+                        ? "bg-indigo-600 text-white shadow-xs"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span>Ngân Hàng Câu Hỏi ({questions.length})</span>
+                  </button>
+                </>
+              )}
+            </div>
+
+            {isAdmin && (
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setAdminMode(adminMode === "admin" ? "mixer" : "admin")}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                    adminMode === "admin"
+                      ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-xs"
+                      : "bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100"
+                  }`}
+                >
+                  {adminMode === "admin" ? (
+                    <>
+                      <Shuffle className="w-3.5 h-3.5" />
+                      <span>Chuyển sang Trộn Đề</span>
+                    </>
+                  ) : (
+                    <>
+                      <Shield className="w-3.5 h-3.5 text-rose-600" />
+                      <span>Quản Trị Hệ Thống</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
       {/* Main Workspace - 100% Full Screen Width */}
       <main className="w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1">
-        {/* On Mobile: Collapsible Exam Configuration Accordion Button */}
+        {isAdmin && adminMode === "admin" ? (
+          <AdminPortal
+            currentUser={currentUser}
+            globalQuestions={globalQuestions}
+            onGlobalQuestionsChange={(updated) => {
+              saveGlobalQuestionsToStorage(updated);
+              if (currentUser?.id) {
+                setUserCachedQuestions(getUserCachedQuestions(currentUser.id));
+              }
+            }}
+            onOpenQuestionModal={() => handleOpenCreate("manual")}
+            onOpenEditQuestion={handleOpenEdit}
+            onSwitchToMixer={() => setAdminMode("mixer")}
+          />
+        ) : (
+          <>
+            {/* On Mobile: Collapsible Exam Configuration Accordion Button */}
         {activeTab !== "bank" && (
           <div className="lg:hidden mb-4 no-print">
             <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3 shadow-xs flex items-center justify-between">
@@ -1058,30 +1292,47 @@ export default function Home() {
 
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
-                        Môn học
+                      <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1 flex items-center justify-between">
+                        <span>Môn học</span>
+                        {!isAdmin && (
+                          <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">
+                            (Cố định)
+                          </span>
+                        )}
                       </label>
-                      <CustomSelect
-                        value={selectedSubjectId}
-                        onChange={(sId) => {
-                          const val = String(sId);
-                          setSelectedSubjectId(val);
-                          const found = SUBJECTS.find((s) => s.id === val);
-                          if (found) {
-                            setSubjectName(`MÔN: ${found.name.toUpperCase()}`);
-                          }
-                          // Bỏ chọn hết tất cả các câu hỏi để người dùng tự chọn lại từ đầu
-                          setActiveQuestionIds([]);
-                          setGeneratedExams([]);
-                          setSelectedVariantIndex(0);
-                          setSelectedGradeId("ALL"); // Reset về tất cả khối của môn đó
-                          setSidebarLesson("ALL");
-                          setSidebarSearch("");
-                          setSidebarLevel("ALL");
-                          setSidebarType("ALL");
-                        }}
-                        options={SUBJECTS.map((s) => ({ value: s.id, label: s.name }))}
-                      />
+                      {isAdmin ? (
+                        <CustomSelect
+                          value={selectedSubjectId}
+                          onChange={(sId) => {
+                            const val = String(sId);
+                            setSelectedSubjectId(val);
+                            const found = SUBJECTS.find((s) => s.id === val);
+                            if (found) {
+                              setSubjectName(`MÔN: ${found.name.toUpperCase()}`);
+                            }
+                            // Bỏ chọn hết tất cả các câu hỏi để người dùng tự chọn lại từ đầu
+                            setActiveQuestionIds([]);
+                            setGeneratedExams([]);
+                            setSelectedVariantIndex(0);
+                            setSelectedGradeId("ALL"); // Reset về tất cả khối của môn đó
+                            setSidebarLesson("ALL");
+                            setSidebarSearch("");
+                            setSidebarLevel("ALL");
+                            setSidebarType("ALL");
+                          }}
+                          options={SUBJECTS.map((s) => ({ value: s.id, label: s.name }))}
+                        />
+                      ) : (
+                        <div
+                          className="w-full px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-100 font-bold text-xs truncate flex items-center justify-between shadow-2xs"
+                          title={`Môn ${currentUser.subject?.name || "Toán học"} được cố định theo tài khoản giáo viên của bạn`}
+                        >
+                          <span className="truncate">{currentUser.subject?.name || "Toán học"}</span>
+                          <span className="text-[9px] text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 px-1.5 py-0.5 rounded font-black border border-indigo-200/60 dark:border-indigo-800 shrink-0 ml-1">
+                            Môn của bạn
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -1477,6 +1728,11 @@ export default function Home() {
                               <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
                                 [{q.question.type.short_name}]
                               </span>
+                              {q.isUserCache && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 shrink-0">
+                                  Chờ duyệt
+                                </span>
+                              )}
                               {q.question.lesson && (
                                 <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium truncate max-w-[140px]" title={q.question.lesson}>
                                   • {q.question.lesson}
@@ -2009,18 +2265,25 @@ export default function Home() {
                     {/* Filter controls */}
                     <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto flex-wrap">
                       {/* Subject */}
-                      <CustomSelect
-                        value={subjectFilter}
-                        onChange={(val) => {
-                          setSubjectFilter(String(val));
-                          setLessonFilter("ALL");
-                        }}
-                        options={[
-                          { value: "ALL", label: "Tất cả môn học" },
-                          ...SUBJECTS.map((s) => ({ value: s.id, label: s.name })),
-                        ]}
-                        size="sm"
-                      />
+                      {isAdmin ? (
+                        <CustomSelect
+                          value={subjectFilter}
+                          onChange={(val) => {
+                            setSubjectFilter(String(val));
+                            setLessonFilter("ALL");
+                          }}
+                          options={[
+                            { value: "ALL", label: "Tất cả môn học" },
+                            ...SUBJECTS.map((s) => ({ value: s.id, label: s.name })),
+                          ]}
+                          size="sm"
+                        />
+                      ) : (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-bold shrink-0 shadow-2xs">
+                          <BookOpen className="w-3.5 h-3.5" />
+                          <span>Môn: {currentUser.subject?.name || "Toán học"}</span>
+                        </div>
+                      )}
 
                       {/* Grade */}
                       <CustomSelect
@@ -2081,11 +2344,11 @@ export default function Home() {
                       />
 
                       {/* Reset filter button if any filter is active */}
-                      {(searchQuery || subjectFilter !== "ALL" || gradeFilter !== "ALL" || lessonFilter !== "ALL" || levelFilter !== "ALL" || typeFilter !== "ALL") && (
+                      {(searchQuery || (isAdmin && subjectFilter !== "ALL") || gradeFilter !== "ALL" || lessonFilter !== "ALL" || levelFilter !== "ALL" || typeFilter !== "ALL") && (
                         <button
                           onClick={() => {
                             setSearchQuery("");
-                            setSubjectFilter("ALL");
+                            setSubjectFilter(isAdmin ? "ALL" : (currentUser.subject?.id || "TOAN"));
                             setGradeFilter("ALL");
                             setLessonFilter("ALL");
                             setLevelFilter("ALL");
@@ -2245,6 +2508,12 @@ export default function Home() {
                               <span className={`text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded border shrink-0 ${typeStyle.bg}`}>
                                 {item.question.type.name}
                               </span>
+                              {item.isUserCache && (
+                                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/70 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-800 shrink-0">
+                                  <Clock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                                  Chờ Admin duyệt
+                                </span>
+                              )}
                               {item.question.lesson && (
                                 <span
                                   className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800 shrink-0 max-w-[220px] truncate"
@@ -2307,7 +2576,9 @@ export default function Home() {
             )}
           </div>
         </div>
-      </main>
+      </>
+    )}
+  </main>
 
       {/* Footer (no-print) */}
       <Footer />
@@ -2320,7 +2591,7 @@ export default function Home() {
         onSaveBulk={handleSaveBulkQuestions}
         editingItem={editingItem}
         initialTab={modalInitialTab}
-        defaultSubjectId={selectedSubjectId || "TOAN"}
+        defaultSubjectId={!isAdmin ? (currentUser.subject?.id || "TOAN") : (selectedSubjectId || "TOAN")}
         defaultGradeId={selectedGradeId !== "ALL" ? Number(selectedGradeId) : 12}
       />
 

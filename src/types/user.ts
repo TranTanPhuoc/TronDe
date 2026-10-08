@@ -25,3 +25,17 @@ export interface User {
 
 export type ProfileUserData = User;
 
+export interface LicenseSubscription {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  school: string;
+  plan: UserVersion;
+  status: "active" | "pending" | "expired";
+  requestDate: string;
+  activatedDate?: string;
+  durationMonths: number;
+  price: number;
+  note?: string;
+}
