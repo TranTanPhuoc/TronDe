@@ -57,9 +57,16 @@ export default function LoginPage() {
         id: "u-" + Date.now(),
         name: email.includes("@") ? email.split("@")[0] : email,
         email: email,
-        school: "THPT Chuyên - Tổ Toán",
-        role: "Giáo viên",
+        password: password,
+        phone: "0912 345 678",
+        school: "TRƯỜNG THPT CHUYÊN",
+        department: "TỔ TOÁN HỌC",
+        subject: { id: "TOAN", name: "Toán học" },
+        role: "teacher" as const,
+        version: "pro" as const,
         avatar: (email[0] || "U").toUpperCase(),
+        accessToken: "jwt_access_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
+        refreshToken: "jwt_refresh_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
       };
 
       localStorage.setItem("tron_de_auth_user", JSON.stringify(userData));
@@ -81,9 +88,16 @@ export default function LoginPage() {
         id: "demo-teacher-01",
         name: "Thầy Trần Tấn Phước",
         email: "phuoc.tran@edu.vn",
+        password: "••••••••",
+        phone: "0912 345 678",
         school: "TRƯỜNG THPT CHUYÊN",
-        role: "Tổ trưởng Chuyên môn",
+        department: "TỔ TOÁN HỌC",
+        subject: { id: "TOAN", name: "Toán học" },
+        role: "teacher" as const,
+        version: "pro" as const,
         avatar: "TP",
+        accessToken: "mock_jwt_access_token_demo_01",
+        refreshToken: "mock_jwt_refresh_token_demo_01",
       };
 
       localStorage.setItem("tron_de_auth_user", JSON.stringify(demoUser));

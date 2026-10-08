@@ -12,21 +12,12 @@ import {
   Shield,
   AlertCircle,
   Lock,
+  Sparkles,
 } from "lucide-react";
+import { User as UserType, ProfileUserData as ProfileUserDataType, UserRole, UserVersion } from "@/types/user";
 
-export interface ProfileUserData {
-  id: string;
-  name: string;
-  email: string;
-  school: string;
-  role: string;
-  avatar: string;
-  avatarImage?: string;
-  department?: string;
-  phone?: string;
-  subject?: string;
-  bio?: string;
-}
+export type ProfileUserData = ProfileUserDataType;
+export type { UserType, UserRole, UserVersion };
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -65,7 +56,7 @@ function ProfileModalContent({
   const [department] = useState(
     currentUser.department || departmentName
   );
-  const [role, setRole] = useState(currentUser.role || "Tổ trưởng Chuyên môn");
+  const [role, setRole] = useState<UserRole>(currentUser.role || "teacher");
   const [avatarText, setAvatarText] = useState(currentUser.avatar || "GV");
   const [selectedPalette, setSelectedPalette] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
@@ -90,7 +81,7 @@ function ProfileModalContent({
       phone: phone.trim(),
       school: school.trim(),
       department: department.trim(),
-      role: role.trim(),
+      role: role,
       avatar: avatarText.trim().toUpperCase() || "GV",
     };
 
@@ -236,7 +227,7 @@ function ProfileModalContent({
                   </span>
                 </div>
                 <div className="relative">
-                  <BookOpen className="w-4 h-4 text-indigo-500 dark:text-indigo-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Building2 className="w-4 h-4 text-indigo-500 dark:text-indigo-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     readOnly
@@ -246,6 +237,33 @@ function ProfileModalContent({
                   />
                   <Lock className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
                 </div>
+              </div>
+
+              {/* Subject / Môn học giảng dạy chính - CỐ ĐỊNH, KHÔNG CHO THAY ĐỔI */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    Môn học (Subject) giảng dạy chính
+                  </label>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.2 rounded border border-amber-200 dark:border-amber-800">
+                    <Lock className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
+                    <span>Cố định (Không thể sửa)</span>
+                  </span>
+                </div>
+                <div className="relative">
+                  <BookOpen className="w-4 h-4 text-emerald-500 dark:text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    readOnly
+                    disabled
+                    value={typeof currentUser.subject === "object" ? (currentUser.subject?.name || "Toán học") : (currentUser.subject || "Toán học")}
+                    className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-slate-100 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-bold cursor-not-allowed select-none shadow-2xs"
+                  />
+                  <Lock className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                </div>
+                <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
+                  Môn học (Subject) được cố định theo tài khoản khi đăng ký và không thể thay đổi.
+                </p>
               </div>
 
               {/* Email */}
@@ -282,20 +300,38 @@ function ProfileModalContent({
                 </div>
               </div>
 
-              {/* Role */}
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Chức vụ / Vai trò chuyên môn
-                </label>
-                <div className="relative">
-                  <Shield className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    placeholder="VD: Tổ trưởng Chuyên môn / Giáo viên bộ môn"
-                    className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-white dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
-                  />
+              {/* Role & Version info */}
+              <div className="grid grid-cols-2 gap-3 sm:col-span-2">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                    Quyền hạn (Role)
+                  </label>
+                  <div className="relative">
+                    <Shield className="w-4 h-4 text-indigo-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      readOnly
+                      disabled
+                      value={currentUser.role === "admin" ? "Quản trị viên (admin)" : "Giáo viên (teacher)"}
+                      className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-slate-100 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-bold cursor-not-allowed select-none shadow-2xs"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                    Phiên bản (Version)
+                  </label>
+                  <div className="relative">
+                    <Sparkles className="w-4 h-4 text-amber-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      readOnly
+                      disabled
+                      value={currentUser.version === "pro" ? "Bản Nâng Cao (PRO)" : "Bản Tiêu Chuẩn (NORMAL)"}
+                      className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-slate-100 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-bold cursor-not-allowed select-none shadow-2xs"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

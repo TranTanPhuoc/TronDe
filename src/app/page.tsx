@@ -83,11 +83,16 @@ const DEFAULT_TEACHER: CurrentUser = {
   id: "demo-teacher-01",
   name: "Thầy Trần Tấn Phước",
   email: "phuoc.tran@edu.vn",
+  password: "••••••••",
+  phone: "0912 345 678",
   school: "TRƯỜNG THPT CHUYÊN",
   department: "TỔ TOÁN HỌC",
-  role: "Tổ trưởng Chuyên môn",
+  subject: { id: "TOAN", name: "Toán học" },
+  role: "teacher",
+  version: "pro",
   avatar: "TP",
-  phone: "0912 345 678",
+  accessToken: "mock_jwt_access_token_demo_01",
+  refreshToken: "mock_jwt_refresh_token_demo_01",
 };
 
 export default function Home() {
@@ -99,7 +104,14 @@ export default function Home() {
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem("tron_de_auth_user");
-        if (stored) return JSON.parse(stored);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (typeof parsed.subject === "string") {
+            const found = SUBJECTS.find((s) => s.name === parsed.subject || s.id === parsed.subject);
+            parsed.subject = found || { id: "TOAN", name: parsed.subject || "Toán học" };
+          }
+          return parsed;
+        }
       } catch {
         // Storage error
       }
@@ -169,11 +181,11 @@ export default function Home() {
   const [activeQuestionIds, setActiveQuestionIds] = useState<string[]>([]);
 
   // Exam Configuration State
-  const [schoolName, setSchoolName] = useState("TRƯỜNG THPT CHUYÊN");
-  const [departmentName, setDepartmentName] = useState("TỔ BỘ MÔN CHUYÊN MÔN");
+  const [schoolName, setSchoolName] = useState(() => currentUser.school || "TRƯỜNG THPT CHUYÊN");
+  const [departmentName, setDepartmentName] = useState(() => currentUser.department || "TỔ BỘ MÔN CHUYÊN MÔN");
   const [examTitle, setExamTitle] = useState("KIỂM TRA CHẤT LƯỢNG ĐỊNH KỲ");
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>("TOAN");
-  const [subjectName, setSubjectName] = useState("MÔN: TOÁN HỌC");
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(() => currentUser.subject?.id || "TOAN");
+  const [subjectName, setSubjectName] = useState<string>(() => `MÔN: ${(currentUser.subject?.name || "TOÁN HỌC").toUpperCase()}`);
   const [selectedGradeId, setSelectedGradeId] = useState<number | "ALL">("ALL");
   const [duration, setDuration] = useState("45");
   const [numVariants, setNumVariants] = useState<number>(4);
@@ -1047,7 +1059,7 @@ export default function Home() {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
-                        Môn học
+                        Môn học (Subject)
                       </label>
                       <CustomSelect
                         value={selectedSubjectId}
@@ -1322,32 +1334,6 @@ export default function Home() {
                     />
                   </div>
 
-                  {/* Lesson Filter Dropdown (Hiện tiếp khi đã chọn Khối) */}
-                  {selectedGradeId !== "ALL" && (
-                    <div className="flex items-center gap-1.5 text-[11px] pt-0.5 animate-in fade-in duration-200">
-                      <span className="text-slate-500 dark:text-slate-400 font-semibold shrink-0 flex items-center gap-1">
-                        <BookOpen className="w-3 h-3 text-indigo-500" />
-                        Bài:
-                      </span>
-                      <CustomSelect
-                        value={sidebarLesson}
-                        onChange={(val) => {
-                          setSidebarLesson(String(val));
-                          setSidebarSearch("");
-                        }}
-                        options={[
-                          {
-                            value: "ALL",
-                            label: `Tất cả bài học${availableSidebarLessons.length > 0 ? ` (${availableSidebarLessons.length})` : ""}`,
-                          },
-                          ...availableSidebarLessons.map((l) => ({ value: l, label: l })),
-                        ]}
-                        size="sm"
-                        className="flex-1 min-w-0"
-                      />
-                    </div>
-                  )}
-
                   {/* Grade Filter & Reset button */}
                   <div className="flex items-center justify-between text-[11px] gap-2 pt-0.5">
                     <div className="flex items-center gap-1.5 flex-1 min-w-0">
@@ -1391,6 +1377,32 @@ export default function Home() {
                       </button>
                     )}
                   </div>
+
+                  {/* Lesson Filter Dropdown (Được đặt xuống dưới Chọn Khối, chỉ hiện khi đã chọn Khối) */}
+                  {selectedGradeId !== "ALL" && (
+                    <div className="flex items-center gap-1.5 text-[11px] pt-0.5 animate-in fade-in duration-200">
+                      <span className="text-slate-500 dark:text-slate-400 font-semibold shrink-0 flex items-center gap-1">
+                        <BookOpen className="w-3 h-3 text-indigo-500" />
+                        Bài:
+                      </span>
+                      <CustomSelect
+                        value={sidebarLesson}
+                        onChange={(val) => {
+                          setSidebarLesson(String(val));
+                          setSidebarSearch("");
+                        }}
+                        options={[
+                          {
+                            value: "ALL",
+                            label: `Tất cả bài học${availableSidebarLessons.length > 0 ? ` (${availableSidebarLessons.length})` : ""}`,
+                          },
+                          ...availableSidebarLessons.map((l) => ({ value: l, label: l })),
+                        ]}
+                        size="sm"
+                        className="flex-1 min-w-0"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Question List (Filtered strictly by selected subject & search/level/type) */}
@@ -2004,7 +2016,7 @@ export default function Home() {
                           setLessonFilter("ALL");
                         }}
                         options={[
-                          { value: "ALL", label: "Tất cả môn học" },
+                          { value: "ALL", label: "Tất cả môn học (Subject)" },
                           ...SUBJECTS.map((s) => ({ value: s.id, label: s.name })),
                         ]}
                         size="sm"

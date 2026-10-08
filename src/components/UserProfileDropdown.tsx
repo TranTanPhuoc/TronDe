@@ -47,11 +47,16 @@ export default function UserProfileDropdown({
     id: "demo-teacher-01",
     name: "Thầy Trần Tấn Phước",
     email: "phuoc.tran@edu.vn",
+    password: "••••••••",
+    phone: "0912 345 678",
     school: schoolName || "TRƯỜNG THPT CHUYÊN",
     department: departmentName || "TỔ TOÁN HỌC",
-    role: "Tổ trưởng Chuyên môn",
+    subject: { id: "TOAN", name: "Toán học" },
+    role: "teacher",
+    version: "pro",
     avatar: "TP",
-    phone: "0912 345 678",
+    accessToken: "mock_jwt_access_token_demo_01",
+    refreshToken: "mock_jwt_refresh_token_demo_01",
   };
 
   // Close dropdown when clicking outside
@@ -278,16 +283,27 @@ export default function UserProfileDropdown({
 
         {/* Name & School - Department Info */}
         <div className="text-left min-w-0 space-y-0.5">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
             <span
               className="text-xs sm:text-[13px] font-black text-slate-800 dark:text-slate-100 tracking-tight truncate max-w-[150px] sm:max-w-[200px]"
               title={user.name}
             >
               {user.name}
             </span>
-            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 text-[9px] font-extrabold bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-md shadow-[0_1px_3px_rgba(16,185,129,0.3)] shrink-0">
+            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.2 text-[9px] font-extrabold text-white rounded-md shrink-0 shadow-xs ${
+              user.role === "admin"
+                ? "bg-gradient-to-r from-rose-500 to-amber-500"
+                : "bg-gradient-to-r from-emerald-500 to-teal-500"
+            }`}>
               <UserCheck className="w-2.5 h-2.5 text-white" />
-              <span>{user.role || "GV"}</span>
+              <span>{user.role === "admin" ? "ADMIN" : "GV"}</span>
+            </span>
+            <span className={`inline-flex items-center px-1.5 py-0.2 text-[9px] font-black rounded-md shrink-0 ${
+              user.version === "pro"
+                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs"
+                : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+            }`}>
+              {user.version === "pro" ? "PRO" : "NORMAL"}
             </span>
           </div>
 
@@ -344,9 +360,18 @@ export default function UserProfileDropdown({
                   <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 truncate">
                     {user.name}
                   </h4>
-                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 rounded border border-indigo-200/60 dark:border-indigo-800 shrink-0">
-                    {user.role || "Giáo viên"}
-                  </span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className="px-1.5 py-0.5 text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 rounded border border-indigo-200/60 dark:border-indigo-800">
+                      {user.role === "admin" ? "Quản trị viên" : "Giáo viên"}
+                    </span>
+                    <span className={`px-1.5 py-0.5 text-[9px] font-black rounded ${
+                      user.version === "pro"
+                        ? "bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300/80 dark:border-amber-800"
+                        : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                    }`}>
+                      {user.version === "pro" ? "PRO" : "NORMAL"}
+                    </span>
+                  </div>
                 </div>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
                   {user.email}
@@ -354,14 +379,22 @@ export default function UserProfileDropdown({
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-700/80 flex items-center justify-between text-[10px] text-slate-700 dark:text-slate-200 font-medium">
-              <span className="truncate text-slate-700 dark:text-slate-200 font-semibold max-w-[130px] flex items-center gap-1">
-                <Building2 className="w-3 h-3 text-slate-400 dark:text-slate-400 shrink-0" />
-                <span className="truncate">{user.school || schoolName}</span>
-              </span>
-              <span className="font-extrabold text-indigo-700 dark:text-indigo-300 bg-indigo-100/80 dark:bg-indigo-900/60 px-2 py-0.5 rounded-md border border-indigo-200/80 dark:border-indigo-700 shrink-0 truncate max-w-[120px] shadow-2xs">
-                {departmentName}
-              </span>
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-700/80 space-y-1.5 text-[10px] text-slate-700 dark:text-slate-200 font-medium">
+              <div className="flex items-center justify-between">
+                <span className="truncate text-slate-700 dark:text-slate-200 font-semibold max-w-[130px] flex items-center gap-1">
+                  <Building2 className="w-3 h-3 text-slate-400 dark:text-slate-400 shrink-0" />
+                  <span className="truncate">{user.school || schoolName}</span>
+                </span>
+                <span className="font-extrabold text-indigo-700 dark:text-indigo-300 bg-indigo-100/80 dark:bg-indigo-900/60 px-2 py-0.5 rounded-md border border-indigo-200/80 dark:border-indigo-700 shrink-0 truncate max-w-[130px] shadow-2xs">
+                  {departmentName}
+                </span>
+              </div>
+              <div className="flex items-center justify-between pt-1 border-t border-dashed border-slate-200 dark:border-slate-700/60">
+                <span className="text-slate-500 dark:text-slate-400">Môn giảng dạy (Subject):</span>
+                <span className="font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                  {typeof user.subject === "object" ? (user.subject?.name || "Toán học") : (user.subject || "Toán học")}
+                </span>
+              </div>
             </div>
           </div>
 

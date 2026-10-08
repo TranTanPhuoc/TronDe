@@ -17,8 +17,15 @@ import {
   ShieldCheck,
   CheckCircle2,
   BookOpenCheck,
+  Building2,
+  Phone,
+  BookOpen,
+  ChevronDown,
+  Shield,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { SUBJECTS } from "@/types/question";
+import { User as UserEntity, UserRole, UserVersion } from "@/types/user";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,7 +33,12 @@ export default function RegisterPage() {
   // Form Fields
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [schoolName, setSchoolName] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState(SUBJECTS[0]);
+  const [department, setDepartment] = useState("TỔ TOÁN HỌC");
+  const [role, setRole] = useState<UserRole>("teacher");
+  const [version, setVersion] = useState<UserVersion>("pro");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(true);
@@ -80,16 +92,24 @@ export default function RegisterPage() {
         return (name[0] || "GV").toUpperCase();
       };
 
-      const newUser = {
+      const newUser: UserEntity = {
         id: "u-" + Date.now(),
         name: fullName.trim(),
         email: email.trim(),
-        school: schoolName.trim() || "Trường THPT",
-        role: "Giáo viên",
+        password: password,
+        phone: phone.trim() || "0912 345 678",
+        school: schoolName.trim() || "TRƯỜNG THPT CHUYÊN",
+        department: department.trim() || `TỔ ${selectedSubject.name.toUpperCase()}`,
+        subject: selectedSubject, // LƯU OBJECT SUBJECT { id, name } CỐ ĐỊNH CHO TÀI KHOẢN NGƯỜI DÙNG
+        role: role, // "admin" | "teacher"
+        version: version, // "normal" | "pro"
         avatar: getInitials(fullName),
+        accessToken: "jwt_access_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
+        refreshToken: "jwt_refresh_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
       };
 
       localStorage.setItem("tron_de_auth_user", JSON.stringify(newUser));
+      localStorage.setItem("tron_de_teacher_profile", JSON.stringify(newUser));
       setSuccessMsg("Đăng ký tài khoản thành công! Đang chuyển hướng vào hệ thống...");
 
       setTimeout(() => {
@@ -231,36 +251,150 @@ export default function RegisterPage() {
                 </div>
               </div>
 
+              {/* Subject (Môn học) - CỐ ĐỊNH KHI ĐĂNG KÝ */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Trường / Đơn vị công tác
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-300">
+                    Môn học (Subject) giảng dạy chính <span className="text-rose-400">*</span>
+                  </label>
+                  <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
+                    Cố định theo tài khoản
+                  </span>
+                </div>
                 <div className="relative">
-                  <School className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    value={schoolName}
-                    onChange={(e) => setSchoolName(e.target.value)}
-                    placeholder="VD: Trường THPT Chuyên"
-                    className="w-full pl-10 pr-4 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                  />
+                  <BookOpen className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none" />
+                  <select
+                    value={selectedSubject.id}
+                    onChange={(e) => {
+                      const found = SUBJECTS.find((s) => s.id === e.target.value) || SUBJECTS[0];
+                      setSelectedSubject(found);
+                      if (!department || department.startsWith("TỔ ")) {
+                        setDepartment(`TỔ ${found.name.toUpperCase()}`);
+                      }
+                    }}
+                    required
+                    className="w-full pl-10 pr-8 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer"
+                  >
+                    {SUBJECTS.map((s) => (
+                      <option key={s.id} value={s.id} className="bg-slate-900 text-white">
+                        {s.name} ({s.id})
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  Lưu ý: Môn học (Subject) này sẽ được lưu cố định cho tài khoản và không thể chỉnh sửa ở trang thông tin cá nhân.
+                </p>
+              </div>
+
+              {/* Grid 2 cột: Trường học & Tổ chuyên môn */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Trường / Đơn vị công tác
+                  </label>
+                  <div className="relative">
+                    <Building2 className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={schoolName}
+                      onChange={(e) => setSchoolName(e.target.value)}
+                      placeholder="VD: Trường THPT Chuyên"
+                      className="w-full pl-10 pr-4 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Tổ bộ môn chuyên môn
+                  </label>
+                  <div className="relative">
+                    <Building2 className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={department}
+                      onChange={(e) => setDepartment(e.target.value)}
+                      placeholder="VD: TỔ TOÁN HỌC"
+                      className="w-full pl-10 pr-4 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Địa chỉ Email <span className="text-rose-400">*</span>
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="VD: phuoc.tran@edu.vn"
-                    required
-                    className="w-full pl-10 pr-4 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
-                  />
+              {/* Grid 2 cột: Email & Số điện thoại */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Địa chỉ Email <span className="text-rose-400">*</span>
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="VD: phuoc.tran@edu.vn"
+                      required
+                      className="w-full pl-10 pr-4 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Số điện thoại liên hệ
+                  </label>
+                  <div className="relative">
+                    <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="VD: 0912 345 678"
+                      className="w-full pl-10 pr-4 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Grid 2 cột: Role & Version */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Vai trò (Role)
+                  </label>
+                  <div className="relative">
+                    <Shield className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none" />
+                    <select
+                      value={role}
+                      onChange={(e) => setRole(e.target.value as UserRole)}
+                      className="w-full pl-10 pr-7 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="teacher" className="bg-slate-900 text-white">Giáo viên (teacher)</option>
+                      <option value="admin" className="bg-slate-900 text-white">Quản trị viên (admin)</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Gói tài khoản (Version)
+                  </label>
+                  <div className="relative">
+                    <Sparkles className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
+                    <select
+                      value={version}
+                      onChange={(e) => setVersion(e.target.value as UserVersion)}
+                      className="w-full pl-10 pr-7 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="pro" className="bg-slate-900 text-white">Bản Pro (pro)</option>
+                      <option value="normal" className="bg-slate-900 text-white">Bản Tiêu chuẩn (normal)</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                  </div>
                 </div>
               </div>
 

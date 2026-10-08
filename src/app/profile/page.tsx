@@ -18,8 +18,12 @@ import {
   Lock,
   CheckCircle2,
   AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+
+import { Subject, UserRole, UserVersion } from "@/types/user";
+import { SUBJECTS } from "@/types/question";
 
 interface TeacherProfile {
   id: string;
@@ -27,10 +31,15 @@ interface TeacherProfile {
   email: string;
   school: string;
   department: string;
-  role: string;
+  subject: Subject;
+  role: UserRole;
+  version: UserVersion;
   avatar: string;
   avatarImage?: string | null;
   phone?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  password?: string;
 }
 
 const AVATAR_PALETTES = [
@@ -44,12 +53,31 @@ const AVATAR_PALETTES = [
 export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Helper normalize subject
+  const normalizeSubject = (sub: unknown): Subject => {
+    if (sub && typeof sub === "object" && "id" in sub && "name" in sub) {
+      return sub as Subject;
+    }
+    if (typeof sub === "string") {
+      const found = SUBJECTS.find((s) => s.name === sub || s.id === sub);
+      if (found) return found;
+      return { id: "TOAN", name: sub || "Toán học" };
+    }
+    return { id: "TOAN", name: "Toán học" };
+  };
+
   // Load existing profile from localStorage or defaults
   const [profile, setProfile] = useState<TeacherProfile>(() => {
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem("tron_de_teacher_profile");
-        if (stored) return JSON.parse(stored);
+        if (stored) {
+          const p = JSON.parse(stored);
+          return {
+            ...p,
+            subject: normalizeSubject(p.subject),
+          };
+        }
         const authUser = localStorage.getItem("tron_de_auth_user");
         if (authUser) {
           const u = JSON.parse(authUser);
@@ -57,11 +85,16 @@ export default function ProfilePage() {
             id: u.id || "demo-teacher-01",
             name: u.name || "Thầy Trần Tấn Phước",
             email: u.email || "phuoc.tran@edu.vn",
+            password: u.password || "••••••••",
             school: u.school || "TRƯỜNG THPT CHUYÊN",
-            department: "TỔ TOÁN HỌC",
-            role: u.role || "Tổ trưởng Chuyên môn",
+            department: u.department || "TỔ TOÁN HỌC",
+            subject: normalizeSubject(u.subject),
+            role: (u.role === "admin" ? "admin" : "teacher") as UserRole,
+            version: (u.version === "normal" ? "normal" : "pro") as UserVersion,
             avatar: u.avatar || "TP",
-            phone: "0912 345 678",
+            phone: u.phone || "0912 345 678",
+            accessToken: u.accessToken || "mock_jwt_access_token_demo_01",
+            refreshToken: u.refreshToken || "mock_jwt_refresh_token_demo_01",
           };
         }
       } catch {
@@ -72,18 +105,23 @@ export default function ProfilePage() {
       id: "demo-teacher-01",
       name: "Thầy Trần Tấn Phước",
       email: "phuoc.tran@edu.vn",
+      password: "••••••••",
       school: "TRƯỜNG THPT CHUYÊN",
       department: "TỔ TOÁN HỌC",
-      role: "Tổ trưởng Chuyên môn",
+      subject: { id: "TOAN", name: "Toán học" },
+      role: "teacher" as UserRole,
+      version: "pro" as UserVersion,
       avatar: "TP",
       phone: "0912 345 678",
+      accessToken: "mock_jwt_access_token_demo_01",
+      refreshToken: "mock_jwt_refresh_token_demo_01",
     };
   });
 
   const [name, setName] = useState(profile.name);
   const [school, setSchool] = useState(profile.school);
-  // Department is fixed as TỔ TOÁN HỌC
-  const department = "TỔ TOÁN HỌC";
+  // Department is fixed according to account registration
+  const department = profile.department || "TỔ TOÁN HỌC";
   const [email, setEmail] = useState(profile.email);
   const [phone, setPhone] = useState(profile.phone || "");
   const [role, setRole] = useState(profile.role);
@@ -165,7 +203,6 @@ export default function ProfilePage() {
       department: "TỔ TOÁN HỌC",
       email: email.trim(),
       phone: phone.trim(),
-      role: role.trim(),
       avatar: (avatarText.trim() || name.slice(0, 2)).toUpperCase(),
       avatarImage: avatarImage,
     };
@@ -182,8 +219,12 @@ export default function ProfilePage() {
             ...parsed,
             name: updated.name,
             school: updated.school,
-            department: "TỔ TOÁN HỌC",
-            role: updated.role,
+            department: updated.department,
+            email: updated.email,
+            phone: updated.phone,
+            subject: profile.subject,
+            role: profile.role,
+            version: profile.version,
             avatar: updated.avatar,
             avatarImage: updated.avatarImage,
           })
@@ -405,7 +446,7 @@ export default function ProfilePage() {
                   Tổ bộ môn chuyên môn
                 </label>
                 <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
-                  <Lock className="w-3 3 text-amber-600 dark:text-amber-400" />
+                  <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                   <span>Cố định (Không thể sửa)</span>
                 </span>
               </div>
@@ -422,6 +463,33 @@ export default function ProfilePage() {
               </div>
               <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                 Tổ chuyên môn được liên kết tự động theo tài khoản của Thầy/Cô và không thể tự chỉnh sửa.
+              </p>
+            </div>
+
+            {/* Subject / Môn học giảng dạy chính - CỐ ĐỊNH, KHÔNG CHO THAY ĐỔI */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Môn học (Subject) giảng dạy chính
+                </label>
+                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                  <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                  <span>Cố định (Không thể sửa)</span>
+                </span>
+              </div>
+              <div className="relative">
+                <BookOpen className="w-4 h-4 text-emerald-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  readOnly
+                  disabled
+                  value={profile.subject?.name || (typeof profile.subject === "string" ? profile.subject : "Toán học")}
+                  className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-black cursor-not-allowed select-none shadow-inner"
+                />
+                <Lock className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+              </div>
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Môn học (Subject) được chọn khi đăng ký tài khoản và không thể tự ý thay đổi trong phần thông tin cá nhân.
               </p>
             </div>
 
@@ -459,20 +527,38 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Role */}
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                Chức vụ / Vai trò chuyên môn
-              </label>
-              <div className="relative">
-                <Shield className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  placeholder="VD: Tổ trưởng Chuyên môn / Giáo viên bộ môn"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
-                />
+            {/* Role & Version Display */}
+            <div className="grid grid-cols-2 gap-4 sm:col-span-2 pt-2 border-t border-slate-200/80 dark:border-slate-800">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Quyền hạn tài khoản (Role)
+                </label>
+                <div className="relative">
+                  <Shield className="w-4 h-4 text-indigo-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    readOnly
+                    disabled
+                    value={profile.role === "admin" ? "Quản trị viên (admin)" : "Giáo viên (teacher)"}
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-bold cursor-not-allowed select-none shadow-inner"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Phiên bản hệ thống (Version)
+                </label>
+                <div className="relative">
+                  <Sparkles className="w-4 h-4 text-amber-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    readOnly
+                    disabled
+                    value={profile.version === "pro" ? "Bản Nâng Cao (PRO)" : "Bản Tiêu Chuẩn (NORMAL)"}
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-bold cursor-not-allowed select-none shadow-inner"
+                  />
+                </div>
               </div>
             </div>
           </div>

@@ -28,6 +28,8 @@ export interface SubjectItem {
   name: string;
 }
 
+export type Subject = SubjectItem;
+
 export interface GradeItem {
   id: number; // 10, 11, 12, 9, 8, 7, 6
   name: string; // "Khối 10", "Khối 11", "Khối 12"
