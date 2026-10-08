@@ -390,7 +390,7 @@ export default function UserProfileDropdown({
                 </span>
               </div>
               <div className="flex items-center justify-between pt-1 border-t border-dashed border-slate-200 dark:border-slate-700/60">
-                <span className="text-slate-500 dark:text-slate-400">Môn giảng dạy (Subject):</span>
+                <span className="text-slate-500 dark:text-slate-400">Môn giảng dạy:</span>
                 <span className="font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
                   {typeof user.subject === "object" ? (user.subject?.name || "Toán học") : (user.subject || "Toán học")}
                 </span>

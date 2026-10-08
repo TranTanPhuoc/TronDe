@@ -1059,7 +1059,7 @@ export default function Home() {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block font-bold text-slate-600 dark:text-slate-400 mb-1">
-                        Môn học (Subject)
+                        Môn học
                       </label>
                       <CustomSelect
                         value={selectedSubjectId}
@@ -2016,7 +2016,7 @@ export default function Home() {
                           setLessonFilter("ALL");
                         }}
                         options={[
-                          { value: "ALL", label: "Tất cả môn học (Subject)" },
+                          { value: "ALL", label: "Tất cả môn học" },
                           ...SUBJECTS.map((s) => ({ value: s.id, label: s.name })),
                         ]}
                         size="sm"

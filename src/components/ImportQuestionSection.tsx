@@ -324,7 +324,7 @@ export default function ImportQuestionSection({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div>
               <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase mb-1">
-                Môn học mặc định (Subject)
+                Môn học mặc định
               </label>
               <CustomSelect
                 value={selectedSubjectId}

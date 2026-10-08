@@ -255,7 +255,7 @@ export default function RegisterPage() {
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block text-xs font-semibold text-slate-300">
-                    Môn học (Subject) giảng dạy chính <span className="text-rose-400">*</span>
+                    Môn học giảng dạy chính <span className="text-rose-400">*</span>
                   </label>
                   <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
                     Cố định theo tài khoản
@@ -284,7 +284,7 @@ export default function RegisterPage() {
                   <ChevronDown className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 </div>
                 <p className="mt-1 text-[11px] text-slate-400">
-                  Lưu ý: Môn học (Subject) này sẽ được lưu cố định cho tài khoản và không thể chỉnh sửa ở trang thông tin cá nhân.
+                  Lưu ý: Môn học này sẽ được lưu cố định cho tài khoản và không thể chỉnh sửa ở trang thông tin cá nhân.
                 </p>
               </div>
 
@@ -363,7 +363,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Vai trò (Role)
+                    Vai trò tài khoản
                   </label>
                   <div className="relative">
                     <Shield className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none" />
@@ -372,8 +372,8 @@ export default function RegisterPage() {
                       onChange={(e) => setRole(e.target.value as UserRole)}
                       className="w-full pl-10 pr-7 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer"
                     >
-                      <option value="teacher" className="bg-slate-900 text-white">Giáo viên (teacher)</option>
-                      <option value="admin" className="bg-slate-900 text-white">Quản trị viên (admin)</option>
+                      <option value="teacher" className="bg-slate-900 text-white">Giáo viên</option>
+                      <option value="admin" className="bg-slate-900 text-white">Quản trị viên</option>
                     </select>
                     <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>
@@ -381,7 +381,7 @@ export default function RegisterPage() {
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Gói tài khoản (Version)
+                    Gói phiên bản
                   </label>
                   <div className="relative">
                     <Sparkles className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
@@ -390,8 +390,8 @@ export default function RegisterPage() {
                       onChange={(e) => setVersion(e.target.value as UserVersion)}
                       className="w-full pl-10 pr-7 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer"
                     >
-                      <option value="pro" className="bg-slate-900 text-white">Bản Pro (pro)</option>
-                      <option value="normal" className="bg-slate-900 text-white">Bản Tiêu chuẩn (normal)</option>
+                      <option value="pro" className="bg-slate-900 text-white">Bản Nâng Cao (Pro)</option>
+                      <option value="normal" className="bg-slate-900 text-white">Bản Tiêu Chuẩn</option>
                     </select>
                     <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>

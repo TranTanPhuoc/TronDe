@@ -271,7 +271,7 @@ export default function ProfilePage() {
       {/* Main Container Card */}
       <div className="max-w-4xl w-full mx-auto bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200/90 dark:border-slate-800 overflow-hidden">
         {/* Banner Header */}
-        <div className="p-6 sm:p-8 bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-800 text-white relative overflow-hidden">
+        <div className="p-6 sm:p-8 bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-800 text-white relative overflow-hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="absolute -right-10 -bottom-10 w-60 h-60 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
           <div className="relative z-10">
             <h1 className="text-xl sm:text-2xl font-black tracking-tight mb-1">
@@ -280,6 +280,16 @@ export default function ProfilePage() {
             <p className="text-xs sm:text-sm text-indigo-100 font-medium">
               Quản lý hồ sơ công tác, ảnh đại diện Avatar và tổ chuyên môn
             </p>
+          </div>
+          <div className="flex items-center gap-2 relative z-10 shrink-0">
+            <span className="px-3 py-1.5 text-xs font-bold bg-white/15 backdrop-blur-md rounded-xl border border-white/20 text-white flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5" />
+              <span>{profile.role === "admin" ? "Quản trị viên" : "Giáo viên"}</span>
+            </span>
+            <span className="px-3 py-1.5 text-xs font-bold bg-amber-400 text-slate-950 rounded-xl shadow-xs flex items-center gap-1.5 font-black">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{profile.version === "pro" ? "Bản Pro" : "Bản Tiêu Chuẩn"}</span>
+            </span>
           </div>
         </div>
 
@@ -404,137 +414,144 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Input Fields Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Full Name */}
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                Họ và tên giáo viên <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="VD: Thầy Trần Tấn Phước"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
-                />
-              </div>
+          {/* Nhóm 1: Thông tin cá nhân & Đơn vị công tác */}
+          <div className="space-y-4 pt-1">
+            <div className="flex items-center gap-2 pb-2.5 border-b border-slate-200 dark:border-slate-800">
+              <User className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <h3 className="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                Thông tin cá nhân & Đơn vị công tác
+              </h3>
             </div>
 
-            {/* School */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                Trường / Đơn vị tổ chức <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <Building2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  required
-                  value={school}
-                  onChange={(e) => setSchool(e.target.value)}
-                  placeholder="VD: TRƯỜNG THPT CHUYÊN"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
-                />
-              </div>
-            </div>
-
-            {/* Department / Tổ chuyên môn - CỐ ĐỊNH, KHÔNG CHO THAY ĐỔI */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Tổ bộ môn chuyên môn
-                </label>
-                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
-                  <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                  <span>Cố định (Không thể sửa)</span>
-                </span>
-              </div>
-              <div className="relative">
-                <BookOpen className="w-4 h-4 text-indigo-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  readOnly
-                  disabled
-                  value={department}
-                  className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-black cursor-not-allowed select-none shadow-inner"
-                />
-                <Lock className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
-              </div>
-              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Tổ chuyên môn được liên kết tự động theo tài khoản của Thầy/Cô và không thể tự chỉnh sửa.
-              </p>
-            </div>
-
-            {/* Subject / Môn học giảng dạy chính - CỐ ĐỊNH, KHÔNG CHO THAY ĐỔI */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Môn học (Subject) giảng dạy chính
-                </label>
-                <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
-                  <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                  <span>Cố định (Không thể sửa)</span>
-                </span>
-              </div>
-              <div className="relative">
-                <BookOpen className="w-4 h-4 text-emerald-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  readOnly
-                  disabled
-                  value={profile.subject?.name || (typeof profile.subject === "string" ? profile.subject : "Toán học")}
-                  className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-black cursor-not-allowed select-none shadow-inner"
-                />
-                <Lock className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
-              </div>
-              <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Môn học (Subject) được chọn khi đăng ký tài khoản và không thể tự ý thay đổi trong phần thông tin cá nhân.
-              </p>
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                Địa chỉ Email
-              </label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="VD: phuoc.tran@edu.vn"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
-                />
-              </div>
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                Số điện thoại liên hệ
-              </label>
-              <div className="relative">
-                <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="VD: 0912 345 678"
-                  className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
-                />
-              </div>
-            </div>
-
-            {/* Role & Version Display */}
-            <div className="grid grid-cols-2 gap-4 sm:col-span-2 pt-2 border-t border-slate-200/80 dark:border-slate-800">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Họ tên */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Quyền hạn tài khoản (Role)
+                  Họ và tên giáo viên <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="VD: Thầy Trần Tấn Phước"
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Địa chỉ Email
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="VD: phuoc.tran@edu.vn"
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Số điện thoại liên hệ
+                </label>
+                <div className="relative">
+                  <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="VD: 0912 345 678"
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                  />
+                </div>
+              </div>
+
+              {/* Trường học */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Trường / Đơn vị tổ chức <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <Building2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    required
+                    value={school}
+                    onChange={(e) => setSchool(e.target.value)}
+                    placeholder="VD: TRƯỜNG THPT CHUYÊN"
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Nhóm 2: Thông tin chuyên môn & Phân quyền hệ thống */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <h3 className="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                  Thông tin chuyên môn & Quyền hạn tài khoản
+                </h3>
+              </div>
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+                <Lock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                <span>Cố định</span>
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Tổ chuyên môn */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Tổ bộ môn chuyên môn
+                </label>
+                <div className="relative">
+                  <Building2 className="w-4 h-4 text-indigo-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    readOnly
+                    disabled
+                    value={department}
+                    className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-black cursor-not-allowed select-none shadow-inner"
+                  />
+                  <Lock className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                </div>
+              </div>
+
+              {/* Môn học giảng dạy chính */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Môn học giảng dạy chính
+                </label>
+                <div className="relative">
+                  <BookOpen className="w-4 h-4 text-emerald-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    readOnly
+                    disabled
+                    value={profile.subject?.name || (typeof profile.subject === "string" ? profile.subject : "Toán học")}
+                    className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-black cursor-not-allowed select-none shadow-inner"
+                  />
+                  <Lock className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                </div>
+              </div>
+
+              {/* Vai trò */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Vai trò tài khoản
                 </label>
                 <div className="relative">
                   <Shield className="w-4 h-4 text-indigo-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -542,15 +559,16 @@ export default function ProfilePage() {
                     type="text"
                     readOnly
                     disabled
-                    value={profile.role === "admin" ? "Quản trị viên (admin)" : "Giáo viên (teacher)"}
-                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-bold cursor-not-allowed select-none shadow-inner"
+                    value={profile.role === "admin" ? "Quản trị viên" : "Giáo viên"}
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-black cursor-not-allowed select-none shadow-inner"
                   />
                 </div>
               </div>
 
+              {/* Gói phiên bản */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Phiên bản hệ thống (Version)
+                  Gói phiên bản
                 </label>
                 <div className="relative">
                   <Sparkles className="w-4 h-4 text-amber-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -558,11 +576,19 @@ export default function ProfilePage() {
                     type="text"
                     readOnly
                     disabled
-                    value={profile.version === "pro" ? "Bản Nâng Cao (PRO)" : "Bản Tiêu Chuẩn (NORMAL)"}
-                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-bold cursor-not-allowed select-none shadow-inner"
+                    value={profile.version === "pro" ? "Bản Nâng Cao (Pro)" : "Bản Tiêu Chuẩn"}
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-black cursor-not-allowed select-none shadow-inner"
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Note banner */}
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/80 rounded-xl flex items-start gap-2.5 text-[11px] text-slate-600 dark:text-slate-400">
+              <Lock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <span>
+                Tổ chuyên môn, Môn học giảng dạy chính và Vai trò tài khoản được cố định theo thông tin đăng ký để đồng bộ dữ liệu đề thi và bảo mật ngân hàng câu hỏi.
+              </span>
             </div>
           </div>
 

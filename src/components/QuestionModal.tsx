@@ -298,7 +298,7 @@ function QuestionModalForm({
                 {/* Subject */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Môn học (Subject) <span className="text-rose-500">*</span>
+                    Môn học <span className="text-rose-500">*</span>
                   </label>
                   <CustomSelect
                     value={subjectId}
