@@ -80,6 +80,10 @@ export default function EditUserModal({
       department: department.trim(),
       subject: selectedSubjectObj,
       version: version,
+      proExpiresAt:
+        version === "pro"
+          ? user.proExpiresAt || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+          : null,
       avatar: name.trim().slice(0, 2).toUpperCase() || user.avatar,
     };
 
@@ -263,3 +267,4 @@ export default function EditUserModal({
     </div>
   );
 }
+

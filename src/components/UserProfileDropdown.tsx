@@ -15,9 +15,12 @@ import {
   Moon,
   Shield,
   Shuffle,
+  Sparkles,
+  Clock,
 } from "lucide-react";
 import { ProfileUserData } from "./ProfileModal";
 import { useTheme } from "@/context/ThemeContext";
+import { getUserProExpiryInfo } from "@/utils/approvalService";
 
 interface UserProfileDropdownProps {
   currentUser?: ProfileUserData | null;
@@ -60,10 +63,13 @@ export default function UserProfileDropdown({
     subject: { id: "TOAN", name: "Toán học" },
     role: "teacher",
     version: "pro",
+    proExpiresAt: new Date(Date.now() + 320 * 24 * 60 * 60 * 1000).toISOString(),
     avatar: "TP",
     accessToken: "mock_jwt_access_token_demo_01",
     refreshToken: "mock_jwt_refresh_token_demo_01",
   };
+
+  const proExpiry = getUserProExpiryInfo(user);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -322,12 +328,14 @@ export default function UserProfileDropdown({
               <UserCheck className="w-2.5 h-2.5 text-white" />
               <span>{user.role === "admin" ? "ADMIN" : "GV"}</span>
             </span>
-            <span className={`inline-flex items-center px-1.5 py-0.2 text-[9px] font-black rounded-md shrink-0 ${
+            <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 text-[9px] font-black rounded-md shrink-0 ${
               user.version === "pro"
                 ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs"
                 : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
             }`}>
-              {user.version === "pro" ? "PRO" : "NORMAL"}
+              {user.version === "pro"
+                ? `PRO ${user.role !== "admin" && proExpiry?.daysRemaining ? `• Còn ${proExpiry.daysRemaining} ngày` : ""}`
+                : "NORMAL"}
             </span>
           </div>
 
@@ -420,6 +428,39 @@ export default function UserProfileDropdown({
                 </span>
               </div>
             </div>
+
+            {/* Pro License Expiry Details for User */}
+            {user.version === "pro" ? (
+              <div className="mt-2.5 p-2 rounded-xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-500/30 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                    <Clock className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="font-black text-amber-900 dark:text-amber-200 text-[10px]">
+                      Bản quyền Pro theo năm
+                    </div>
+                    <div className="text-[9px] text-amber-700 dark:text-amber-300">
+                      {user.role === "admin"
+                        ? "Đặc quyền Quản trị viên"
+                        : `Hạn: ${proExpiry?.formattedExpiryDate || "365 ngày"}`}
+                    </div>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs">
+                  {user.role === "admin" ? "Vĩnh viễn" : proExpiry?.text || "Còn 320 ngày"}
+                </span>
+              </div>
+            ) : (
+              <div className="mt-2.5 p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-[10px]">
+                <span className="font-bold text-slate-600 dark:text-slate-300">
+                  Gói Tiêu Chuẩn (Normal)
+                </span>
+                <span className="font-extrabold text-amber-600 dark:text-amber-400">
+                  Chưa mua Pro
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Navigation Options List */}

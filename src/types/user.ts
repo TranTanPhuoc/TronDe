@@ -18,6 +18,7 @@ export interface User {
   avatarImage?: string | null; // Đường dẫn ảnh đại diện nếu có
   role: UserRole; // "admin" | "teacher"
   version: UserVersion; // "normal" | "pro"
+  proExpiresAt?: string | null; // Ngày hết hạn bản quyền Pro (ISO string)
   accessToken: string;
   refreshToken: string;
   bio?: string;
@@ -35,7 +36,16 @@ export interface LicenseSubscription {
   status: "active" | "pending" | "expired";
   requestDate: string;
   activatedDate?: string;
+  expiryDate?: string; // Ngày hết hạn bản quyền (DD/MM/YYYY hoặc ISO)
   durationMonths: number;
   price: number;
   note?: string;
 }
+
+export interface LicenseExpiryInfo {
+  daysRemaining: number;
+  isExpired: boolean;
+  formattedExpiryDate: string;
+  text: string;
+}
+

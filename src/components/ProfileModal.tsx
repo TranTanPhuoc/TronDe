@@ -13,8 +13,10 @@ import {
   AlertCircle,
   Lock,
   Sparkles,
+  Clock,
 } from "lucide-react";
 import { User as UserType, ProfileUserData as ProfileUserDataType, UserRole, UserVersion } from "@/types/user";
+import { getUserProExpiryInfo } from "@/utils/approvalService";
 
 export type ProfileUserData = ProfileUserDataType;
 export type { UserType, UserRole, UserVersion };
@@ -60,6 +62,7 @@ function ProfileModalContent({
   const [avatarText, setAvatarText] = useState(currentUser.avatar || "GV");
   const [selectedPalette, setSelectedPalette] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
+  const proExpiry = getUserProExpiryInfo(currentUser);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -331,7 +334,7 @@ function ProfileModalContent({
                 {/* Gói phiên bản */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                    Gói phiên bản
+                    Gói phiên bản & Thời hạn
                   </label>
                   <div className="relative">
                     <Sparkles className="w-4 h-4 text-amber-500 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -339,10 +342,25 @@ function ProfileModalContent({
                       type="text"
                       readOnly
                       disabled
-                      value={currentUser.version === "pro" ? "Bản Nâng Cao (Pro)" : "Bản Tiêu Chuẩn"}
+                      value={
+                        currentUser.version === "pro"
+                          ? `Bản Nâng Cao (Pro) • ${currentUser.role === "admin" ? "Vĩnh viễn (Admin)" : `${proExpiry?.text || "Còn hạn"} (Hạn: ${proExpiry?.formattedExpiryDate || "365 ngày"})`}`
+                          : "Bản Tiêu Chuẩn"
+                      }
                       className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm bg-slate-100 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-bold cursor-not-allowed select-none shadow-2xs"
                     />
                   </div>
+                  {currentUser.version === "pro" && (
+                    <div className="mt-1.5 flex items-center justify-between text-[11px] font-semibold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-amber-500" />
+                        <span>Bản quyền Pro theo năm:</span>
+                      </span>
+                      <span className="font-black text-amber-600 dark:text-amber-400">
+                        {currentUser.role === "admin" ? "Vĩnh viễn" : proExpiry?.text}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 

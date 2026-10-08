@@ -19,11 +19,13 @@ import {
   CheckCircle2,
   AlertCircle,
   Sparkles,
+  Clock,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
-import { Subject, UserRole, UserVersion } from "@/types/user";
+import { Subject, UserRole, UserVersion, User as UserType } from "@/types/user";
 import { SUBJECTS } from "@/types/question";
+import { getUserProExpiryInfo } from "@/utils/approvalService";
 
 interface TeacherProfile {
   id: string;
@@ -34,6 +36,7 @@ interface TeacherProfile {
   subject: Subject;
   role: UserRole;
   version: UserVersion;
+  proExpiresAt?: string | null;
   avatar: string;
   avatarImage?: string | null;
   phone?: string;
@@ -111,12 +114,15 @@ export default function ProfilePage() {
       subject: { id: "TOAN", name: "Toán học" },
       role: "teacher" as UserRole,
       version: "pro" as UserVersion,
+      proExpiresAt: new Date(Date.now() + 320 * 24 * 60 * 60 * 1000).toISOString(),
       avatar: "TP",
       phone: "0912 345 678",
       accessToken: "mock_jwt_access_token_demo_01",
       refreshToken: "mock_jwt_refresh_token_demo_01",
     };
   });
+
+  const proExpiry = getUserProExpiryInfo(profile as unknown as UserType);
 
   const [name, setName] = useState(profile.name);
   const [school, setSchool] = useState(profile.school);
@@ -288,7 +294,11 @@ export default function ProfilePage() {
             </span>
             <span className="px-3 py-1.5 text-xs font-bold bg-amber-400 text-slate-950 rounded-xl shadow-xs flex items-center gap-1.5 font-black">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>{profile.version === "pro" ? "Bản Pro" : "Bản Tiêu Chuẩn"}</span>
+              <span>
+                {profile.version === "pro"
+                  ? `Bản Pro ${profile.role !== "admin" && proExpiry?.daysRemaining ? `(Còn ${proExpiry.daysRemaining} ngày)` : ""}`
+                  : "Bản Tiêu Chuẩn"}
+              </span>
             </span>
           </div>
         </div>
@@ -568,7 +578,7 @@ export default function ProfilePage() {
               {/* Gói phiên bản */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Gói phiên bản
+                  Gói phiên bản & Thời hạn
                 </label>
                 <div className="relative">
                   <Sparkles className="w-4 h-4 text-amber-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -576,10 +586,33 @@ export default function ProfilePage() {
                     type="text"
                     readOnly
                     disabled
-                    value={profile.version === "pro" ? "Bản Nâng Cao (Pro)" : "Bản Tiêu Chuẩn"}
+                    value={
+                      profile.version === "pro"
+                        ? `Bản Nâng Cao (Pro) • ${profile.role === "admin" ? "Vĩnh viễn (Admin)" : `${proExpiry?.text || "Còn hạn"} (Đến ${proExpiry?.formattedExpiryDate || "365 ngày"})`}`
+                        : "Bản Tiêu Chuẩn (Chưa mua Pro)"
+                    }
                     className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-100/90 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 font-black cursor-not-allowed select-none shadow-inner"
                   />
                 </div>
+
+                {profile.version === "pro" ? (
+                  <div className="mt-2 p-2.5 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 rounded-xl flex items-center justify-between text-xs text-amber-900 dark:text-amber-200 font-semibold">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span>
+                        Thời hạn bản quyền Pro: {profile.role === "admin" ? "Đặc quyền Vĩnh viễn (Quản trị viên)" : `Gói 1 năm • Hạn đến ngày ${proExpiry?.formattedExpiryDate || "365 ngày"}`}
+                      </span>
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full font-black text-[11px] bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-2xs">
+                      {profile.role === "admin" ? "Vĩnh viễn" : proExpiry?.text || "Còn 320 ngày"}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="mt-2 p-2.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+                    <span>Trạng thái: Bản Tiêu Chuẩn (Normal)</span>
+                    <span className="font-bold text-indigo-600 dark:text-indigo-400">Chưa kích hoạt gói Pro</span>
+                  </div>
+                )}
               </div>
             </div>
 

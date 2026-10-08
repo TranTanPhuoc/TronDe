@@ -100,6 +100,7 @@ const DEFAULT_TEACHER: CurrentUser = {
   subject: { id: "TOAN", name: "Toán học" },
   role: "teacher",
   version: "pro",
+  proExpiresAt: new Date(Date.now() + 320 * 24 * 60 * 60 * 1000).toISOString(),
   avatar: "TP",
   accessToken: "mock_jwt_access_token_demo_01",
   refreshToken: "mock_jwt_refresh_token_demo_01",

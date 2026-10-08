@@ -103,6 +103,7 @@ export default function RegisterPage() {
         subject: selectedSubject, // LƯU OBJECT SUBJECT { id, name } CỐ ĐỊNH CHO TÀI KHOẢN NGƯỜI DÙNG
         role: role, // "admin" | "teacher"
         version: version, // "normal" | "pro"
+        proExpiresAt: version === "pro" ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() : null,
         avatar: getInitials(fullName),
         accessToken: "jwt_access_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
         refreshToken: "jwt_refresh_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),

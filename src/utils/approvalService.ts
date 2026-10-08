@@ -1,5 +1,5 @@
 import { ExamItem, PendingQuestionItem } from "@/types/question";
-import { User, LicenseSubscription } from "@/types/user";
+import { User, LicenseSubscription, UserVersion, LicenseExpiryInfo } from "@/types/user";
 
 export const STORAGE_KEY_QUESTIONS = "phan_mem_tron_de_questions_v5";
 export const STORAGE_KEY_PENDING = "tron_de_pending_questions";
@@ -342,8 +342,77 @@ export const rejectPendingQuestions = (pendingIds: string[]): void => {
 };
 
 // ==========================================
+// ==========================================
 // QUẢN LÝ USER & QUẢN LÝ BẢN QUYỀN
 // ==========================================
+
+/**
+ * Tạo chuỗi ISO ngày hết hạn Pro cách thời điểm hiện tại `years` năm (mặc định 1 năm)
+ */
+export const createProExpiryDate = (years: number = 1): string => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + years);
+  return d.toISOString();
+};
+
+/**
+ * Tính toán số ngày còn lại của gói bản quyền Pro
+ */
+export const getLicenseExpiryInfo = (expiresAt?: string | null): LicenseExpiryInfo | null => {
+  if (!expiresAt) return null;
+  const expiry = new Date(expiresAt);
+  if (isNaN(expiry.getTime())) return null;
+
+  const now = new Date();
+  const diffMs = expiry.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  const formattedExpiryDate = expiry.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  if (diffDays <= 0) {
+    return {
+      daysRemaining: 0,
+      isExpired: true,
+      formattedExpiryDate,
+      text: "Đã hết hạn",
+    };
+  }
+
+  return {
+    daysRemaining: diffDays,
+    isExpired: false,
+    formattedExpiryDate,
+    text: `Còn ${diffDays} ngày`,
+  };
+};
+
+/**
+ * Lấy thông tin thời hạn bản quyền Pro cho một người dùng (cả Admin và Giáo viên)
+ */
+export const getUserProExpiryInfo = (user?: User | null): LicenseExpiryInfo | null => {
+  if (!user || user.version !== "pro") return null;
+  if (user.role === "admin") {
+    return {
+      daysRemaining: 9999,
+      isExpired: false,
+      formattedExpiryDate: "Vĩnh viễn",
+      text: "Vĩnh viễn (Admin)",
+    };
+  }
+  if (!user.proExpiresAt) {
+    return {
+      daysRemaining: 365,
+      isExpired: false,
+      formattedExpiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString("vi-VN"),
+      text: "Còn 365 ngày",
+    };
+  }
+  return getLicenseExpiryInfo(user.proExpiresAt);
+};
 
 const INITIAL_USERS_MOCK: User[] = [
   {
@@ -358,6 +427,7 @@ const INITIAL_USERS_MOCK: User[] = [
     avatar: "AD",
     role: "admin",
     version: "pro",
+    proExpiresAt: null,
     accessToken: "jwt_admin_master_access",
     refreshToken: "jwt_admin_master_refresh",
   },
@@ -373,6 +443,7 @@ const INITIAL_USERS_MOCK: User[] = [
     avatar: "TP",
     role: "teacher",
     version: "pro",
+    proExpiresAt: new Date(Date.now() + 320 * 24 * 60 * 60 * 1000).toISOString(),
     accessToken: "jwt_teacher_01_access",
     refreshToken: "jwt_teacher_01_refresh",
   },
@@ -388,6 +459,7 @@ const INITIAL_USERS_MOCK: User[] = [
     avatar: "NM",
     role: "teacher",
     version: "normal",
+    proExpiresAt: null,
     accessToken: "jwt_teacher_ly_access",
     refreshToken: "jwt_teacher_ly_refresh",
   },
@@ -403,6 +475,7 @@ const INITIAL_USERS_MOCK: User[] = [
     avatar: "LH",
     role: "teacher",
     version: "pro",
+    proExpiresAt: new Date(Date.now() + 700 * 24 * 60 * 60 * 1000).toISOString(),
     accessToken: "jwt_teacher_hoa_access",
     refreshToken: "jwt_teacher_hoa_refresh",
   },
@@ -461,7 +534,7 @@ const INITIAL_LICENSES_MOCK: LicenseSubscription[] = [
     requestDate: "07/10/2026",
     durationMonths: 12,
     price: 600000,
-    note: "Nâng cấp gói Pro 1 năm - Chuyển khoản ngân hàng",
+    note: "Nâng cấp gói Pro 1 năm - Chờ mua bản quyền",
   },
   {
     id: "lic-002",
@@ -473,6 +546,7 @@ const INITIAL_LICENSES_MOCK: LicenseSubscription[] = [
     status: "active",
     requestDate: "01/09/2026",
     activatedDate: "01/09/2026",
+    expiryDate: new Date(Date.now() + 320 * 24 * 60 * 60 * 1000).toLocaleDateString("vi-VN"),
     durationMonths: 12,
     price: 600000,
     note: "Đã kích hoạt bản quyền Pro 1 năm",
@@ -487,6 +561,7 @@ const INITIAL_LICENSES_MOCK: LicenseSubscription[] = [
     status: "active",
     requestDate: "15/09/2026",
     activatedDate: "15/09/2026",
+    expiryDate: new Date(Date.now() + 700 * 24 * 60 * 60 * 1000).toLocaleDateString("vi-VN"),
     durationMonths: 24,
     price: 1100000,
     note: "Gói bản quyền Pro 2 năm cho tổ Hóa học",
@@ -512,6 +587,121 @@ export const getLicenseSubscriptions = (): LicenseSubscription[] => {
 };
 
 /**
+ * Chuyển đổi phiên bản tài khoản giữa Normal và Pro với đồng bộ hệ thống bản quyền:
+ * - Khi nâng lên Pro: Thời hạn 1 năm (365 ngày), tự động kích hoạt đơn bản quyền.
+ * - Khi về Normal: Hủy thời hạn Pro, tự động chuyển đơn bản quyền sang trạng thái "pending" (Chờ mua bản quyền).
+ */
+export const changeUserVersionWithLicenseSync = (
+  userId: string,
+  targetVersion: UserVersion
+): { updatedUser: User; updatedLicenses: LicenseSubscription[] } | null => {
+  if (typeof window === "undefined") return null;
+  const users = getAllUsersList();
+  const targetUser = users.find((u) => u.id === userId);
+  if (!targetUser) return null;
+
+  const nowStr = new Date().toLocaleDateString("vi-VN");
+  let updatedUser: User;
+  const licenses = getLicenseSubscriptions();
+
+  if (targetVersion === "pro") {
+    const newExpiresAt = createProExpiryDate(1);
+    const expiryFormatted = new Date(newExpiresAt).toLocaleDateString("vi-VN");
+    updatedUser = {
+      ...targetUser,
+      version: "pro",
+      proExpiresAt: newExpiresAt,
+    };
+
+    let found = false;
+    const newLicenses = licenses.map((lic) => {
+      if (lic.userId === userId) {
+        found = true;
+        return {
+          ...lic,
+          status: "active" as const,
+          plan: "pro" as const,
+          activatedDate: nowStr,
+          expiryDate: expiryFormatted,
+          durationMonths: 12,
+          price: 600000,
+          note: "Đã kích hoạt bản quyền Pro 1 năm",
+        };
+      }
+      return lic;
+    });
+
+    if (!found) {
+      newLicenses.unshift({
+        id: `lic-${Date.now()}`,
+        userId: targetUser.id,
+        userName: targetUser.name,
+        userEmail: targetUser.email,
+        school: targetUser.school,
+        plan: "pro",
+        status: "active",
+        requestDate: nowStr,
+        activatedDate: nowStr,
+        expiryDate: expiryFormatted,
+        durationMonths: 12,
+        price: 600000,
+        note: "Đã kích hoạt bản quyền Pro 1 năm",
+      });
+    }
+
+    localStorage.setItem(STORAGE_KEY_LICENSES, JSON.stringify(newLicenses));
+    updateUserInList(updatedUser);
+    return { updatedUser, updatedLicenses: newLicenses };
+  } else {
+    // Chuyển về bản tiêu chuẩn:
+    updatedUser = {
+      ...targetUser,
+      version: "normal",
+      proExpiresAt: null,
+    };
+
+    let found = false;
+    const newLicenses = licenses.map((lic) => {
+      if (lic.userId === userId) {
+        found = true;
+        return {
+          ...lic,
+          status: "pending" as const,
+          plan: "pro" as const,
+          activatedDate: undefined,
+          expiryDate: undefined,
+          durationMonths: 12,
+          price: 600000,
+          requestDate: nowStr,
+          note: "Đã chuyển về bản Tiêu chuẩn - Cần mua bản quyền Pro mới",
+        };
+      }
+      return lic;
+    });
+
+    if (!found) {
+      newLicenses.unshift({
+        id: `lic-${Date.now()}`,
+        userId: targetUser.id,
+        userName: targetUser.name,
+        userEmail: targetUser.email,
+        school: targetUser.school,
+        plan: "pro",
+        status: "pending",
+        requestDate: nowStr,
+        durationMonths: 12,
+        price: 600000,
+        note: "Đã chuyển về bản Tiêu chuẩn - Cần mua bản quyền Pro mới",
+      });
+    }
+
+    localStorage.setItem(STORAGE_KEY_LICENSES, JSON.stringify(newLicenses));
+    updateUserInList(updatedUser);
+    return { updatedUser, updatedLicenses: newLicenses };
+  }
+};
+
+/**
  * Kích hoạt bản quyền Pro cho một đơn đăng ký
  */
 export const activateLicenseSubscription = (licenseId: string): void => {
@@ -521,9 +711,18 @@ export const activateLicenseSubscription = (licenseId: string): void => {
   if (!target) return;
 
   const nowStr = new Date().toLocaleDateString("vi-VN");
+  const newExpiryIso = createProExpiryDate(target.durationMonths >= 24 ? 2 : 1);
+  const expiryFormatted = new Date(newExpiryIso).toLocaleDateString("vi-VN");
+
   const updatedList = list.map((lic) =>
     lic.id === licenseId
-      ? { ...lic, status: "active" as const, activatedDate: nowStr }
+      ? {
+          ...lic,
+          status: "active" as const,
+          activatedDate: nowStr,
+          expiryDate: expiryFormatted,
+          note: `Đã kích hoạt bản quyền Pro ${Math.round(target.durationMonths / 12)} năm`,
+        }
       : lic
   );
   localStorage.setItem(STORAGE_KEY_LICENSES, JSON.stringify(updatedList));
@@ -532,6 +731,11 @@ export const activateLicenseSubscription = (licenseId: string): void => {
   const users = getAllUsersList();
   const targetUser = users.find((u) => u.id === target.userId);
   if (targetUser) {
-    updateUserInList({ ...targetUser, version: "pro" });
+    updateUserInList({
+      ...targetUser,
+      version: "pro",
+      proExpiresAt: newExpiryIso,
+    });
   }
 };
+
