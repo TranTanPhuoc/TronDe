@@ -21,11 +21,11 @@ import {
   Phone,
   BookOpen,
   ChevronDown,
-  Shield,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { SUBJECTS } from "@/types/question";
-import { User as UserEntity, UserRole, UserVersion } from "@/types/user";
+import { User as UserEntity } from "@/types/user";
+import { getAllUsersList, STORAGE_KEY_USERS } from "@/utils/approvalService";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -37,8 +37,6 @@ export default function RegisterPage() {
   const [schoolName, setSchoolName] = useState("");
   const [selectedSubject, setSelectedSubject] = useState(SUBJECTS[0]);
   const [department, setDepartment] = useState("TỔ TOÁN HỌC");
-  const [role, setRole] = useState<UserRole>("teacher");
-  const [version, setVersion] = useState<UserVersion>("pro");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(true);
@@ -101,9 +99,9 @@ export default function RegisterPage() {
         school: schoolName.trim() || "TRƯỜNG THPT CHUYÊN",
         department: department.trim() || `TỔ ${selectedSubject.name.toUpperCase()}`,
         subject: selectedSubject, // LƯU OBJECT SUBJECT { id, name } CỐ ĐỊNH CHO TÀI KHOẢN NGƯỜI DÙNG
-        role: role, // "admin" | "teacher"
-        version: version, // "normal" | "pro"
-        proExpiresAt: version === "pro" ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() : null,
+        role: "teacher", // Mặc định chỉ đăng ký tài khoản Giáo viên
+        version: "normal", // Mặc định là Bản Tiêu Chuẩn (Admin sẽ tự duyệt nếu có yêu cầu nâng Pro)
+        proExpiresAt: null,
         avatar: getInitials(fullName),
         accessToken: "jwt_access_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
         refreshToken: "jwt_refresh_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
@@ -111,7 +109,17 @@ export default function RegisterPage() {
 
       localStorage.setItem("tron_de_auth_user", JSON.stringify(newUser));
       localStorage.setItem("tron_de_teacher_profile", JSON.stringify(newUser));
-      setSuccessMsg("Đăng ký tài khoản thành công! Đang chuyển hướng vào hệ thống...");
+
+      // Tự động lưu vào danh sách người dùng hệ thống để Admin có thể xem và duyệt bản quyền
+      try {
+        const allUsers = getAllUsersList();
+        if (!allUsers.some((u) => u.email === newUser.email)) {
+          allUsers.push(newUser);
+          localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(allUsers));
+        }
+      } catch {}
+
+      setSuccessMsg("Đăng ký tài khoản Giáo viên thành công! Đang chuyển hướng vào hệ thống...");
 
       setTimeout(() => {
         router.push(APP_ROUTES.HOME);
@@ -360,42 +368,17 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Grid 2 cột: Role & Version */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Vai trò tài khoản
-                  </label>
-                  <div className="relative">
-                    <Shield className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-indigo-400 pointer-events-none" />
-                    <select
-                      value={role}
-                      onChange={(e) => setRole(e.target.value as UserRole)}
-                      className="w-full pl-10 pr-7 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer"
-                    >
-                      <option value="teacher" className="bg-slate-900 text-white">Giáo viên</option>
-                      <option value="admin" className="bg-slate-900 text-white">Quản trị viên</option>
-                    </select>
-                    <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                  </div>
+              {/* Thông tin vai trò & gói phiên bản mặc định */}
+              <div className="p-3 bg-slate-800/60 border border-white/10 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-300">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+                  <span>Vai trò tài khoản: <strong className="text-white">Giáo viên</strong></span>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Gói phiên bản
-                  </label>
-                  <div className="relative">
-                    <Sparkles className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 pointer-events-none" />
-                    <select
-                      value={version}
-                      onChange={(e) => setVersion(e.target.value as UserVersion)}
-                      className="w-full pl-10 pr-7 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all appearance-none cursor-pointer"
-                    >
-                      <option value="pro" className="bg-slate-900 text-white">Bản Nâng Cao (Pro)</option>
-                      <option value="normal" className="bg-slate-900 text-white">Bản Tiêu Chuẩn</option>
-                    </select>
-                    <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                  </div>
+                <div className="flex items-center gap-1.5 text-slate-400 text-[11px]">
+                  <span>Gói tài khoản mặc định:</span>
+                  <span className="px-2 py-0.5 rounded-md bg-slate-700/80 text-amber-300 font-bold border border-white/5">
+                    Bản Tiêu Chuẩn
+                  </span>
                 </div>
               </div>
 
