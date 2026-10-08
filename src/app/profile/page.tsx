@@ -319,7 +319,10 @@ export default function ProfilePage() {
                     className="w-full h-full rounded-[14px] object-cover shadow-inner select-none"
                   />
                 ) : (
-                  <div className="w-full h-full rounded-[14px] bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900 flex items-center justify-center text-white font-black text-3xl sm:text-4xl tracking-wider select-none shadow-inner drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+                  <div
+                    suppressHydrationWarning
+                    className="w-full h-full rounded-[14px] bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900 flex items-center justify-center text-white font-black text-3xl sm:text-4xl tracking-wider select-none shadow-inner drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                  >
                     {avatarText || "GV"}
                   </div>
                 )}
