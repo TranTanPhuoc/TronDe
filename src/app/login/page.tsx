@@ -19,6 +19,7 @@ import {
   Shield,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { getAllUsersList } from "@/utils/approvalService";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -54,22 +55,37 @@ export default function LoginPage() {
     setIsLoading(true);
 
     setTimeout(() => {
-      const isAdmin = email.toLowerCase().includes("admin");
-      const userData = {
-        id: isAdmin ? "admin-master-01" : "u-" + Date.now(),
-        name: isAdmin ? "Ban Quản Trị Hệ Thống" : (email.includes("@") ? email.split("@")[0] : email),
-        email: email,
-        password: password,
-        phone: "0912 345 678",
-        school: isAdmin ? "SỞ GIÁO DỤC VÀ ĐÀO TẠO" : "TRƯỜNG THPT CHUYÊN",
-        department: isAdmin ? "BAN QUẢN TRỊ TRỘN ĐỀ" : "TỔ TOÁN HỌC",
-        subject: { id: "TOAN", name: "Toán học" },
-        role: (isAdmin ? "admin" : "teacher") as "admin" | "teacher",
-        version: "pro" as const,
-        avatar: isAdmin ? "AD" : (email[0] || "U").toUpperCase(),
-        accessToken: "jwt_access_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
-        refreshToken: "jwt_refresh_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
-      };
+      const existingUsers = getAllUsersList();
+      const matchedUser = existingUsers.find(
+        (u) => u.email.toLowerCase() === email.trim().toLowerCase()
+      );
+
+      let userData;
+      if (matchedUser) {
+        userData = {
+          ...matchedUser,
+          password: password,
+          accessToken: "jwt_token_" + Date.now(),
+          refreshToken: "jwt_refresh_" + Date.now(),
+        };
+      } else {
+        const isAdmin = email.toLowerCase().includes("admin");
+        userData = {
+          id: isAdmin ? "admin-master-01" : "u-" + Date.now(),
+          name: isAdmin ? "Ban Quản Trị Hệ Thống" : (email.includes("@") ? email.split("@")[0] : email),
+          email: email,
+          password: password,
+          phone: "0912 345 678",
+          school: isAdmin ? "SỞ GIÁO DỤC VÀ ĐÀO TẠO" : "TRƯỜNG THPT CHUYÊN",
+          department: isAdmin ? "BAN QUẢN TRỊ TRỘN ĐỀ" : "TỔ TOÁN HỌC",
+          subject: { id: "TOAN", name: "Toán học" },
+          role: (isAdmin ? "admin" : "teacher") as "admin" | "teacher",
+          version: "pro" as const,
+          avatar: isAdmin ? "AD" : (email[0] || "U").toUpperCase(),
+          accessToken: "jwt_access_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
+          refreshToken: "jwt_refresh_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
+        };
+      }
 
       localStorage.setItem("tron_de_auth_user", JSON.stringify(userData));
       setSuccessMsg("Đăng nhập thành công! Đang chuyển hướng...");
