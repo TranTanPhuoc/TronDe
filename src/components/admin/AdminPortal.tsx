@@ -22,6 +22,7 @@ import {
   PlusCircle,
   FileQuestion,
   GraduationCap,
+  Pencil,
 } from "lucide-react";
 import { ExamItem, PendingQuestionItem, SUBJECTS } from "@/types/question";
 import { User, LicenseSubscription, UserRole, UserVersion } from "@/types/user";
@@ -37,6 +38,7 @@ import {
 } from "@/utils/approvalService";
 import CustomSelect from "@/components/CustomSelect";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
+import EditUserModal from "@/components/admin/EditUserModal";
 
 interface AdminPortalProps {
   currentUser: User;
@@ -69,6 +71,8 @@ export default function AdminPortal({
   const [usersList, setUsersList] = useState<User[]>(() => getAllUsersList());
   const [userSearch, setUserSearch] = useState<string>("");
   const [userRoleFilter, setUserRoleFilter] = useState<string>("ALL");
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const [isEditUserOpen, setIsEditUserOpen] = useState<boolean>(false);
 
   // State for License Management
   const [licensesList, setLicensesList] = useState<LicenseSubscription[]>(() => getLicenseSubscriptions());
@@ -124,12 +128,21 @@ export default function AdminPortal({
   };
 
   // Handlers for Users
-  const handleToggleUserRole = (u: User) => {
-    const newRole: UserRole = u.role === "admin" ? "teacher" : "admin";
-    const updated: User = { ...u, role: newRole };
-    updateUserInList(updated);
+  const handleOpenEditUser = (u: User) => {
+    if (u.role === "admin") {
+      showToast("Không thể chỉnh sửa tài khoản Quản trị viên!");
+      return;
+    }
+    setUserToEdit(u);
+    setIsEditUserOpen(true);
+  };
+
+  const handleSaveUser = (updatedUser: User) => {
+    updateUserInList(updatedUser);
     setUsersList(getAllUsersList());
-    showToast(`Đã đổi vai trò tài khoản ${u.name} thành ${newRole === "admin" ? "Quản trị viên" : "Giáo viên"}!`);
+    setIsEditUserOpen(false);
+    setUserToEdit(null);
+    showToast(`Đã cập nhật thông tin cho giáo viên ${updatedUser.name} thành công!`);
   };
 
   const handleToggleUserVersion = (u: User) => {
@@ -643,7 +656,7 @@ export default function AdminPortal({
                 <span>Danh sách tài khoản trong hệ thống ({filteredUsers.length})</span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Quản lý phân quyền Quản trị viên / Giáo viên và nâng cấp gói bản quyền Pro.
+                Quản lý danh sách giáo viên, chỉnh sửa thông tin hồ sơ và nâng cấp gói bản quyền.
               </p>
             </div>
 
@@ -737,21 +750,34 @@ export default function AdminPortal({
                         </span>
                       </td>
 
-                      <td className="p-3.5 text-right space-x-1.5">
-                        <button
-                          onClick={() => handleToggleUserVersion(u)}
-                          className="px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                          title="Đổi gói Normal/Pro"
-                        >
-                          {u.version === "pro" ? "Về Tiêu chuẩn" : "Nâng cấp Pro"}
-                        </button>
-                        <button
-                          onClick={() => handleToggleUserRole(u)}
-                          className="px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                          title="Đổi quyền Admin / Giáo viên"
-                        >
-                          {u.role === "admin" ? "Đổi sang GV" : "Cấp Admin"}
-                        </button>
+                      <td className="p-3.5 text-right">
+                        {u.role === "admin" ? (
+                          <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 italic px-2 py-1 select-none">
+                            Quản trị viên (Cố định)
+                          </span>
+                        ) : (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => handleOpenEditUser(u)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 transition-colors cursor-pointer shadow-2xs"
+                              title="Chỉnh sửa thông tin giáo viên"
+                            >
+                              <Pencil className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                              <span>Sửa thông tin</span>
+                            </button>
+                            <button
+                              onClick={() => handleToggleUserVersion(u)}
+                              className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer ${
+                                u.version === "pro"
+                                  ? "text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                  : "text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border-amber-300 dark:border-amber-800 hover:bg-amber-100"
+                              }`}
+                              title="Chuyển đổi nhanh gói Normal / Pro"
+                            >
+                              {u.version === "pro" ? "Về Tiêu chuẩn" : "Nâng Pro"}
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -940,6 +966,17 @@ export default function AdminPortal({
           setPreviewItem(null);
           onOpenEditQuestion(item);
         }}
+      />
+
+      {/* Modal Chỉnh Sửa Thông Tin Giáo Viên */}
+      <EditUserModal
+        isOpen={isEditUserOpen}
+        user={userToEdit}
+        onClose={() => {
+          setIsEditUserOpen(false);
+          setUserToEdit(null);
+        }}
+        onSave={handleSaveUser}
       />
     </div>
   );

@@ -434,6 +434,19 @@ export const updateUserInList = (updatedUser: User): void => {
   const list = getAllUsersList();
   const newList = list.map((u) => (u.id === updatedUser.id ? updatedUser : u));
   localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(newList));
+
+  try {
+    const rawAuth = localStorage.getItem("tron_de_auth_user");
+    if (rawAuth) {
+      const authUser = JSON.parse(rawAuth);
+      if (authUser.id === updatedUser.id) {
+        localStorage.setItem(
+          "tron_de_auth_user",
+          JSON.stringify({ ...authUser, ...updatedUser })
+        );
+      }
+    }
+  } catch {}
 };
 
 const INITIAL_LICENSES_MOCK: LicenseSubscription[] = [
