@@ -64,6 +64,7 @@ import {
   saveUserCachedQuestion,
   saveUserCachedBulkQuestions,
   getUserCacheKey,
+  syncAllDataFromBackend,
 } from "@/utils/approvalService";
 
 const STORAGE_KEY = STORAGE_KEY_QUESTIONS;
@@ -135,6 +136,11 @@ export default function Home() {
   const [adminMode, setAdminMode] = useState<"admin" | "mixer">(() => {
     return isAdmin ? "admin" : "mixer";
   });
+
+  // Tự động đồng bộ dữ liệu với Python Backend API (MySQL) khi tải trang
+  useEffect(() => {
+    syncAllDataFromBackend();
+  }, []);
 
   // Xóa tiêu đề trang tạm thời trước khi in để trình duyệt không in tên website lên đầu trang
   useEffect(() => {

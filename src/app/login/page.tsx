@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { getAllUsersList } from "@/utils/approvalService";
+import { loginApi } from "@/services/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function LoginPage() {
     }
   }, [router]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
 
@@ -52,7 +53,34 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      // 1. Gọi trực tiếp API Backend Python FastAPI
+      const res = await loginApi({
+        email: email.trim(),
+        password: password.trim(),
+      });
+
+      setSuccessMsg("Đăng nhập thành công! Đang chuyển hướng...");
+      setTimeout(() => {
+        router.push(APP_ROUTES.HOME);
+      }, 500);
+    } catch (apiErr: any) {
+      console.warn("Backend API login fallback/notice:", apiErr?.message);
+
+      // Nếu backend báo lỗi sai mật khẩu
+      if (apiErr?.message && !apiErr.message.includes("Failed to fetch") && !apiErr.message.includes("NetworkError")) {
+        const existingUsers = getAllUsersList();
+        const matchedUser = existingUsers.find(
+          (u) => u.email.toLowerCase() === email.trim().toLowerCase()
+        );
+        if (!matchedUser) {
+          setErrorMsg(apiErr.message || "Tài khoản hoặc mật khẩu không chính xác!");
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // 2. Fallback sang mock user nếu backend chưa bật hoặc tài khoản mock
       const existingUsers = getAllUsersList();
       const matchedUser = existingUsers.find(
         (u) => u.email.toLowerCase() === email.trim().toLowerCase()
@@ -91,7 +119,9 @@ export default function LoginPage() {
       setTimeout(() => {
         router.push(APP_ROUTES.HOME);
       }, 500);
-    }, 700);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Users,
   CheckCircle2,
@@ -41,6 +41,7 @@ import {
   changeUserVersionWithLicenseSync,
   getUserProExpiryInfo,
   getLicenseExpiryInfo,
+  syncAllDataFromBackend,
 } from "@/utils/approvalService";
 import CustomSelect from "@/components/CustomSelect";
 import QuestionDetailModal from "@/components/QuestionDetailModal";
@@ -92,6 +93,15 @@ export default function AdminPortal({
   // State for Global Question Bank in Admin view
   const [bankSubjectFilter, setBankSubjectFilter] = useState<string>("ALL");
   const [bankSearch, setBankSearch] = useState<string>("");
+
+  // Tự động tải dữ liệu mới nhất từ Python Backend API (MySQL) khi vào Admin
+  useEffect(() => {
+    syncAllDataFromBackend().then(() => {
+      setPendingList(getPendingQuestions());
+      setUsersList(getAllUsersList());
+      setLicensesList(getLicenseSubscriptions());
+    });
+  }, []);
 
   // Toast feedback
   const [toastMsg, setToastMsg] = useState<string | null>(null);

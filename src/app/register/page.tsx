@@ -26,6 +26,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { SUBJECTS } from "@/types/question";
 import { User as UserEntity } from "@/types/user";
 import { getAllUsersList, STORAGE_KEY_USERS } from "@/utils/approvalService";
+import { registerApi } from "@/services/api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function RegisterPage() {
     }
   }, [router]);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
 
@@ -81,7 +82,32 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      // 1. Gọi trực tiếp API Backend Python FastAPI
+      const res = await registerApi({
+        name: fullName.trim(),
+        email: email.trim(),
+        password: password,
+        phone: phone.trim() || "0912 345 678",
+        school: schoolName.trim() || "TRƯỜNG THPT CHUYÊN",
+        department: department.trim() || `TỔ ${selectedSubject.name.toUpperCase()}`,
+        subject: selectedSubject,
+      });
+
+      setSuccessMsg("Đăng ký tài khoản Giáo viên thành công! Đang chuyển hướng...");
+      setTimeout(() => {
+        router.push(APP_ROUTES.HOME);
+      }, 600);
+    } catch (apiErr: any) {
+      console.warn("Backend API register fallback/notice:", apiErr?.message);
+
+      if (apiErr?.message && apiErr.message.includes("Email đã được sử dụng")) {
+        setErrorMsg("Email này đã được sử dụng. Vui lòng chọn email khác!");
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. Fallback sang mock user nếu backend chưa bật
       const getInitials = (name: string) => {
         const parts = name.trim().split(" ");
         if (parts.length >= 2) {
@@ -98,9 +124,9 @@ export default function RegisterPage() {
         phone: phone.trim() || "0912 345 678",
         school: schoolName.trim() || "TRƯỜNG THPT CHUYÊN",
         department: department.trim() || `TỔ ${selectedSubject.name.toUpperCase()}`,
-        subject: selectedSubject, // LƯU OBJECT SUBJECT { id, name } CỐ ĐỊNH CHO TÀI KHOẢN NGƯỜI DÙNG
-        role: "teacher", // Mặc định chỉ đăng ký tài khoản Giáo viên
-        version: "normal", // Mặc định là Bản Tiêu Chuẩn (Admin sẽ tự duyệt nếu có yêu cầu nâng Pro)
+        subject: selectedSubject,
+        role: "teacher",
+        version: "normal",
         proExpiresAt: null,
         avatar: getInitials(fullName),
         accessToken: "jwt_access_token_" + Date.now() + "_" + Math.random().toString(36).substring(2, 9),
@@ -110,7 +136,6 @@ export default function RegisterPage() {
       localStorage.setItem("tron_de_auth_user", JSON.stringify(newUser));
       localStorage.setItem("tron_de_teacher_profile", JSON.stringify(newUser));
 
-      // Tự động lưu vào danh sách người dùng hệ thống để Admin có thể xem và duyệt bản quyền
       try {
         const allUsers = getAllUsersList();
         if (!allUsers.some((u) => u.email === newUser.email)) {
@@ -124,7 +149,9 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push(APP_ROUTES.HOME);
       }, 600);
-    }, 800);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

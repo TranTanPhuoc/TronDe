@@ -1,5 +1,19 @@
 import { ExamItem, PendingQuestionItem } from "@/types/question";
 import { User, LicenseSubscription, UserVersion, LicenseExpiryInfo } from "@/types/user";
+import {
+  submitPendingQuestionApi,
+  submitBulkPendingQuestionsApi,
+  approvePendingQuestionsApi,
+  approveAllPendingQuestionsApi,
+  rejectPendingQuestionsApi,
+  updateUserApi,
+  changeUserVersionApi,
+  activateLicenseApi,
+  getQuestionsApi,
+  getPendingQuestionsApi,
+  getAllUsersApi,
+  getLicensesApi,
+} from "@/services/api";
 
 export const STORAGE_KEY_QUESTIONS = "phan_mem_tron_de_questions_v5";
 export const STORAGE_KEY_PENDING = "tron_de_pending_questions";
@@ -68,6 +82,11 @@ export const saveUserCachedQuestion = (
       ...pendingList.filter((p) => p.questionId !== question.id),
     ];
     localStorage.setItem(STORAGE_KEY_PENDING, JSON.stringify(updatedPending));
+
+    // Gọi API Backend Python lưu cache và gửi pending xuống MySQL
+    submitPendingQuestionApi(newPendingItem).catch((err) => {
+      console.warn("Backend API sync notice (submitPendingQuestion):", err?.message);
+    });
   } catch (err) {
     console.error("Lỗi khi lưu cache câu hỏi người dùng:", err);
   }
@@ -122,6 +141,11 @@ export const saveUserCachedBulkQuestions = (
       ...pendingList.filter((p) => !newIds.has(p.questionId)),
     ];
     localStorage.setItem(STORAGE_KEY_PENDING, JSON.stringify(updatedPending));
+
+    // Gọi API Backend Python lưu bulk cache và gửi pending xuống MySQL
+    submitBulkPendingQuestionsApi(newPendingItems).catch((err) => {
+      console.warn("Backend API sync notice (submitBulkPendingQuestions):", err?.message);
+    });
   } catch (err) {
     console.error("Lỗi khi lưu bulk câu hỏi vào cache:", err);
   }
@@ -311,6 +335,11 @@ export const approvePendingQuestions = (
   const remainingPending = allPending.filter((p) => !pendingIds.includes(p.id));
   localStorage.setItem(STORAGE_KEY_PENDING, JSON.stringify(remainingPending));
 
+  // Gọi API Backend Python phê duyệt câu hỏi đưa vào MySQL
+  approvePendingQuestionsApi(pendingIds).catch((err) => {
+    console.warn("Backend API sync notice (approvePendingQuestions):", err?.message);
+  });
+
   return {
     updatedGlobal: newGlobalQuestions,
     approvedCount: targetPending.length,
@@ -339,6 +368,11 @@ export const rejectPendingQuestions = (pendingIds: string[]): void => {
   const allPending = getPendingQuestions();
   const remaining = allPending.filter((p) => !pendingIds.includes(p.id));
   localStorage.setItem(STORAGE_KEY_PENDING, JSON.stringify(remaining));
+
+  // Gọi API Backend Python từ chối câu hỏi trong MySQL
+  rejectPendingQuestionsApi(pendingIds).catch((err) => {
+    console.warn("Backend API sync notice (rejectPendingQuestions):", err?.message);
+  });
 };
 
 // ==========================================
@@ -520,6 +554,11 @@ export const updateUserInList = (updatedUser: User): void => {
       }
     }
   } catch {}
+
+  // Gọi API Backend Python cập nhật thông tin user trong MySQL
+  updateUserApi(updatedUser.id, updatedUser).catch((err) => {
+    console.warn("Backend API sync notice (updateUserInList):", err?.message);
+  });
 };
 
 const INITIAL_LICENSES_MOCK: LicenseSubscription[] = [
@@ -697,6 +736,12 @@ export const changeUserVersionWithLicenseSync = (
 
     localStorage.setItem(STORAGE_KEY_LICENSES, JSON.stringify(newLicenses));
     updateUserInList(updatedUser);
+
+    // Gọi API Backend Python chuyển đổi phiên bản người dùng
+    changeUserVersionApi(userId, targetVersion).catch((err) => {
+      console.warn("Backend API sync notice (changeUserVersionWithLicenseSync):", err?.message);
+    });
+
     return { updatedUser, updatedLicenses: newLicenses };
   }
 };
@@ -736,6 +781,42 @@ export const activateLicenseSubscription = (licenseId: string): void => {
       version: "pro",
       proExpiresAt: newExpiryIso,
     });
+  }
+
+  // Gọi API Backend Python kích hoạt bản quyền trong MySQL
+  activateLicenseApi(licenseId).catch((err) => {
+    console.warn("Backend API sync notice (activateLicenseSubscription):", err?.message);
+  });
+};
+
+/**
+ * Tự động đồng bộ toàn bộ dữ liệu mới nhất từ Python Backend API (MySQL) về Client
+ */
+export const syncAllDataFromBackend = async () => {
+  if (typeof window === "undefined") return;
+  try {
+    const [questionsRes, pendingRes, usersRes, licensesRes] = await Promise.allSettled([
+      getQuestionsApi(),
+      getPendingQuestionsApi(),
+      getAllUsersApi(),
+      getLicensesApi(),
+    ]);
+
+    if (questionsRes.status === "fulfilled" && questionsRes.value && questionsRes.value.length > 0) {
+      localStorage.setItem(STORAGE_KEY_QUESTIONS, JSON.stringify(questionsRes.value));
+    }
+    if (pendingRes.status === "fulfilled" && pendingRes.value) {
+      localStorage.setItem(STORAGE_KEY_PENDING, JSON.stringify(pendingRes.value));
+    }
+    if (usersRes.status === "fulfilled" && usersRes.value && usersRes.value.length > 0) {
+      localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(usersRes.value));
+    }
+    if (licensesRes.status === "fulfilled" && licensesRes.value && licensesRes.value.length > 0) {
+      localStorage.setItem(STORAGE_KEY_LICENSES, JSON.stringify(licensesRes.value));
+    }
+    console.log("✅ Đã đồng bộ dữ liệu từ Python Backend API thành công!");
+  } catch (e: any) {
+    console.warn("Lưu ý đồng bộ Backend:", e?.message);
   }
 };
 
